@@ -17,12 +17,11 @@ ggaxis <- function(at, labels, position="right", scale=c(0,1)) {
 	ticks_grob <- ggaxis_ticks(at, position)
 	labels_grob <- ggaxis_labels(at, labels, position)
 	
-	gTree(
+	ggname("axis", gTree(
 		childrenvp = ggaxis_vp(position, labels, scale), 
 		children = gList(ticks_grob, labels_grob), 
-		gp = gpar(col=ggopt()$axis.colour), 
-		name="axis"
-	)
+		gp = gpar(col=ggopt()$axis.colour)
+	))
 }
  
 # Axis viewport path
@@ -47,12 +46,12 @@ ggaxis_line <- function(at, position) {
 	vp <- axis_vp_path(position, "ticks")
 	ends <- unit(range(at), "native")
 	
-	switch(position,
-		top =    linesGrob(ends, unit(c(0,0), "npc"), name = "axis-major", vp=vp),
-		bottom = linesGrob(ends, unit(c(1,1), "npc"), name = "axis-major", vp=vp),
-		left =   linesGrob(unit(c(1,1), "npc"), ends, name = "axis-major", vp=vp),
-		right =  linesGrob(unit(c(0,0), "npc"), ends, name = "axis-major", vp=vp)
-	)
+	ggname("major", switch(position,
+		top =    linesGrob(ends, unit(c(0,0), "npc"), vp=vp),
+		bottom = linesGrob(ends, unit(c(1,1), "npc"), vp=vp),
+		left =   linesGrob(unit(c(1,1), "npc"), ends, vp=vp),
+		right =  linesGrob(unit(c(0,0), "npc"), ends, vp=vp)
+	))
 	
 }
 
@@ -65,12 +64,12 @@ ggaxis_line <- function(at, position) {
 # @keyword internal
 ggaxis_ticks <- function(at, position) {
 	vp <- axis_vp_path(position, "ticks")
-	switch(position,
+	ggname("ticks", switch(position,
 		top =    ,
-		bottom = segmentsGrob(unit(at, "native"), unit(0.1, "npc"), unit(at, "native"), unit(1, "npc"), vp=vp, name="axis-ticks"),
+		bottom = segmentsGrob(unit(at, "native"), unit(0.1, "npc"), unit(at, "native"), unit(1, "npc"), vp=vp),
 		left =   ,
-		right =  segmentsGrob(unit(0.2, "npc"), unit(at, "native"), unit(1, "npc"), unit(at, "native"), vp=vp, name="axis-ticks"),
-	)	
+		right =  segmentsGrob(unit(0.2, "npc"), unit(at, "native"), unit(1, "npc"), unit(at, "native"), vp=vp),
+	))
 }
 
 # Grob axis labels
@@ -85,15 +84,15 @@ ggaxis_labels <- function(at, labels, position) {
 	vp <- axis_vp_path(position, "labels")
 	gp <- gpar(cex=0.9)
 
-	switch(position,
+	ggname("labels", switch(position,
 		bottom = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
-			textGrob(labels[[i]], unit(at[i], "native"), unit(0.8, "npc"), just = c("centre","top"))
-		})), vp=vp, gp=gp, name="axis-labels"),
+			ggname("label", textGrob(labels[[i]], unit(at[i], "native"), unit(0.8, "npc"), just = c("centre","top")))
+		})), vp=vp, gp=gp),
 
 		left = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
-			textGrob(labels[[i]], unit(1, "npc"), unit(at[i], "native"), just = c("right","centre"))
-		})), vp=vp, gp=gp, name="axis-labels")
-	)
+			ggname("label", textGrob(labels[[i]], unit(1, "npc"), unit(at[i], "native"), just = c("right","centre")))
+		})), vp=vp, gp=gp)
+	))
 	
 	# switch(position,
 	# 	top =    textGrob(labels, unit(at, "native"), unit(0.8, "npc"), just = c("centre","top"), rot = 0, check.overlap = TRUE, vp=vp, gp=gp, name="axis-labels"),

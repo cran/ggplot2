@@ -25,11 +25,11 @@ GeomErrorbar <- proto(GeomInterval, {
 			l = x - width / 2, r = x + width / 2
 		)
 		
-		with(data, polylineGrob(
+		with(data, ggname(.$my_name(), polylineGrob(
 			as.vector(rbind(l, r, x, x, r, l)), as.vector(rbind(max, max, max, min, min, min)),
 			default.units="native", id.lengths=rep(6, nrow(data)),
-			gp=gpar(col=colour, lwd=size, lty=linetype) # , name="interval-error"
-		))
+			gp=gpar(col=colour, lwd=size, lty=linetype)
+		)))
 	}
 	
 	examples <- function(.) {

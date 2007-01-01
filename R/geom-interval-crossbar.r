@@ -22,10 +22,10 @@ GeomCrossbar <- proto(GeomInterval, {
 	default_aes = function(.) aes(colour="black", fill="NA", width=resolution(x) * 0.9, size=1, linetype=1, min=y, max=y)
 	
 	draw <- function(., data, scales, coordinates, ...) {
-		gTree(children=gList(
+		ggname(.$my_name(), gTree(children=gList(
 			GeomBar$draw(data, scales, coordinates, ...),
 			GeomBar$draw(transform(data, min=y, max=y), scales, coordinates, ...)
-		))
+		)))
 	}
 	
 	examples <- function(.) {

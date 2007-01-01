@@ -1,7 +1,16 @@
- * Dropped scale hsv, hcl and rgb, because perceptually, they are terrible (plus I never used them - if you have been, please let me know)
+ggplot 0.5.1
 
- * ggplot now deals nicely with facets which don't contain any data
- * fixed problem with legend space - everything should fit nicely now
- * errorbars should be much more robust now
+	* renamed scale_manual to scale_identity to map position_identity and stat_identity
+	* ensured all grob consistently named
+	* renamed aesthetics argument to mapping to be consistent with description in book
+	* added useful utilities for modifying grobs
+	* bug fixes to x axis range with interval geoms
+	* added ability to turn legend off for single scale (currently undocumented)
+	* added economics data set and matching examples
+
+
+ggplot2 0.5
+
+ * complete rewrite of ggplot code base
 
  * id/grouping completely rewritten so that automatically grouped when any of the aesthetics is a categorical variable.  This behaviour is defined in the Grammar of Graphics, and makes things like qplot(wt, data=mtcars, geom="density", colour=factor(cyl)) work nicely

@@ -2,8 +2,8 @@ GeomPoint <- proto(Geom, {
 	draw_groups <- function(., ...) .$draw(...)
 	draw <- function(., data, scales, coordinates, ...) {
 		with(coordinates$transform(data), 
-		  pointsGrob(x, y, size=unit(size, "mm"), pch=shape, 
-		  gp=gpar(col=colour))
+		  ggname(.$my_name(), pointsGrob(x, y, size=unit(size, "mm"), pch=shape, 
+		  gp=gpar(col=colour)))
 		)
 	}
 

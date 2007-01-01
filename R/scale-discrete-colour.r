@@ -17,8 +17,16 @@ ScaleHue <- proto(ScaleColour, expr={
 	max_levels <- function(.) Inf
 
 	doc <- TRUE
+
+	# Documetation -----------------------------------------------
 	objname <- "hue"
-	desc <- "Colours that vary continuous in hue"
+	desc <- "Colours that vary continuously in hue"
+	icon <- function(.) {
+		rectGrob(c(0.1, 0.3, 0.5, 0.7, 0.9), width=0.21, 
+			gp=gpar(fill=hcl(seq(0, 360, length=6)[-6], c=100, l=65), col=NA)
+		)
+	}
+	
 	desc_params <- list(
 		h = "range of hues to use, in degrees", 
 		l = "luminance",
@@ -57,8 +65,6 @@ ScaleColourDiscrete <- proto(ScaleHue, objname="discrete", doc=FALSE, examples=f
 
 
 ScaleBrewer <- proto(ScaleColour, expr={
-	objname <- "brewer"
-	desc <- "Colour brewer colour scales"
 	doc <- TRUE
 
 	new <- function(., name=NULL, palette=1, type="qual", alpha=1, variable) {
@@ -87,6 +93,18 @@ ScaleBrewer <- proto(ScaleColour, expr={
 	}
 	
 	max_levels <- function(.) RColorBrewer:::maxcolors[RColorBrewer:::namelist == .$pal_name()]
+
+	# Documetation -----------------------------------------------
+
+	objname <- "brewer"
+	desc <- "Colour brewer colour scales"
+	details <- "<p>See <a href='http://colorbrewer.org'>colorbrewer.org</a> for more info</p>"
+
+	icon <- function(.) {
+		rectGrob(c(0.1, 0.3, 0.5, 0.7, 0.9), width=0.21, 
+			gp=gpar(fill=brewer.pal(5, "PuOr"), col=NA)
+		)
+	}
 	
 	examples <- function(.) {
 		(d <- qplot(carat, price, data=diamonds, colour=clarity))

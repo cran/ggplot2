@@ -7,18 +7,18 @@ GeomRibbon <- proto(GeomInterval, {
 			coordinates$munch(data.frame(x=c(x, rev(x)), y=c(max, rev(min))))
 		)
 		
-		with(data, gTree(children=gList(
-			polygonGrob(
+		with(data, ggname(.$my_name(), gTree(children=gList(
+			ggname("fill", polygonGrob(
 				tb$x, tb$y,
 				default.units="native",
-				gp=gpar(fill=fill, col=NA), name=grobName(,"fill")
-			),
-			polygonGrob(
+				gp=gpar(fill=fill, col=NA) 
+			)),
+			ggname("outline", polygonGrob(
 				tb$x, tb$y,
 				default.units="native",
-				gp=gpar(fill=NA, col=colour, lwd=size, lty=linetype), name=grobName(,"outline")
-			)
-		), name=grobName(,"interval-ribbon")))
+				gp=gpar(fill=NA, col=colour, lwd=size, lty=linetype)
+			))
+		))))
 	}
 
 	# Documetation -----------------------------------------------
@@ -80,5 +80,7 @@ GeomArea <- proto(GeomRibbon,{
 	details <- "<p>An area plot is the continuous analog of a stacked bar chart (see geom_bar), and can used to show how composition of the whole varies over the range of x.  Choosing the order in which different components is stacked is very important, as it becomes increasing hard to see the indivudual pattern as you move up the stack.</p>\n<p>An area plot is a special case of geom_ribbon, where the minimum of the range is fixed to 0, and the position adjustment defaults to position_stacked.</p>"
 
 
-	examples <- function(.) {}
+	examples <- function(.) {
+		# Examples to come
+	}
 })

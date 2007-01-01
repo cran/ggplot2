@@ -5,7 +5,7 @@ GeomTile <- proto(Geom, {
 
 		if (coordinates$muncher()) {
 			data <- transform(data, top=y + height/2, bottom= y - height/2, left=x - width/2, right=x + width/2)
-			gTree(children=do.call("gList", lapply(1:nrow(data), function(i) {
+			ggname(.$my_name(), gTree(children=do.call("gList", lapply(1:nrow(data), function(i) {
 				data <- data[i, ]
 				df <- cbind(with(data, rbind(
 					cbind(y = top, x=left),
@@ -14,11 +14,11 @@ GeomTile <- proto(Geom, {
 					cbind(y = bottom, x=left)
 				)), data[rep(1,4), names(.$default_aes())])
 				GeomPolygon$draw(df, scales, coordinates)
-			})))
+			}))))
 		} else {	
 		with(data, 
-			rectGrob(x, y, width=width * size, height=height * size, default.units="native", just=c("centre","centre"), 
-			gp=gpar(col=colour, fill=fill)) #, name="rect"
+			ggname(.$my_name(), rectGrob(x, y, width=width * size, height=height * size, default.units="native", just=c("centre","centre"), 
+			gp=gpar(col=colour, fill=fill)))
 		)
 		}
 	}
@@ -131,6 +131,6 @@ GeomTile <- proto(Geom, {
 		# You can manually set the colour of the tiles using 
 		# scale_manual
 		col <- c("darkblue", "blue", "green", "orange", "red")
-		qplot(x, y, fill=col[z], geom="tile", width=w, group=1) + scale_fill_manual(labels=letters[1:5], breaks=col, grob="tile")
+		qplot(x, y, fill=col[z], geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col, grob="tile")
 	}
 })

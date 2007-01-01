@@ -4,7 +4,7 @@ GeomSegment <- proto(Geom, {
 
 		with(munched, 
 			segmentsGrob(x, y, xend, yend, default.units="native",
-			gp=gpar(col=colour, lwd=size, lty=linetype)) #, name="path"
+			gp=gpar(col=colour, lwd=size, lty=linetype))
 		)
 	}
 	
@@ -19,5 +19,10 @@ GeomSegment <- proto(Geom, {
 
 	default_stat <- function(.) StatIdentity
 	default_aes <- function(.) aes(colour="black", size=0, linetype=1)
+	
+	examples <- function(.) {
+		# Coming soon
+	}
+	
 })
 

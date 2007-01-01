@@ -12,7 +12,7 @@ GeomPath <- proto(Geom, {
 		if (n == 1) return()
 		with(munched, 
 			segmentsGrob(x[start], y[start], x[end], y[end], default.units="native",
-			gp=gpar(col=colour[start], lwd=size[start], lty=linetype[start])) #, name="path"
+			gp=gpar(col=colour[start], lwd=size[start], lty=linetype[start]))
 		)
 	}
 
@@ -20,8 +20,8 @@ GeomPath <- proto(Geom, {
 		data <- aesdefaults(data, .$default_aes(), list(...))
 
 		with(data, 
-		  segmentsGrob(0, 0.5, 1, 0.5, default.units="npc",
-		  gp=gpar(col=colour, lwd=size, lty=linetype))
+		  ggname(.$my_name(), segmentsGrob(0, 0.5, 1, 0.5, default.units="npc",
+		  gp=gpar(col=colour, lwd=size, lty=linetype)))
 		)
 	}
 	
@@ -56,6 +56,23 @@ GeomPath <- proto(Geom, {
 		
 		# Use qplot instead
 		qplot(mean.length, mean.rating, data=myear, geom="path")
+		
+		# Using economic data:
+		# How is unemployment and personal savings rate related?
+		qplot(unemploy/pop, psavert, data=economics)
+		qplot(unemploy/pop, psavert, data=economics, geom="path")
+		qplot(unemploy/pop, psavert, data=economics, geom="path", size=as.numeric(date))
+
+		# How is rate of unemployment and length of unemployment?
+		qplot(unemploy/pop, uempmed, data=economics)
+		qplot(unemploy/pop, uempmed, data=economics, geom="path")
+		qplot(unemploy/pop, uempmed, data=economics, geom="path") +
+			geom_point(data=head(economics, 1), colour="red") + 
+			geom_point(data=tail(economics, 1), colour="blue")
+		qplot(unemploy/pop, uempmed, data=economics, geom="path") +
+			geom_text(data=head(economics, 1), label="1967", colour="blue") + 
+			geom_text(data=tail(economics, 1), label="2007", colour="blue")
+		
 	}	
 })
 

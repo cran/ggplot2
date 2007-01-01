@@ -10,6 +10,12 @@ ScaleSize <- proto(ScaleContinuous, expr={
 	
 	objname <- "size"
 	desc <- "Size scale for continuous variable"
+	
+	icon <- function(.) {
+		pos <- c(0.15, 0.3, 0.5, 0.75)
+		circleGrob(pos, pos, r=(c(0.1, 0.2, 0.3, 0.4)/2.5), gp=gpar(fill="grey50", col=NA))
+	}
+	
 	examples <- function(.) {
 		(p <- qplot(mpg, cyl, data=mtcars, size=cyl))
 		p + scale_size("cylinders")
@@ -39,10 +45,7 @@ ScaleSizeDiscrete <- proto(ScaleDiscrete, expr={
 	objname <- "size_discrete"
 	.input <- .output <- "size"
 	desc <- "Size scale for discrete variables"
-
-	frange <- function(.) {
-		1:length(.$domain())
-	}
+	doc <- FALSE
 
 	max_levels <- function(.) Inf
 	guide_legend_geom <- function(.) GeomPoint

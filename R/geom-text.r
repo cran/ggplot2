@@ -2,7 +2,7 @@ GeomText <- proto(Geom, {
 	draw <- function(., data, scales, coordinates, ...) {
 		with(coordinates$transform(data), 
 			textGrob(label, x, y, default.units="native", hjust=hjust, vjust=vjust, rot=angle, 
-			gp=gpar(col=colour, cex=size)) # , name="text"
+			gp=gpar(col=colour, cex=size)) 
 		)
 	}
 

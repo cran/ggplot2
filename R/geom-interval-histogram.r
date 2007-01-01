@@ -38,7 +38,7 @@ GeomHistogram <- proto(GeomBar, {
 		m + geom_histogram(colour="darkgreen", fill="white") + aes(x=rating)
 		
 		# Use facets
-		m <- ggplot(movies, aes(x=rating)) + facet_grid(Action ~ Comedy, margins=TRUE)
+		m <- m + facet_grid(Action ~ Comedy)
 		m + geom_histogram()
 
 		# Multiple histograms on the same graph

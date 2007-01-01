@@ -1,4 +1,5 @@
-ScaleArea <- proto(ScaleSize, .tr = Trans$find("sqrt"), objname="area")
+ScaleArea <- proto(ScaleSize, .tr = Trans$find("sqrt"), objname="area", icon=function(.) ScaleSize$icon())
+
 ScaleSqrt <-     proto(ScaleContinuous, .tr = Trans$find("sqrt"),     objname = "sqrt", doc=FALSE, examples=function(.) {})
 ScaleLog10 <-    proto(ScaleContinuous, .tr = Trans$find("log10"),    objname = "log10", doc=FALSE, examples=function(.) {})
 ScalePow10 <-    proto(ScaleContinuous, .tr = Trans$find("pow10"),    objname = "pow10", doc=FALSE, examples=function(.) {})
@@ -15,8 +16,14 @@ ScaleContinuous$.tr <- Trans$find("identity")
 ScaleProbability <- proto(ScaleContinuous, {
 	objname <- "prob"
 	desc <- "Probability scale"
+	icon <- function(.) {
+		textGrob("P()", gp=gpar(cex=1.5))
+	}
 	new <- function(., name=NULL, limits=c(NA,NA), breaks=NULL, family="norm", variable="x") {
 		proto(., name=name, .input=variable, .output=variable, limits=limits, .breaks = breaks, .tr = ProbabilityTrans$new(family), family=family)
+	}
+	examples <- function(.) {
+		# Coming soon
 	}
 #	frange <- function(.) c(0, 1)
 })
@@ -24,7 +31,13 @@ ScaleProbability <- proto(ScaleContinuous, {
 ScalePower <- proto(ScaleContinuous, {
 	objname <- "pow"
 	desc <- "Power scale"
+	icon <- function(.) {
+		textGrob(expression(frac(x ^ (alpha - 1), alpha)), gp=gpar(cex=1.2))
+	}
 	new <- function(., name=NULL, limits=c(NA,NA), breaks=NULL, power=1, variable) {
 		proto(., name=name, .input=variable, .output=variable, limits=limits, .breaks = breaks, .tr = PowerTrans$new(power), power=power)
+	}
+	examples <- function(.) {
+		# Coming soon
 	}
 })

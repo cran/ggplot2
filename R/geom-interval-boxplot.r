@@ -3,13 +3,13 @@ GeomBoxplot <- proto(GeomInterval, {
 		defaults <- with(data, data.frame(x=x, colour=colour, size=size, linetype=1, group=1, xend=x,  width=width, fill=fill, stringsAsFactors=FALSE))
 		defaults2 <- defaults[c(1,1), ]
 		
-		with(data, gTree(children = gList(
+		with(data, ggname(.$my_name(), gTree(children = gList(
 			if(length(outliers[[1]]) > 1) GeomPoint$draw(data.frame(y = outliers[[1]], x = x[rep(1, length(outliers[[1]]))], colour=I("red"), shape=shape, size=size), ...),
 			GeomPath$draw(data.frame(y=c(upper, max), defaults2), ...),
 			GeomPath$draw(data.frame(y=c(lower, min), defaults2), ...),
 			GeomBar$draw(data.frame(max = upper, min = lower, defaults), ...),
 			GeomBar$draw(data.frame(max = middle, min = middle, defaults), ...)
-		)))
+		))))
 	}
 	adjust_scales_data <- function(., scales, data) data
 

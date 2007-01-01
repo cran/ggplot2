@@ -8,7 +8,7 @@ StatSort <- proto(Stat, {
 	}
   
 	examples <- function(.) {
-		# See geom_line for the man use of this
+		# See geom_line for the main use of this
 	}
 
 })

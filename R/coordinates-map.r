@@ -48,11 +48,11 @@ CoordMap <- proto(CoordCartesian, {
 		ylines <- .$mproject(ygrid)
 
 		gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
-		gTree(name = "grill", children = gList(
-			rectGrob(gp=gpar(fill=plot$grid.fill, col=NA), name="grill-background"),
-			linesGrob(xlines$x, xlines$y, default.units="native", gp = gp),
-			linesGrob(ylines$x, ylines$y, default.units="native", gp = gp)
-		))
+		ggname("grill", gTree(children = gList(
+			ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
+			ggname("major-verticall", linesGrob(xlines$x, xlines$y, default.units="native", gp = gp)),
+			ggname("major-horizontal", linesGrob(ylines$x, ylines$y, default.units="native", gp = gp))
+		)))
 	}	
 
 	# Documetation -----------------------------------------------

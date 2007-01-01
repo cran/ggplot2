@@ -2,6 +2,7 @@ Scale <- proto(TopLevel, expr={
 	.input <- ""
 	.output <- ""
 	common <- NULL	
+	legend <- TRUE
 	
 	class <- function(.) "scale"
 	
@@ -106,6 +107,7 @@ Scale <- proto(TopLevel, expr={
 	
 	guide_legend <- function(.) {
 		if (identical(., Scale)) return(NULL)
+		if (!.$legend) return(NULL)
 		
 		labels <- rev(.$labels())
 		breaks <- rev(.$rbreaks())
@@ -113,9 +115,9 @@ Scale <- proto(TopLevel, expr={
 		if (is.null(breaks)) return(NULL)
 		grob <- function(data) .$guide_legend_geom()$draw_legend(data)
 
-		title <- textGrob(.$name, x = 0, y = 0.5, just = c("left", "centre"), 
-			gp=gpar(fontface="bold"), name="legend-title"
-		)
+		title <- ggname("title", textGrob(.$name, x = 0, y = 0.5, just = c("left", "centre"), 
+			gp=gpar(fontface="bold")
+		))
 
 		nkeys <- length(labels)
 		hgap <- vgap <- unit(0.3, "lines")
@@ -140,14 +142,14 @@ Scale <- proto(TopLevel, expr={
 
 		# Make a table
 	  legend.layout <- grid.layout(nkeys + 1, 4, widths = widths, heights = heights, just=c("left","top"))
-	  fg <- frameGrob(layout = legend.layout, name="legend")
+	  fg <- ggname(.$my_name(), frameGrob(layout = legend.layout))
 		#fg <- placeGrob(fg, rectGrob(gp=gpar(fill="NA", col="NA", name="legend-background")))
 
 		fg <- placeGrob(fg, title, col=1:2, row=1)
 		for (i in 1:nkeys) {
 			df <- as.list(values[i,, drop=FALSE])
-			fg <- placeGrob(fg, editGrob(grob(df), name="legend-key"), col = 1, row = i+1)
-			fg <- placeGrob(fg, textGrob(labels[[i]], x = 0, y = 0.5, just = c("left", "centre"), name="legend-label"), col = 3, row = i+1)
+			fg <- placeGrob(fg, ggname("key", grob(df)), col = 1, row = i+1)
+			fg <- placeGrob(fg, ggname("label", textGrob(labels[[i]], x = 0, y = 0.5, just = c("left", "centre"))), col = 3, row = i+1)
 		}
 
 		fg

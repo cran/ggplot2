@@ -43,6 +43,7 @@
 # }
 # 
 # @arguments list of options to get/set
+# @returns previous settings
 # @keyword manip 
 # @alias ggopt
 # @alias theme_default
@@ -70,8 +71,9 @@
 	class(opt) <- "options"
 	
 	function(...) {
+		old <- opt
 		opt <<- updatelist(opt, list(...))
-		opt
+		invisible(old)
 	}
 }
 
@@ -104,7 +106,7 @@ theme_default <- list(
 	legend.justification = c("right", "top"),
 	save = FALSE,
 	strip.gp = gpar(col = "white", fill = "grey80", lwd=3),
-	strip.text = function(variable, value) paste(variable, value, sep=": "),
+	strip.text = function(variable, value) value, #paste(variable, value, sep=": "),
 	strip.text.gp = gpar()
 )
 ggopt <- .build_options(theme_default)
@@ -125,4 +127,8 @@ theme_bw <- list(
   } else {
     ggopt()[[i]]
   }
+}
+
+update.ggplot <- function(object, ...) {
+	structure(defaults(object, list(...)), class="ggplot")
 }

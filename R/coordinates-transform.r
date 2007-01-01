@@ -1,6 +1,18 @@
 CoordTransform <- proto(CoordCartesian, expr={
 	
 	muncher <- function(.) TRUE
+	munch <- function(., data, npieces=50) {
+		n <- nrow(data)
+
+		x <- approx(data$x, n = npieces * (n - 1) + 1)$y
+		y <- approx(data$y, n = npieces * (n - 1) + 1)$y
+		
+		cbind(
+			.$transform(data.frame(x=x, y=y)),
+			data[c(rep(1:(n-1), each=npieces), n), setdiff(names(data), c("x", "y"))]
+		)
+	}
+	
 	transform <- function(., data) {
 		data$x <- .$xtr$transform(data$x)
 		data$y <- .$ytr$transform(data$y)
@@ -32,17 +44,17 @@ CoordTransform <- proto(CoordCartesian, expr={
 
 	guide_inside <- function(., plot) {
 		gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
-		gTree(name = "grill", children = gList(
-			rectGrob(gp=gpar(fill=plot$grid.fill, col=NA), name="grill-background"),
+		ggname("grill", gTree(children = gList(
+			ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
 
-			segmentsGrob(.$xtr$transform(.$x()$minor_breaks()), unit(0, "npc"), .$xtr$transform(.$x()$minor_breaks()), unit(1, "npc"), gp = gpar(col="grey95", lwd=0.5), default.units="native", name="minor-vertical"),
-			segmentsGrob(.$xtr$transform(.$x()$breaks()), unit(0, "npc"), .$xtr$transform(.$x()$breaks()), unit(1, "npc"), gp = gp, default.units="native", name="major-vertical"),
+			ggname("minor-vertical", segmentsGrob(.$xtr$transform(.$x()$minor_breaks()), unit(0, "npc"), .$xtr$transform(.$x()$minor_breaks()), unit(1, "npc"), gp = gpar(col="grey95", lwd=0.5), default.units="native")),
+			ggname("major-vertical", segmentsGrob(.$xtr$transform(.$x()$breaks()), unit(0, "npc"), .$xtr$transform(.$x()$breaks()), unit(1, "npc"), gp = gp, default.units="native")),
 
-			segmentsGrob(unit(0, "npc"), .$ytr$transform(.$y()$minor_breaks()), unit(1, "npc"), .$ytr$transform(.$y()$minor_breaks()), gp = gpar(col="grey95", lwd=0.5), default.units="native", name="minor-horizontal", ),
-			segmentsGrob(unit(0, "npc"), .$ytr$transform(.$y()$breaks()), unit(1, "npc"), .$ytr$transform(.$y()$breaks()), gp = gp, default.units="native", name="grill-horizontal"),
+			ggname("minor-horizontal", segmentsGrob(unit(0, "npc"), .$ytr$transform(.$y()$minor_breaks()), unit(1, "npc"), .$ytr$transform(.$y()$minor_breaks()), gp = gpar(col="grey95", lwd=0.5), default.units="native")),
+			ggname("major-horizontal",segmentsGrob(unit(0, "npc"), .$ytr$transform(.$y()$breaks()), unit(1, "npc"), .$ytr$transform(.$y()$breaks()), gp = gp, default.units="native")),
 
-			rectGrob(gp=gpar(col=plot$grid.colour, lwd=3, fill=NA), name="grill-border")
-		))
+			ggname("border", rectGrob(gp=gpar(col=plot$grid.colour, lwd=3, fill=NA)))
+		)))
 	}
 
 	# Documetation -----------------------------------------------

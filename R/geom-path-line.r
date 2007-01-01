@@ -37,5 +37,11 @@ GeomLine <- proto(GeomPath, {
 		# Use qplot instead
 		qplot(year, number, data=mry, group=rating, geom="line")
 		qplot(year, number, data=mry, group=rating, geom="path", statistic="sortx")
+		
+		# Using a time series
+		qplot(date, pop, data=economics, geom="line")
+		qplot(date, pop, data=economics, geom="line", log="y")
+		qplot(date, pop, data=subset(economics, date > as.Date("2006-1-1")), geom="line")
+		qplot(date, pop, data=economics, size=unemploy/pop, geom="line")
 	}
 })
