@@ -1,0 +1,95 @@
+<html>
+
+<head>
+	<title>geom_ribbon. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_ribbon.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_ribbon</h1>
+<p class='desc'>Ribbons, y range with continuous x values</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_ribbon.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_ribbon(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>colour: <code>grey60</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>fill: <code>grey80</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>linetype: <code>1</code> <span class='linklist'>(scales: <a href='scale_linetype.html' title='Create a scale for categorical line types'>linetype</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_ribbon(colour = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>colour</code>, border colour</li>
+<li><code>fill</code>, internal colour</li>
+<li><code>size</code>, size</li>
+<li><code>linetype</code>, line type</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_identity.html' title='Identity statistic'>stat_identity</a>.  Override with the <code>stat</code> argument: <code>geom_ribbon(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_identity.html' title='Position adjust which does nothing'>position_identity</a>.  Override with the <code>position</code> argument: <code>geom_ribbon(position="jitter")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a>: Discrete intervals (bars)</li>
+<li><a href='geom_linerange.html' title='An interval represented by a vertical line'>geom_linerange</a>: Discrete intervals (lines)</li>
+<li><a href='geom_polygon.html' title='A polygon'>geom_polygon</a>: General polygons</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; huron <span class="sym">&lt;-</span> data.frame<span class="sym">(</span>year <span class="sym">=</span> <span class="num">1875</span><span class="sym">:</span><span class="num">1972</span><span class="sym">,</span> level <span class="sym">=</span> as.vector<span class="sym">(</span>LakeHuron<span class="sym">))</span>
+&gt; huron$decade <span class="sym">&lt;-</span> round_any<span class="sym">(</span>huron$year<span class="sym">,</span> <span class="num">10</span><span class="sym">,</span> floor<span class="sym">)</span>
+&gt; 
+&gt; h <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>huron<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>year<span class="sym">))</span>
+&gt; 
+&gt; h <span class="sym">+</span> geom_ribbon<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>min<span class="sym">=</span><span class="num">0</span><span class="sym">,</span> max<span class="sym">=</span>level<span class="sym">))</span>
+<img src='graphics/c00ea6794f8e342d423779711d49d65b.png' />
+
+&gt; h <span class="sym">+</span> <a href='geom_area.html' title='Area plots'>geom_area</a><span class="sym">(</span>y <span class="sym">=</span> level<span class="sym">)</span>
+<img src='graphics/9d47ad4d6e9adc272f8248d7c0bb3f28.png' />
+
+&gt; 
+&gt; <span class="slc"># Add aesthetic mappings</span>
+&gt; h <span class="sym">+</span> geom_ribbon<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>min<span class="sym">=</span>level<span class="sym">-</span><span class="num">1</span><span class="sym">,</span> max<span class="sym">=</span>level<span class="sym">+</span><span class="num">1</span><span class="sym">))</span>
+<img src='graphics/ad25bcfa791dfd74fdbbd03869d5993f.png' />
+
+&gt; h <span class="sym">+</span> geom_ribbon<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>min<span class="sym">=</span>level<span class="sym">-</span><span class="num">1</span><span class="sym">,</span> max<span class="sym">=</span>level<span class="sym">+</span><span class="num">1</span><span class="sym">)) +</span> <a href='geom_line.html' title='Connect observations, in ordered by x value'>geom_line</a><span class="sym">()</span>
+<img src='graphics/e4bb3e3ed12c4054d0a58a7b880f812f.png' />
+
+&gt; 
+&gt; h <span class="sym">+</span> geom_ribbon<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>decade<span class="sym">,</span> group<span class="sym">=</span>decade<span class="sym">),</span> min<span class="sym">=</span><span class="num">580</span><span class="sym">)</span>
+<img src='graphics/45dec51841f647fb5f611a60f2d82233.png' />
+
+&gt; h <span class="sym">+</span> geom_ribbon<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>decade<span class="sym">,</span> group<span class="sym">=</span>decade<span class="sym">),</span> min<span class="sym">=</span><span class="num">570</span><span class="sym">)</span>
+<img src='graphics/45dec51841f647fb5f611a60f2d82233.png' />
+
+&gt; 
+&gt; <span class="slc"># Another data set, with multiple y's for each x</span>
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>y<span class="sym">=</span>votes<span class="sym">,</span> x<span class="sym">=</span>year<span class="sym">))</span>
+&gt; m <span class="sym">+</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">()</span>
+<img src='graphics/1d1f5faeb635d1f55264adfc41ab299c.png' />
+
+&gt; 
+&gt; m <span class="sym">+</span> <a href='stat_summary.html' title='Summarise y values at every unique x'>stat_summary</a><span class="sym">(</span><a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;ribbon&quot;</span><span class="sym">)</span>
+<img src='graphics/54a300fea60d4f4176b220e0a1b4b478.png' />
+
+&gt; m <span class="sym">+</span> <a href='stat_summary.html' title='Summarise y values at every unique x'>stat_summary</a><span class="sym">(</span><a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;ribbon&quot;</span><span class="sym">,</span> fun<span class="sym">=</span>stat_median_hilow<span class="sym">)</span>
+<img src='graphics/ae31420a2c62394b5783634707cc8f35.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>year<span class="sym">,</span> level<span class="sym">,</span> data<span class="sym">=</span>huron<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span>c<span class="sym">(</span><span class="str">&quot;ribbon&quot;</span><span class="sym">,</span> <span class="str">&quot;line&quot;</span><span class="sym">))</span>
+<img src='graphics/3de6c4a75c608c79d6d681b5e85ff0de.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

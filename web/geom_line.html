@@ -1,0 +1,84 @@
+<html>
+
+<head>
+	<title>geom_line. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_line.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_line</h1>
+<p class='desc'>Connect observations, in ordered by x value</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_line.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_line(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>colour: <code>black</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>linetype: <code>1</code> <span class='linklist'>(scales: <a href='scale_linetype.html' title='Create a scale for categorical line types'>linetype</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_line(colour = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>colour</code>, border colour</li>
+<li><code>size</code>, size</li>
+<li><code>linetype</code>, line type</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_sort.html' title='Sort in order of ascending x'>stat_sort</a>.  Override with the <code>stat</code> argument: <code>geom_line(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_identity.html' title='Position adjust which does nothing'>position_identity</a>.  Override with the <code>position</code> argument: <code>geom_line(position="jitter")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='geom_path.html' title='Connect observations, in original order'>geom_path</a>: Connect observations, in original order</li>
+<li>geom_segments: Line segments</li>
+<li><a href='geom_ribbon.html' title='Ribbons, y range with continuous x values'>geom_ribbon</a>: Fill between line and x-axis</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; mry <span class="sym">&lt;-</span> do.call<span class="sym">(</span>rbind<span class="sym">,</span> by<span class="sym">(</span>movies<span class="sym">,</span> round<span class="sym">(</span>movies$rating<span class="sym">),</span> <span class="kwa">function</span><span class="sym">(</span>df<span class="sym">) {</span
++ 	nums <span class="sym">&lt;-</span> tapply<span class="sym">(</span>df$length<span class="sym">,</span> df$year<span class="sym">,</span> length<span class="sym">)</span
++ 	data.frame<span class="sym">(</span>rating<span class="sym">=</span>round<span class="sym">(</span>df$rating<span class="sym">[</span><span class="num">1</span><span class="sym">]),</span> year <span class="sym">=</span> as.numeric<span class="sym">(</span>names<span class="sym">(</span>nums<span class="sym">)),</span> number<span class="sym">=</span>as.vector<span class="sym">(</span>nums<span class="sym">))</span
++ <span class="sym">}))</span>
+&gt; 
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mry<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>year<span class="sym">,</span> y<span class="sym">=</span>number<span class="sym">,</span> group<span class="sym">=</span>rating<span class="sym">))</span>
+&gt; p <span class="sym">+</span> geom_line<span class="sym">()</span>
+<img src='graphics/8c7f9abd34747d230afd65dbfd1920a8.png' />
+
+&gt; 
+&gt; <span class="slc"># Add aesthetic mappings</span>
+&gt; p <span class="sym">+</span> geom_line<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size <span class="sym">=</span> rating<span class="sym">))</span>
+<img src='graphics/2cf7bb0b31d56569ec5e044302e75389.png' />
+
+&gt; p <span class="sym">+</span> geom_line<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour <span class="sym">=</span> rating<span class="sym">))</span>
+<img src='graphics/c60a6c33ff5ec808230585c7e20f2bc5.png' />
+
+&gt; 
+&gt; <span class="slc"># Change <a href='scale_.html'>scale</a></span>
+&gt; p <span class="sym">+</span> geom_line<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour <span class="sym">=</span> rating<span class="sym">)) +</span> scale_colour_gradient<span class="sym">(</span>low<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">)</span>
+<img src='graphics/bda385200e5dfc33972615950b71286f.png' />
+
+&gt; 
+&gt; <span class="slc"># Set aesthetics to fixed value</span>
+&gt; p <span class="sym">+</span> geom_line<span class="sym">(</span>colour <span class="sym">=</span> <span class="str">&quot;red&quot;</span><span class="sym">,</span> size <span class="sym">=</span> <span class="num">1</span><span class="sym">)</span>
+<img src='graphics/6d05770d310e581469f7ec818e420b65.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>year<span class="sym">,</span> number<span class="sym">,</span> data<span class="sym">=</span>mry<span class="sym">,</span> group<span class="sym">=</span>rating<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">)</span>
+<img src='graphics/df56cd7888b95ca35ce7508072851a26.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>year<span class="sym">,</span> number<span class="sym">,</span> data<span class="sym">=</span>mry<span class="sym">,</span> group<span class="sym">=</span>rating<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;path&quot;</span><span class="sym">,</span> statistic<span class="sym">=</span><span class="str">&quot;sortx&quot;</span><span class="sym">)</span>
+<img src='graphics/1f82288f4423484743abd83976d1974a.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

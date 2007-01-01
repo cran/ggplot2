@@ -1,0 +1,28 @@
+<pre>
+> dmod <- lm(price ~ cut, data = diamonds)
+> cuts <- data.frame(cut = unique(diamonds$cut), predict(dmod, 
++     data.frame(cut = unique(diamonds$cut)), se = T)[c("fit", 
++     "se.fit")])
+> qplot(cut, fit, data = cuts)
+<a href='web/graphics/5f7381688285f27d5a804bd9c10d5393.pdf'><img src='web/graphics/5f7381688285f27d5a804bd9c10d5393.png' /></a>
+
+> qplot(cut, fit, data = cuts, geom = "bar")
+<a href='web/graphics/3f507f8c10460e51abfa8c04081af4d5.pdf'><img src='web/graphics/3f507f8c10460e51abfa8c04081af4d5.png' /></a>
+
+> qplot(cut, min = fit - se.fit, max = fit + se.fit, y = fit, data = cuts, 
++     geom = "linerange")
+<a href='web/graphics/ff8933853f5cafa29ea0c8395ba884e9.pdf'><img src='web/graphics/ff8933853f5cafa29ea0c8395ba884e9.png' /></a>
+
+> qplot(cut, min = fit - se.fit, max = fit + se.fit, y = fit, data = cuts, 
++     geom = "pointrange")
+<a href='web/graphics/2f154594d80643902a36d59868af993a.pdf'><img src='web/graphics/2f154594d80643902a36d59868af993a.png' /></a>
+
+> qplot(cut, min = fit - se.fit, max = fit + se.fit, y = fit, data = cuts, 
++     geom = "errorbar", width = 0.5)
+<a href='web/graphics/01613ef70a9d73d2a0c1570aa5040e67.pdf'><img src='web/graphics/01613ef70a9d73d2a0c1570aa5040e67.png' /></a>
+
+> qplot(cut, min = fit - se.fit, max = fit + se.fit, y = fit, data = cuts, 
++     geom = "crossbar", width = 0.5)
+<a href='web/graphics/aa71ab6d7b3b1fd879dcfa1cd1d8a7d7.pdf'><img src='web/graphics/aa71ab6d7b3b1fd879dcfa1cd1d8a7d7.png' /></a>
+
+</pre>

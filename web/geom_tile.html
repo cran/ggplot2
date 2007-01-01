@@ -1,0 +1,153 @@
+<html>
+
+<head>
+	<title>geom_tile. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_tile.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_tile</h1>
+<p class='desc'>Tile plot as densely as possible, assuming that every tile is the same size. </p>
+<h2>Details</h2>
+<div class='details'>
+<p>Similar to levelplot and  image.</p><p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_tile.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_tile(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>fill: <code>grey50</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>colour: <code>NA</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>width: <code>resolution(x)</code> <span class='linklist'></span></p></li>
+  <li><p>height: <code>resolution(y)</code> <span class='linklist'></span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>linetype: <code>1</code> <span class='linklist'>(scales: <a href='scale_linetype.html' title='Create a scale for categorical line types'>linetype</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_tile(fill = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>fill</code>, internal colour</li>
+<li><code>colour</code>, border colour</li>
+<li><code>size</code>, size</li>
+<li><code>width</code>, width of geom</li>
+<li><code>height</code>, height of geom</li>
+<li><code>linetype</code>, line type</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_identity.html' title='Identity statistic'>stat_identity</a>.  Override with the <code>stat</code> argument: <code>geom_tile(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_identity.html' title='Position adjust which does nothing'>position_identity</a>.  Override with the <code>position</code> argument: <code>geom_tile(position="jitter")</code>.</p>
+<h2>Examples</h2><pre>
+
+&gt; pp <span class="sym">&lt;-</span> <span class="kwa">function</span> <span class="sym">(</span>n<span class="sym">,</span>r<span class="sym">=</span><span class="num">4</span><span class="sym">) {</span
++  x <span class="sym">&lt;-</span> seq<span class="sym">(-</span>r<span class="sym">*</span>pi<span class="sym">,</span> r<span class="sym">*</span>pi<span class="sym">,</span> len<span class="sym">=</span>n<span class="sym">)</span
++  df <span class="sym">&lt;-</span> expand.grid<span class="sym">(</span>x<span class="sym">=</span>x<span class="sym">,</span> y<span class="sym">=</span>x<span class="sym">)</span
++  df$r <span class="sym">&lt;-</span> sqrt<span class="sym">(</span>df$x^<span class="num">2</span> <span class="sym">+</span> df$y^<span class="num">2</span><span class="sym">)</span
++  df$z <span class="sym">&lt;-</span> cos<span class="sym">(</span>df$r^<span class="num">2</span><span class="sym">)*</span>exp<span class="sym">(-</span>df$r<span class="sym">/</span><span class="num">6</span><span class="sym">)</span
++  d
++ <span class="sym">}</span>
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>pp<span class="sym">(</span><span class="num">20</span><span class="sym">),</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>x<span class="sym">,</span>y<span class="sym">=</span>y<span class="sym">))</span>
+&gt; 
+&gt; p <span class="sym">+</span> geom_tile<span class="sym">()</span>
+<img src='graphics/52aea530e2753af8b45980aebcef70cf.png' />
+ <span class="slc">#pretty useless!</span>
+&gt; 
+&gt; <span class="slc"># Add aesthetic mappings</span>
+&gt; p <span class="sym">+</span> geom_tile<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>z<span class="sym">))</span>
+<img src='graphics/9f985267d49cc1f9e264c9ef63bce7dd.png' />
+
+&gt; p <span class="sym">+</span> geom_tile<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>width<span class="sym">=</span>z<span class="sym">,</span> height<span class="sym">=</span>z<span class="sym">))</span>
+<img src='graphics/a637f140e0cb8b9bb6e2eab723fbf027.png' />
+
+&gt; 
+&gt; <span class="slc"># Change <a href='scale_.html'>scale</a></span>
+&gt; p <span class="sym">+</span> geom_tile<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>z<span class="sym">)) +</span> scale_fill_gradient<span class="sym">(</span>low<span class="sym">=</span><span class="str">&quot;green&quot;</span><span class="sym">,</span> high<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">)</span>
+<img src='graphics/e70eef8f1c7c70dc0c8f6fbd4ee4e2c4.png' />
+
+&gt; 
+&gt; <span class="slc"># Change coordinate system</span>
+&gt; p <span class="sym">+</span> geom_tile<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>z<span class="sym">)) +</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">()</span>
+<img src='graphics/a0ea712d9132e51b57bdf14c4bade971.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> data<span class="sym">=</span>pp<span class="sym">(</span><span class="num">20</span><span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> fill<span class="sym">=</span>z<span class="sym">)</span>
+<img src='graphics/046d301d3d47c039e13f5365abdac264.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> data<span class="sym">=</span>pp<span class="sym">(</span><span class="num">100</span><span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> fill<span class="sym">=</span>z<span class="sym">)</span>
+<img src='graphics/39d196b1bda2225da8c7b774f619fbfa.png' />
+
+&gt; 
+&gt; <span class="slc"># Missing values</span>
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>pp<span class="sym">(</span><span class="num">20</span><span class="sym">)[</span>sample<span class="sym">(</span><span class="num">20</span><span class="sym">*</span><span class="num">20</span><span class="sym">,</span> size<span class="sym">=</span><span class="num">200</span><span class="sym">),],</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>x<span class="sym">,</span>y<span class="sym">=</span>y<span class="sym">,</span>fill<span class="sym">=</span>z<span class="sym">))</span>
+&gt; p <span class="sym">+</span> geom_tile<span class="sym">()</span>
+<img src='graphics/1d53ebdfa0259e639fb282c1e6605101.png' />
+
+&gt; 
+&gt; <span class="slc"># Input that works with image</span>
+&gt; image<span class="sym">(</span>t<span class="sym">(</span>volcano<span class="sym">)[</span>ncol<span class="sym">(</span>volcano<span class="sym">):</span><span class="num">1</span><span class="sym">,])</span>
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>melt<span class="sym">(</span>volcano<span class="sym">),</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>X1<span class="sym">,</span> y<span class="sym">=</span>X2<span class="sym">,</span> fill<span class="sym">=</span>value<span class="sym">)) +</span> geom_tile<span class="sym">()</span>
+<img src='graphics/902a1a699d58b230ef8bd52fb0c13f69.png' />
+
+&gt; 
+&gt; <span class="slc"># inspired by the image-density plots of Ken Knoblauch</span>
+&gt; cars <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>y<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">),</span> x<span class="sym">=</span>mpg<span class="sym">))</span>
+&gt; cars <span class="sym">+</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">()</span>
+<img src='graphics/882ebb314c3657ba0efc1689d791c15c.png' />
+
+&gt; cars <span class="sym">+</span> <a href='stat_bin.html' title='Bin data'>stat_bin</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>..count..<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> binwidth<span class="sym">=</span><span class="num">3</span><span class="sym">)</span>
+<img src='graphics/34247d5ebc13da50eb4987ca01a2a301.png' />
+
+&gt; cars <span class="sym">+</span> <a href='stat_bin.html' title='Bin data'>stat_bin</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>..density..<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> binwidth<span class="sym">=</span><span class="num">3</span><span class="sym">)</span>
+<img src='graphics/530f5ec0dec52a0900fa69483ef8be9d.png' />
+
+&gt; 
+&gt; <span class="slc"># The following is a little bit of a hack, because the density</span>
+&gt; <span class="slc"># function computes the densities separately for each group, and</span>
+&gt; <span class="slc"># doesn't predict on the same grid of x values, which means the</span>
+&gt; <span class="slc"># resolution of the data, is v. small, and we need to manually set</span>
+&gt; <span class="slc"># the width to something reasonable</span>
+&gt; cars <span class="sym">+</span> <a href='stat_density.html' title='Density estimation, 1D'>stat_density</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>..density..<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.1</span><span class="sym">)</span>
+<img src='graphics/15477a5722ec5a983329d98e94aeb7ab.png' />
+
+&gt; cars <span class="sym">+</span> <a href='stat_density.html' title='Density estimation, 1D'>stat_density</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>..scaled..<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.1</span><span class="sym">)</span>
+<img src='graphics/b292d81c00790331118fe6258a5731bc.png' />
+
+&gt; cars <span class="sym">+</span> <a href='stat_density.html' title='Density estimation, 1D'>stat_density</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size<span class="sym">=</span>..scaled..<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;point&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.1</span><span class="sym">)</span>
+<img src='graphics/4b195c192ca171a7ff440516a71aa393.png' />
+
+&gt; 
+&gt; <span class="slc"># Another example with with unequal tile sizes</span>
+&gt; x <span class="sym">&lt;-</span> rep<span class="sym">(</span>c<span class="sym">(</span><span class="num">2</span><span class="sym">,</span> <span class="num">5</span><span class="sym">,</span> <span class="num">7</span><span class="sym">,</span> <span class="num">9</span><span class="sym">,</span> <span class="num">12</span><span class="sym">),</span> <span class="num">2</span><span class="sym">)</span>
+&gt; y <span class="sym">&lt;-</span> factor<span class="sym">(</span>rep<span class="sym">(</span>c<span class="sym">(</span><span class="num">1</span><span class="sym">,</span><span class="num">2</span><span class="sym">),</span> each<span class="sym">=</span><span class="num">5</span><span class="sym">))</span>
+&gt; z <span class="sym">&lt;-</span> rep<span class="sym">(</span><span class="num">1</span><span class="sym">:</span><span class="num">5</span><span class="sym">,</span> each<span class="sym">=</span><span class="num">2</span><span class="sym">)</span>
+&gt; 
+&gt; x.cell.boundary <span class="sym">&lt;-</span> c<span class="sym">(</span><span class="num">0</span><span class="sym">,</span> <span class="num">4</span><span class="sym">,</span> <span class="num">6</span><span class="sym">,</span> <span class="num">8</span><span class="sym">,</span> <span class="num">10</span><span class="sym">,</span> <span class="num">14</span><span class="sym">)</span>
+&gt; w <span class="sym">&lt;-</span> rep<span class="sym">(</span>diff<span class="sym">(</span>x.cell.boundary<span class="sym">),</span> <span class="num">2</span><span class="sym">)</span>
+&gt; 
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> fill<span class="sym">=</span>z<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">)</span>
+<img src='graphics/9813c8cade4edaea0c5255f1f424926e.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> fill<span class="sym">=</span>z<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> width<span class="sym">=</span>w<span class="sym">)</span>
+<img src='graphics/97fefa31b51c87bccdbbd578d4986129.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> fill<span class="sym">=</span>factor<span class="sym">(</span>z<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> width<span class="sym">=</span>w<span class="sym">)</span>
+<img src='graphics/3d9bc282d803ca6dba179b82e171df65.png' />
+
+&gt; 
+&gt; <span class="slc"># You can manually set the colour of the tiles using</span>
+&gt; <span class="slc"># <a href='scale_manual.html' title='Manual <a href='scale_.html'>scale</a>, used when you want a direct mapping'>scale_manual</a></span>
+&gt; col <span class="sym">&lt;-</span> c<span class="sym">(</span><span class="str">&quot;darkblue&quot;</span><span class="sym">,</span> <span class="str">&quot;blue&quot;</span><span class="sym">,</span> <span class="str">&quot;green&quot;</span><span class="sym">,</span> <span class="str">&quot;orange&quot;</span><span class="sym">,</span> <span class="str">&quot;red&quot;</span><span class="sym">)</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> fill<span class="sym">=</span>col<span class="sym">[</span>z<span class="sym">],</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">,</span> width<span class="sym">=</span>w<span class="sym">,</span> group<span class="sym">=</span><span class="num">1</span><span class="sym">) +</span> scale_fill_manual<span class="sym">(</span>labels<span class="sym">=</span>letters<span class="sym">[</span><span class="num">1</span><span class="sym">:</span><span class="num">5</span><span class="sym">],</span> breaks<span class="sym">=</span>col<span class="sym">,</span> grob<span class="sym">=</span><span class="str">&quot;tile&quot;</span><span class="sym">)</span>
+<img src='graphics/16c4f2e44aad48f69c9e4ab53b62ee0e.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

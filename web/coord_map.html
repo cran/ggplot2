@@ -1,0 +1,71 @@
+<html>
+
+<head>
+	<title>coord_map. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='coord_map.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>coord_map</h1>
+<p class='desc'>Map projections</p>
+<h2>Details</h2>
+<div class='details'>
+<p>This coordinate system provides the full range of map projections available in the mapproject package.</p>
+
+<p>This is still experimental, and if you have any advice to offer regarding a better (or more correct) way to do this, please let me know</p>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; try_require<span class="sym">(</span><span class="str">&quot;maps&quot;</span><span class="sym">)</span>
+&gt; <span class="slc"># Create a lat-long dataframe from the maps package</span>
+&gt; nz <span class="sym">&lt;-</span> data.frame<span class="sym">(</span>map<span class="sym">(</span><span class="str">&quot;nz&quot;</span><span class="sym">,</span> plot<span class="sym">=</span>FALSE<span class="sym">)[</span>c<span class="sym">(</span><span class="str">&quot;x&quot;</span><span class="sym">,</span><span class="str">&quot;y&quot;</span><span class="sym">)])</span>
+&gt; <span class="sym">(</span>nzmap <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> data<span class="sym">=</span>nz<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;path&quot;</span><span class="sym">))</span>
+<img src='graphics/d66b1b83c90bb41546c92bc8d86bf20b.png' />
+
+&gt; 
+&gt; nzmap <span class="sym">+</span> coord_map<span class="sym">()</span>
+<img src='graphics/96c0ddc1b93788ceb1056b14013041ae.png' />
+
+&gt; nzmap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;cylindrical&quot;</span><span class="sym">)</span>
+<img src='graphics/3833bd4007f47fe3db0d49953626402a.png' />
+
+&gt; nzmap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">'azequalarea'</span><span class="sym">,</span>orient<span class="sym">=</span>c<span class="sym">(-</span><span class="num">36.92</span><span class="sym">,</span><span class="num">174.6</span><span class="sym">,</span><span class="num">0</span><span class="sym">))</span>
+<img src='graphics/4eb2ad4d3160f9551bfdd0544aa04d76.png' />
+
+&gt; 
+&gt; states <span class="sym">&lt;-</span> data.frame<span class="sym">(</span>map<span class="sym">(</span><span class="str">&quot;state&quot;</span><span class="sym">,</span> plot<span class="sym">=</span>FALSE<span class="sym">)[</span>c<span class="sym">(</span><span class="str">&quot;x&quot;</span><span class="sym">,</span><span class="str">&quot;y&quot;</span><span class="sym">)])</span>
+&gt; <span class="sym">(</span>usamap <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> data<span class="sym">=</span>states<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;path&quot;</span><span class="sym">))</span>
+<img src='graphics/85202982c5185a3039b2b9b694e680dd.png' />
+
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">()</span>
+<img src='graphics/79ae110af4086c7a0b5a47004bf24c1b.png' />
+
+&gt; <span class="slc"># See ?mapproject for coordinate systems and their parameters</span>
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;gilbert&quot;</span><span class="sym">)</span>
+<img src='graphics/a80729a7feb17c1584189aae84e50eb9.png' />
+
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;orthographic&quot;</span><span class="sym">)</span>
+<img src='graphics/5ab7ecee1aaa611ccb43f56d89fc4c5e.png' />
+
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;stereographic&quot;</span><span class="sym">)</span>
+<img src='graphics/9dda75336420918fd53a0dfc8b25af9c.png' />
+
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;conic&quot;</span><span class="sym">,</span> <span class="num">30</span><span class="sym">)</span>
+<img src='graphics/b6e00e10741b5d437869f9efc5b1d13b.png' />
+
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;bonne&quot;</span><span class="sym">,</span> <span class="num">50</span><span class="sym">)</span>
+<img src='graphics/846ae0e252ec2a97a60a26dfa2d0e237.png' />
+
+&gt; usamap <span class="sym">+</span> coord_map<span class="sym">(</span>project<span class="sym">=</span><span class="str">&quot;lagrange&quot;</span><span class="sym">)</span>
+<img src='graphics/698cafe0d293a5d88666a79c57a59fa7.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

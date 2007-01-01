@@ -1,0 +1,144 @@
+<html>
+
+<head>
+	<title>geom_bar. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_bar.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_bar</h1>
+<p class='desc'>Bars, rectangles with bases on y-axis</p>
+<h2>Details</h2>
+<div class='details'>
+<p>The bar <a href='geom_.html'>geom</a> is used to produce 1d area plots: bar charts for categorical x, and histograms for continuous y.  <a href='stat_bin.html' title='Bin data'>stat_bin</a> explains the details of these summaries in more detail.  In particular, you can use the <code>weight</code> aesthetic to create weighted histograms and barcharts where the height of the bar no longer represent a count of observations, but a sum over some other variable.  See the examples for a practical example.</p>
+<p>By default, multiple x's occuring in the same place will be stacked a top one another by <a href='position_stack.html' title='Stack overlapping objects on top of one another'>position_stack</a>.  If you want them to be dodged from side-to-side, check out <a href='position_dodge.html' title='Adjust <a href='position_.html'>position</a> by 'dodging' overlaps to the side'>position_dodge</a>.  Finally, <a href='position_fill.html' title='Stack overlapping objects on top of one another, and standardise have equal height'>position_fill</a> shows relative propotions at each x by stacking the bars and then stretch or squashing them all to the same height</p>
+<p>Bar charts are sometimes used not as a distributional summary, but as instead of a dotplot.  Generally, it's preferable to use a dotplot (see <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a>) as it has a better data-ink ratio, and bars are not interpretable as sums.  However, if you do want to create this type of plot, you can set y to the value you have calculated.  See the example.</p>
+<p>A bar chart maps the height of the bar to a variable, and so the base of the bar must always been shown to produce a valid visual comparison.  Naomi Robbins has a nice <a href='http://www.b-eye-network.com/view/index.php?cid=2468&amp;fc=0&amp;frss=1&amp;ua'>article on this topic</a>.  This is the reason it doesn't make sense to use a log-scaled y axis.</p><p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_bar.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_bar(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>colour: <code>NA</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>fill: <code>grey60</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>min: <code>0</code> <span class='linklist'></span></p></li>
+  <li><p>width: <code>resolution(x) * 0.9</code> <span class='linklist'></span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>linetype: <code>1</code> <span class='linklist'>(scales: <a href='scale_linetype.html' title='Create a scale for categorical line types'>linetype</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>max: <code>y</code> <span class='linklist'></span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_bar(colour = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>colour</code>, border colour</li>
+<li><code>fill</code>, internal colour</li>
+<li><code>min</code>, minimum of interval</li>
+<li><code>width</code>, width of geom</li>
+<li><code>size</code>, size</li>
+<li><code>linetype</code>, line type</li>
+<li><code>max</code>, maximum of interval</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_bin.html' title='Bin data'>stat_bin</a>.  Override with the <code>stat</code> argument: <code>geom_bar(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_stack.html' title='Stack overlapping objects on top of one another'>position_stack</a>.  Override with the <code>position</code> argument: <code>geom_bar(position="jitter")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='stat_bin.html' title='Bin data'>stat_bin</a>: for more details of the binning alogirithm</li>
+<li><a href='position_dodge.html' title='Adjust <a href='position_.html'>position</a> by 'dodging' overlaps to the side'>position_dodge</a>: for creating side-by-side barcharts</li>
+<li><a href='position_stack.html' title='Stack overlapping objects on top of one another'>position_stack</a>: for more info on stacking</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; c <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">)))</span>
+&gt; 
+&gt; c <span class="sym">+</span> geom_bar<span class="sym">()</span>
+<img src='graphics/92be2a9767cac9100f4f10593fd7ed8e.png' />
+
+&gt; c <span class="sym">+</span> geom_bar<span class="sym">() +</span> <a href='coord_flip.html' title='Flipped cartesian coordinates'>coord_flip</a><span class="sym">()</span>
+<img src='graphics/871a4a457bea9b22a6c209ca20bfb734.png' />
+
+&gt; c <span class="sym">+</span> geom_bar<span class="sym">(</span>fill<span class="sym">=</span><span class="str">&quot;white&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;darkgreen&quot;</span><span class="sym">)</span>
+<img src='graphics/c48ae8fd9337176aa65a8329cfdfe132.png' />
+
+&gt; 
+&gt; <span class="slc"># Make a coxcomb</span>
+&gt; c <span class="sym">+</span> geom_bar<span class="sym">() +</span> scale_y_sqrt<span class="sym">()</span>
+<img src='graphics/32ee109835246ffc07befa5f8d969194.png' />
+
+&gt; c <span class="sym">+</span> geom_bar<span class="sym">(</span>width<span class="sym">=</span><span class="num">1</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;black&quot;</span><span class="sym">) +</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">()</span>
+<img src='graphics/44a0321dec6e68cca097dcb8ef76f1ea.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a></span>
+&gt; cyl <span class="sym">&lt;-</span> factor<span class="sym">(</span>mtcars$cyl<span class="sym">)</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cyl<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">)</span>
+<img src='graphics/65398f3f6a6fc6516684ab2f961390c7.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cyl<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">,</span> fill<span class="sym">=</span>cyl<span class="sym">)</span>
+<img src='graphics/2da1b84bcd1d6df6d56599aa28201c6b.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cyl<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">,</span> fill<span class="sym">=</span>cyl<span class="sym">) +</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">()</span>
+<img src='graphics/9381bfa092106679cc3d88cab5ee43dc.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cyl<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;blank&quot;</span><span class="sym">,</span> fill<span class="sym">=</span>cyl<span class="sym">) +</span> geom_bar<span class="sym">(</span>width<span class="sym">=</span><span class="num">1</span><span class="sym">) +</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">()</span>
+<img src='graphics/931dbfea50ee311b2ae1738ebc991ab6.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cyl<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">,</span> fill<span class="sym">=</span>cyl<span class="sym">) +</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">(</span>theta<span class="sym">=</span><span class="str">&quot;y&quot;</span><span class="sym">)</span>
+<img src='graphics/118f3c03d725f82151015a9381a020a9.png' />
+
+&gt; 
+&gt; <span class="slc"># Make a stacked bar chart</span>
+&gt; c <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span><span class="num">1</span><span class="sym">,</span>fill<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">))) +</span> geom_bar<span class="sym">()</span>
+&gt; c <span class="sym">+</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">()</span>
+<img src='graphics/8aae5f58884e6a21e9761d7c07ee7fd1.png' />
+
+&gt; c <span class="sym">+</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">(</span>theta<span class="sym">=</span><span class="str">&quot;y&quot;</span><span class="sym">)</span>
+<img src='graphics/fd5e116b8a4d993b52c014e9818e98ec.png' />
+
+&gt; 
+&gt; <span class="slc"># Dodged bar charts</span>
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">,</span> fill<span class="sym">=</span>cut<span class="sym">)) +</span> geom_bar<span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;dodge&quot;</span><span class="sym">)</span>
+<img src='graphics/be89b3bcf6476bad88ca271f33922088.png' />
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>clarity<span class="sym">,</span> fill<span class="sym">=</span>cut<span class="sym">)) +</span> geom_bar<span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;dodge&quot;</span><span class="sym">)</span>
+<img src='graphics/9380156fcc9c9ff36ea69084691c3cd8.png' />
+
+&gt; <span class="slc"># compare with</span>
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>cut<span class="sym">,</span> fill<span class="sym">=</span>cut<span class="sym">)) +</span> geom_bar<span class="sym">() +</span> <a href='facet_grid.html' title='Lay out panels in a rectangular/tabular manner.'>facet_grid</a><span class="sym">(</span>. ~ clarity<span class="sym">)</span>
+<img src='graphics/810129b9eef52e4f450c579037896bca.png' />
+
+&gt; 
+&gt; <span class="slc"># Often we don't want the height of the bar to represent the</span>
+&gt; <span class="slc"># count of observations, but the sum of some other variable.</span>
+&gt; <span class="slc"># For example, the following plot shows the number of movies</span>
+&gt; <span class="slc"># in each rating.</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">)</span>
+<img src='graphics/8dac384798e5188730c753e76b6205b1.png' />
+
+&gt; <span class="slc"># If, however, we want to see the number of votes cast in each</span>
+&gt; <span class="slc"># category, we need to weight by the votes variable</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">,</span> weight<span class="sym">=</span>votes<span class="sym">)</span>
+<img src='graphics/72e3534479ac5cef5aec84bc98e33598.png' />
+
+&gt; <span class="slc"># We could also see the total expenditure for each category:</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">,</span> weight<span class="sym">=</span>budget<span class="sym">)</span>
+<img src='graphics/24857da79de6488b2ab91ac767ecf71f.png' />
+
+&gt; 
+&gt; <span class="slc"># A bar chart used to display means</span>
+&gt; meanprice <span class="sym">&lt;-</span> tapply<span class="sym">(</span>diamonds$price<span class="sym">,</span> diamonds$cut<span class="sym">,</span> mean<span class="sym">)</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>unique<span class="sym">(</span>diamonds$cut<span class="sym">),</span> meanprice<span class="sym">)</span>
+<img src='graphics/b15d0ddc06b948f83f8f9aa7f55e98e0.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>unique<span class="sym">(</span>diamonds$cut<span class="sym">),</span> meanprice<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;bar&quot;</span><span class="sym">,</span> <a href='stat_.html'>stat</a><span class="sym">=</span><span class="str">&quot;identity&quot;</span><span class="sym">)</span>
+<img src='graphics/0a71f68dc9afebfface5739520993ee1.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<html>
+
+<head>
+	<title>scale_size_discrete. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_size_discrete.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_size_discrete</h1>
+<p class='desc'>Size scale for discrete variables</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <span class="sym">(</span>d <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>cut<span class="sym">,</span> clarity<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;jitter&quot;</span><span class="sym">))</span>
+<img src='graphics/423e8e0a05a5c12944f2b5888d96b117.png' />
+
+&gt; 
+&gt; d <span class="sym">+</span> scale_x_discrete<span class="sym">(</span><span class="str">&quot;Cut&quot;</span><span class="sym">)</span>
+<img src='graphics/7a10160fc17b06767a46fde6b0994ffd.png' />
+
+&gt; d <span class="sym">+</span> scale_y_discrete<span class="sym">(</span><span class="str">&quot;Clarity&quot;</span><span class="sym">)</span>
+<img src='graphics/8e073c55928bf5b993614ff4f046c9fd.png' />
+
+&gt; d <span class="sym">+</span> scale_x_discrete<span class="sym">(</span><span class="str">&quot;Cut&quot;</span><span class="sym">) +</span> scale_y_discrete<span class="sym">(</span><span class="str">&quot;Clarity&quot;</span><span class="sym">)</span>
+<img src='graphics/9e64622ff47387dc353846d6db15ddb5.png' />
+
+&gt; 
+&gt; <span class="slc"># To adjust the order and labelling, modify the underlying factor</span> src 
+"\n" 
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

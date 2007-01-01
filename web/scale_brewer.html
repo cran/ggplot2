@@ -1,0 +1,75 @@
+<html>
+
+<head>
+	<title>scale_brewer. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_brewer.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_brewer</h1>
+<p class='desc'>Colour brewer colour scales</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <span class="sym">(</span>d <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> colour<span class="sym">=</span>clarity<span class="sym">))</span>
+<img src='graphics/81b517c320e05be03e8b2d4f878c82d1.png' />
+
+&gt; 
+&gt; <span class="slc"># Change <a href='scale_.html'>scale</a> label</span>
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">()</span>
+<img src='graphics/aec8d29126f2905d22536324586b621d.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span><span class="str">&quot;clarity&quot;</span><span class="sym">)</span>
+<img src='graphics/7ab87c57d7e9e7e9a0ce39dd2eab50ea.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>expression<span class="sym">(</span>clarity<span class="sym">[</span>beta<span class="sym">]))</span>
+<img src='graphics/f7c06167f9b5fd98d5fa8e18e1d134d3.png' />
+
+&gt; 
+&gt; <span class="slc"># Select brewer palette to use, see ?brewer.pal for more details</span>
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>type<span class="sym">=</span><span class="str">&quot;seq&quot;</span><span class="sym">)</span>
+<img src='graphics/9b57c5978ab34bc00693b370546fe5e6.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>type<span class="sym">=</span><span class="str">&quot;seq&quot;</span><span class="sym">,</span> palette<span class="sym">=</span><span class="num">3</span><span class="sym">)</span>
+<img src='graphics/6a16eccd1eb702fa043dae67941b4da3.png' />
+
+&gt; 
+&gt; display.brewer.all<span class="sym">(</span>n<span class="sym">=</span><span class="num">8</span><span class="sym">,</span> exact.n<span class="sym">=</span>FALSE<span class="sym">)</span>
+&gt; 
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>palette<span class="sym">=</span><span class="str">&quot;Blues&quot;</span><span class="sym">)</span>
+<img src='graphics/e023243a3f81afd8df25351bbe294b67.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>palette<span class="sym">=</span><span class="str">&quot;Set1&quot;</span><span class="sym">)</span>
+<img src='graphics/9f80c4e78a9586e25709f460ab8d8cea.png' />
+
+&gt; 
+&gt; <span class="slc"># One way to deal with overplotting - use transparency</span>
+&gt; <span class="slc"># (only works with pdf, quartz and cairo devices)</span>
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>alpha <span class="sym">=</span> <span class="num">0.2</span><span class="sym">)</span>
+<img src='graphics/9ae48900cab4201e8da1deba0a718e20.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_brewer<span class="sym">(</span>alpha <span class="sym">=</span> <span class="num">0.01</span><span class="sym">)</span>
+<img src='graphics/462d2916b4ee39565f7287f246679757.png' />
+
+&gt; 
+&gt; <span class="slc"># scale_fill_brewer works just the same as</span>
+&gt; <span class="slc"># scale_colour_brewer but for fill colours</span>
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">,</span> fill<span class="sym">=</span>cut<span class="sym">)) +</span
++ 	<a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;dodge&quot;</span><span class="sym">) +</span
++ 	scale_fill_brewer<span class="sym">()</span>
+<img src='graphics/7cba9314224129491bf099d720e38053.png' />
+ src 
+"\n" 
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

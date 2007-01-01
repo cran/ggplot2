@@ -1,0 +1,94 @@
+<html>
+
+<head>
+	<title>stat_qq. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='stat_qq.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>stat_qq</h1>
+<p class='desc'>Calculation for quantile-quantile plot</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  stat_qq.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>stat_qq(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>y: <code>..y..</code> <span class='linklist'>(scales: <a href='scale_continuous.html' title='Continuous position scale'>continuous</a>, <a href='scale_date.html' title='Continuous scale for date variables'>date</a>, <a href='scale_discrete.html' title='Discrete position scale'>discrete</a>, <a href='scale_pow.html' title='Power scale'>pow</a>, <a href='scale_prob.html' title='Probability scale'>prob</a>)</span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>stat_qq(quantiles = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>quantiles</code>, Quantiles to compute and display</li>
+<li><code>distribution</code>, NULL</li>
+</ul>
+<h2>Default geom</h2>
+<p><a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a>.  Override with the  <code>geom</code> argument: <code>stat_qq(geom="point")</code>.</p>
+<h2>Examples</h2><pre>
+
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">))</span>
+&gt; 
+&gt; m <span class="sym">+</span> stat_qq<span class="sym">()</span>
+<img src='graphics/ccec0309624ca29f635141349ee44fb7.png' />
+
+&gt; m <span class="sym">+</span> stat_qq<span class="sym">() +</span> <a href='geom_abline.html' title='Line, specified by slope and intercept'>geom_abline</a><span class="sym">()</span>
+<img src='graphics/0b274905ce14372427278309db05b3c9.png' />
+
+&gt; m <span class="sym">+</span> stat_qq<span class="sym">(</span>distribution<span class="sym">=</span>qunif<span class="sym">,</span> min<span class="sym">=</span><span class="num">1</span><span class="sym">,</span> max<span class="sym">=</span><span class="num">10</span><span class="sym">) +</span> <a href='geom_abline.html' title='Line, specified by slope and intercept'>geom_abline</a><span class="sym">()</span>
+<img src='graphics/68f35fe4d722e5eead56874df7b4afdb.png' />
+
+&gt; m <span class="sym">+</span> stat_qq<span class="sym">(</span>quantiles <span class="sym">=</span> seq<span class="sym">(</span><span class="num">0.01</span><span class="sym">,</span> <span class="num">0.99</span><span class="sym">,</span> by<span class="sym">=</span><span class="num">0.05</span><span class="sym">),</span> distribution<span class="sym">=</span>qunif<span class="sym">,</span> min<span class="sym">=</span><span class="num">1</span><span class="sym">,</span> max<span class="sym">=</span><span class="num">10</span><span class="sym">) +</span> <a href='geom_abline.html' title='Line, specified by slope and intercept'>geom_abline</a><span class="sym">()</span>
+<img src='graphics/cc928b826780a717c7b48114d6b08187.png' />
+
+&gt; 
+&gt; <span class="slc"># Let's explore the distribution of ratings</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>movies$rating<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;histogram&quot;</span><span class="sym">,</span> binwidth<span class="sym">=</span><span class="num">0.1</span><span class="sym">)</span>
+<img src='graphics/c97d538ea715dbee15920296af68734e.png' />
+
+&gt; 
+&gt; <span class="slc"># Looks pretty normal, so we'll compare to a normal distribution</span>
+&gt; <span class="slc"># with parameters estimated from the data</span>
+&gt; 
+&gt; distn <span class="sym">&lt;-</span> fitdistr<span class="sym">(</span>movies$rating<span class="sym">,</span> <span class="str">&quot;normal&quot;</span><span class="sym">)</span>
+&gt; m <span class="sym">+</span> stat_qq<span class="sym">(</span>distribution<span class="sym">=</span><span class="kwa">function</span><span class="sym">(</span>x<span class="sym">)</span> qnorm<span class="sym">(</span>x<span class="sym">,</span> distn$estimate<span class="sym">[</span><span class="num">1</span><span class="sym">],</span> sd<span class="sym">=</span>distn$estimate<span class="sym">[</span><span class="num">2</span><span class="sym">])) +</span> <a href='geom_abline.html' title='Line, specified by slope and intercept'>geom_abline</a><span class="sym">()</span>
+<img src='graphics/b1aa82449862ab8b1a9843c44b75c481.png' />
+
+&gt; 
+&gt; <span class="slc"># Not bad, apart from in the tails</span>
+&gt; <span class="slc"># We'll try something a little longer-tailed</span>
+&gt; distt <span class="sym">&lt;-</span> fitdistr<span class="sym">(</span>movies$rating<span class="sym">,</span> <span class="str">&quot;t&quot;</span><span class="sym">)</span>
+ simpleWarning <span class="kwa">in</span> dt<span class="sym">(</span>x<span class="sym">,</span> df<span class="sym">,</span> log<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> dt<span class="sym">(</span>x<span class="sym">,</span> df<span class="sym">,</span> log<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> dt<span class="sym">(</span>x<span class="sym">,</span> df<span class="sym">,</span> log<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+ simpleWarning <span class="kwa">in</span> log<span class="sym">(</span>x<span class="sym">):</span> NaNs produced
+
+&gt; m <span class="sym">+</span> stat_qq<span class="sym">(</span>distribution<span class="sym">=</span><span class="kwa">function</span><span class="sym">(</span>x<span class="sym">)</span> qt<span class="sym">(</span>x<span class="sym">,</span> distt$estimate<span class="sym">[</span><span class="num">3</span><span class="sym">],</span> distt$estimate<span class="sym">[</span><span class="num">1</span><span class="sym">]) *</span> distt$estimate<span class="sym">[</span><span class="num">2</span><span class="sym">]) +</span> <a href='geom_abline.html' title='Line, specified by slope and intercept'>geom_abline</a><span class="sym">()</span>
+<img src='graphics/7b4f4a587667ac99fd151e471b4eb0e1.png' />
+
+&gt; 
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">,</span> y<span class="sym">=</span>rating <span class="sym">*</span> <span class="num">2</span><span class="sym">)) +</span> stat_qq<span class="sym">()</span>
+<img src='graphics/9d46ffdf68d2aa22029854c25245009a.png' />
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">,</span> y<span class="sym">=</span>rating ^ <span class="num">2</span><span class="sym">)) +</span> stat_qq<span class="sym">()</span>
+<img src='graphics/a305dea0389a9e708cd2b38c11aa6ca4.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

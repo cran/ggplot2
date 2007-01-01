@@ -1,0 +1,8 @@
+<pre>
+> ggplot(mtcars, aes(x = factor(cyl), fill = factor(vs))) + geom_bar(position = "dodge")
+<a href='web/graphics/4541c5f5f7ad394c1a4e33cae0862b47.pdf'><img src='web/graphics/4541c5f5f7ad394c1a4e33cae0862b47.png' /></a>
+
+> ggplot(diamonds, aes(x = price, fill = cut)) + geom_bar(position = "dodge")
+<a href='web/graphics/432426eec5e7c1a416220e76b2912733.pdf'><img src='web/graphics/432426eec5e7c1a416220e76b2912733.png' /></a>
+
+</pre>

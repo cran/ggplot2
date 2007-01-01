@@ -1,0 +1,11 @@
+<pre>
+> ggplot(mtcars, aes(x = factor(cyl), fill = factor(vs))) + geom_bar()
+<a href='web/graphics/f63367ffc4a6249087f312150a9b0c91.pdf'><img src='web/graphics/f63367ffc4a6249087f312150a9b0c91.png' /></a>
+
+> ggplot(diamonds, aes(x = price)) + geom_bar()
+<a href='web/graphics/6b5ba77a04ad7956206624fafe0c73fd.pdf'><img src='web/graphics/6b5ba77a04ad7956206624fafe0c73fd.png' /></a>
+
+> ggplot(diamonds, aes(x = price, fill = cut)) + geom_bar()
+<a href='web/graphics/26599e3c382658d12339cfaaa2a59bb8.pdf'><img src='web/graphics/26599e3c382658d12339cfaaa2a59bb8.png' /></a>
+
+</pre>

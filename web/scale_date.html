@@ -1,0 +1,74 @@
+<html>
+
+<head>
+	<title>scale_date. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_date.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_date</h1>
+<p class='desc'>Continuous scale for date variables</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>See also</h2><ul>
+<li><a href='scale_discrete.html' title='Discrete <a href='position_.html'>position</a> <a href='scale_.html'>scale</a>'>scale_discrete</a>: Discrete position scales</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; df <span class="sym">&lt;-</span> data.frame<span class="sym">(</span
++ 	date <span class="sym">=</span> seq<span class="sym">(</span>Sys.Date<span class="sym">(),</span> len<span class="sym">=</span><span class="num">100</span><span class="sym">,</span> by<span class="sym">=</span><span class="str">&quot;1 day&quot;</span><span class="sym">)[</span>sample<span class="sym">(</span><span class="num">100</span><span class="sym">,</span> <span class="num">50</span><span class="sym">)],</span
++ 	price <span class="sym">=</span> runif<span class="sym">(</span><span class="num">50</span><span class="sym">)</span
++ <span class="sym">)</span>
+&gt; df <span class="sym">&lt;-</span> df<span class="sym">[</span>order<span class="sym">(</span>df$date<span class="sym">), ]</span>
+&gt; dt <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>date<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>df<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">)</span>
+&gt; dt$aspect.ratio <span class="sym">&lt;-</span> <span class="num">1</span><span class="sym">/</span><span class="num">4</span>
+&gt; 
+&gt; <span class="slc"># We can control the format of the labels, and the frequency of</span>
+&gt; <span class="slc"># the major and minor tickmarks.  See ?format.Date and ?seq.Date</span>
+&gt; <span class="slc"># for more details.</span>
+&gt; dt <span class="sym">+</span> scale_x_date<span class="sym">()</span>
+<img src='graphics/7026586e6151295c6cbb068c7c56ad1b.png' />
+
+&gt; dt <span class="sym">+</span> scale_x_date<span class="sym">(</span>format<span class="sym">=</span><span class="str">&quot;%m/%d&quot;</span><span class="sym">)</span>
+<img src='graphics/c5cf3ec81a72e195b71afbcc56c78dba.png' />
+
+&gt; dt <span class="sym">+</span> scale_x_date<span class="sym">(</span>format<span class="sym">=</span><span class="str">&quot;%W&quot;</span><span class="sym">)</span>
+<img src='graphics/86b180af6c646ef6058323e6bc7e1d99.png' />
+
+&gt; dt <span class="sym">+</span> scale_x_date<span class="sym">(</span>major<span class="sym">=</span><span class="str">&quot;months&quot;</span><span class="sym">,</span> minor<span class="sym">=</span><span class="str">&quot;weeks&quot;</span><span class="sym">,</span> format<span class="sym">=</span><span class="str">&quot;%b&quot;</span><span class="sym">)</span>
+<img src='graphics/252f522b2c250ba7e953187937131bfb.png' />
+
+&gt; dt <span class="sym">+</span> scale_x_date<span class="sym">(</span>major<span class="sym">=</span><span class="str">&quot;months&quot;</span><span class="sym">,</span> minor<span class="sym">=</span><span class="str">&quot;2 days&quot;</span><span class="sym">,</span> format<span class="sym">=</span><span class="str">&quot;%b&quot;</span><span class="sym">)</span>
+<img src='graphics/1fb3cd3458e60c21f81effb4eef5ba42.png' />
+
+&gt; dt <span class="sym">+</span> scale_x_date<span class="sym">(</span>major<span class="sym">=</span><span class="str">&quot;years&quot;</span><span class="sym">,</span> format<span class="sym">=</span><span class="str">&quot;%b-%Y&quot;</span><span class="sym">)</span>
+<img src='graphics/f5376da649c2be9bc93d8407603edfd8.png' />
+
+&gt; 
+&gt; <span class="slc"># The date <a href='scale_.html'>scale</a> will attempt to pick sensible defaults for</span>
+&gt; <span class="slc"># major and minor tick marks</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>date<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>df<span class="sym">[</span><span class="num">1</span><span class="sym">:</span><span class="num">10</span><span class="sym">,],</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">) +</span> scale_x_date<span class="sym">()</span>
+<img src='graphics/1c0449b71bd15e32886a1085293ddcb3.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>date<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>df<span class="sym">[</span><span class="num">1</span><span class="sym">:</span><span class="num">4</span><span class="sym">,],</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">) +</span> scale_x_date<span class="sym">()</span>
+<img src='graphics/18f0f0a63dfe19b0ef56b55c95be37ac.png' />
+
+&gt; 
+&gt; df <span class="sym">&lt;-</span> data.frame<span class="sym">(</span
++ 	date <span class="sym">=</span> seq<span class="sym">(</span>Sys.Date<span class="sym">(),</span> len<span class="sym">=</span><span class="num">1000</span><span class="sym">,</span> by<span class="sym">=</span><span class="str">&quot;1 day&quot;</span><span class="sym">),</span
++ 	price <span class="sym">=</span> runif<span class="sym">(</span><span class="num">500</span><span class="sym">)</span
++ <span class="sym">)</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>date<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>df<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">) +</span> scale_x_date<span class="sym">()</span>
+<img src='graphics/4e4c562d9d1ab327caa68ce634d69e29.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

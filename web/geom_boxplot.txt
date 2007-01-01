@@ -1,0 +1,59 @@
+<pre>
+> p <- ggplot(mtcars, aes(y = mpg, x = factor(cyl)))
+> p + geom_boxplot()
+<a href='web/graphics/f4e09e7629b1e12194da1999ef7decbe.pdf'><img src='web/graphics/f4e09e7629b1e12194da1999ef7decbe.png' /></a>
+
+> p + stat_boxplot()
+<a href='web/graphics/1e3a7935f71b357928e980b21f4cfbb2.pdf'><img src='web/graphics/1e3a7935f71b357928e980b21f4cfbb2.png' /></a>
+
+> p + geom_boxplot() + geom_jitter()
+<a href='web/graphics/ec1d82862df1d992f39aa1f89f191cb1.pdf'><img src='web/graphics/ec1d82862df1d992f39aa1f89f191cb1.png' /></a>
+
+> p + geom_boxplot() + coord_flip()
+<a href='web/graphics/6de81acfe8c984ae62da53aa8e6484b5.pdf'><img src='web/graphics/6de81acfe8c984ae62da53aa8e6484b5.png' /></a>
+
+> p + geom_boxplot(aes(fill = cyl))
+<a href='web/graphics/f860b2cd3673efb7123bef0b7b5a8f4d.pdf'><img src='web/graphics/f860b2cd3673efb7123bef0b7b5a8f4d.png' /></a>
+
+> p + geom_boxplot(aes(fill = factor(cyl)))
+<a href='web/graphics/fc3da795ca7a25845ccf0f2de74fcd6a.pdf'><img src='web/graphics/fc3da795ca7a25845ccf0f2de74fcd6a.png' /></a>
+
+> p + geom_boxplot(aes(colour = cyl), size = 2)
+<a href='web/graphics/d304ba40c5b721fef0bd0dbd3362d596.pdf'><img src='web/graphics/d304ba40c5b721fef0bd0dbd3362d596.png' /></a>
+
+> p + geom_boxplot(aes(colour = factor(am)))
+<a href='web/graphics/a0da2e9def1c42f82ad38d9e8e496bbe.pdf'><img src='web/graphics/a0da2e9def1c42f82ad38d9e8e496bbe.png' /></a>
+
+> p + geom_boxplot(aes(fill = factor(vs)), colour = "black")
+<a href='web/graphics/045207a5b33e38b8efbf5983e144369f.pdf'><img src='web/graphics/045207a5b33e38b8efbf5983e144369f.png' /></a>
+
+> p + geom_boxplot(aes(size = factor(gear)))
+<a href='web/graphics/d448d1a1577e6353a479dcf165381351.pdf'><img src='web/graphics/d448d1a1577e6353a479dcf165381351.png' /></a>
+
+> p + geom_boxplot(fill = "black", colour = "white", size = 2)
+<a href='web/graphics/d149c122022aed077fb2961174353038.pdf'><img src='web/graphics/d149c122022aed077fb2961174353038.png' /></a>
+
+> movies$ratingr <- factor(round_any(movies$rating, 0.5))
+> m <- ggplot(movies, aes(y = votes, x = ratingr))
+> m + geom_point()
+<a href='web/graphics/490326082a1d94c7775defa6a2a9fbe9.pdf'><img src='web/graphics/490326082a1d94c7775defa6a2a9fbe9.png' /></a>
+
+> m + geom_boxplot()
+<a href='web/graphics/3bdbd241eeab9109b296ba87ee7ab026.pdf'><img src='web/graphics/3bdbd241eeab9109b296ba87ee7ab026.png' /></a>
+
+> m + geom_boxplot() + scale_y_log10()
+<a href='web/graphics/fb443eb312e68395b9640c12375099c9.pdf'><img src='web/graphics/fb443eb312e68395b9640c12375099c9.png' /></a>
+
+> m + geom_boxplot() + coord_trans(y = "log10")
+<a href='web/graphics/4612853ce800fa1fe7fc202966d54de6.pdf'><img src='web/graphics/4612853ce800fa1fe7fc202966d54de6.png' /></a>
+
+> m + geom_boxplot() + scale_y_log10() + coord_trans(y = "log10")
+<a href='web/graphics/9930a94edd260814492ed3e81f7e32e4.pdf'><img src='web/graphics/9930a94edd260814492ed3e81f7e32e4.png' /></a>
+
+> qplot(factor(cyl), mpg, data = mtcars, geom = "boxplot")
+<a href='web/graphics/91202a2013008aa1a0bb65c599a502fb.pdf'><img src='web/graphics/91202a2013008aa1a0bb65c599a502fb.png' /></a>
+
+> qplot(factor(cyl), mpg, data = mtcars, geom = "boxplot") + coord_flip()
+<a href='web/graphics/3256c2c2f1dac74f376cdbabbad09b52.pdf'><img src='web/graphics/3256c2c2f1dac74f376cdbabbad09b52.png' /></a>
+
+</pre>

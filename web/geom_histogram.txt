@@ -1,0 +1,68 @@
+<pre>
+> m <- ggplot(movies, aes(x = rating))
+> m + geom_histogram()
+<a href='web/graphics/ed601cb82df74e4d3893b8f45c5ecfdd.pdf'><img src='web/graphics/ed601cb82df74e4d3893b8f45c5ecfdd.png' /></a>
+
+> m + geom_histogram(aes(y = ..density..)) + geom_density()
+<a href='web/graphics/c9dc63eeee78479babd90f00b33e46be.pdf'><img src='web/graphics/c9dc63eeee78479babd90f00b33e46be.png' /></a>
+
+> m + geom_histogram(binwidth = 1)
+<a href='web/graphics/0ba49802b340b9c4db77d4c22d2198c1.pdf'><img src='web/graphics/0ba49802b340b9c4db77d4c22d2198c1.png' /></a>
+
+> m + geom_histogram(binwidth = 0.5)
+<a href='web/graphics/f18d5e32c1eb17d4b36da3e134f211ae.pdf'><img src='web/graphics/f18d5e32c1eb17d4b36da3e134f211ae.png' /></a>
+
+> m + geom_histogram(binwidth = 0.1)
+<a href='web/graphics/c7b287ba45fd9dc796eb8a2ba7515c34.pdf'><img src='web/graphics/c7b287ba45fd9dc796eb8a2ba7515c34.png' /></a>
+
+> m + geom_histogram(aes(weight = votes))
+<a href='web/graphics/ba18c4604ab02d6d53f2b27af4cac2cc.pdf'><img src='web/graphics/ba18c4604ab02d6d53f2b27af4cac2cc.png' /></a>
+
+> m + geom_histogram(aes(y = ..count..))
+<a href='web/graphics/37e0da41ee7eb5b438ef9a4bbeea895c.pdf'><img src='web/graphics/37e0da41ee7eb5b438ef9a4bbeea895c.png' /></a>
+
+> m + geom_histogram(aes(fill = ..count..))
+<a href='web/graphics/ad8a5fcb5f48836fdf96276b836f8e72.pdf'><img src='web/graphics/ad8a5fcb5f48836fdf96276b836f8e72.png' /></a>
+
+> m + geom_histogram(aes(fill = ..count..)) + scale_fill_gradient(low = "green", 
++     high = "red")
+<a href='web/graphics/94070d26e39cd151dc63e0c34f1fc73e.pdf'><img src='web/graphics/94070d26e39cd151dc63e0c34f1fc73e.png' /></a>
+
+> m <- m + aes(x = votes)
+> m + geom_histogram() + scale_x_log()
+<a href='web/graphics/807c6bdaaf33443a6f570f64740039d8.pdf'><img src='web/graphics/807c6bdaaf33443a6f570f64740039d8.png' /></a>
+
+> m + geom_histogram() + scale_x_sqrt()
+<a href='web/graphics/802116649e5781d215c3167a74434782.pdf'><img src='web/graphics/802116649e5781d215c3167a74434782.png' /></a>
+
+> m + geom_histogram() + coord_trans(y = "sqrt")
+<a href='web/graphics/d643975ea04f87f59aaf86e4a542937c.pdf'><img src='web/graphics/d643975ea04f87f59aaf86e4a542937c.png' /></a>
+
+> m + geom_histogram(colour = "darkgreen", fill = "white") + aes(x = rating)
+<a href='web/graphics/4b59a7523882024167f572268565f4b8.pdf'><img src='web/graphics/4b59a7523882024167f572268565f4b8.png' /></a>
+
+> m <- ggplot(movies, aes(x = rating)) + facet_grid(Action ~ Comedy, 
++     margins = TRUE)
+> m + geom_histogram()
+<a href='web/graphics/6cd44e808d115ace14b9bc36eb41f123.pdf'><img src='web/graphics/6cd44e808d115ace14b9bc36eb41f123.png' /></a>
+
+> ggplot(diamonds, aes(x = price)) + geom_bar()
+<a href='web/graphics/c048b9e3353ea2c63ed07f0ee1f65372.pdf'><img src='web/graphics/c048b9e3353ea2c63ed07f0ee1f65372.png' /></a>
+
+> hist_cut <- ggplot(diamonds, aes(x = price, fill = cut))
+> hist_cut + geom_bar()
+<a href='web/graphics/b9ccf89af52dd78bc8ade2c8a965bba2.pdf'><img src='web/graphics/b9ccf89af52dd78bc8ade2c8a965bba2.png' /></a>
+
+> hist_cut + geom_bar(position = "fill")
+<a href='web/graphics/b7b1972b0a3bdb2cff42725e19747547.pdf'><img src='web/graphics/b7b1972b0a3bdb2cff42725e19747547.png' /></a>
+
+> hist_cut + geom_bar(position = "dodge")
+<a href='web/graphics/4943c07c4ba959fd081ddb814304c608.pdf'><img src='web/graphics/4943c07c4ba959fd081ddb814304c608.png' /></a>
+
+> qplot(rating, data = movies, geom = "histogram")
+<a href='web/graphics/5610f239422baa0b7c77f3c6d8e5732c.pdf'><img src='web/graphics/5610f239422baa0b7c77f3c6d8e5732c.png' /></a>
+
+> qplot(rating, data = movies, weight = votes, geom = "histogram")
+<a href='web/graphics/64dfb32dccb95b508e73347d5efd769d.pdf'><img src='web/graphics/64dfb32dccb95b508e73347d5efd769d.png' /></a>
+
+</pre>

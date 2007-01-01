@@ -1,0 +1,96 @@
+<html>
+
+<head>
+	<title>stat_contour. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='stat_contour.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>stat_contour</h1>
+<p class='desc'>Contours of 3d data</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  stat_contour.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>stat_contour(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>group: <code>..piece..</code> <span class='linklist'></span></p></li>
+</ul>
+<h2>New variables produced by the statistic</h2>
+<p>To use these variables in an aesthetic mapping, you need to surrond them with .., like <code>aes(x = ..output..)</code>.</p>
+<ul>
+<li><code>level</code>, z value of contour</li>
+</ul>
+<h2>Default geom</h2>
+<p><a href='geom_path.html' title='Connect observations, in original order'>geom_path</a>.  Override with the  <code>geom</code> argument: <code>stat_contour(geom="point")</code>.</p>
+<h2>Examples</h2><pre>
+
+&gt; volcano3d <span class="sym">&lt;-</span> rename<span class="sym">(</span>melt<span class="sym">(</span>volcano<span class="sym">),</span> c<span class="sym">(</span>X1<span class="sym">=</span><span class="str">&quot;x&quot;</span><span class="sym">,</span> X2<span class="sym">=</span><span class="str">&quot;y&quot;</span><span class="sym">,</span> value<span class="sym">=</span><span class="str">&quot;z&quot;</span><span class="sym">))</span>
+&gt; v <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>volcano3d<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>x<span class="sym">,</span>y<span class="sym">=</span>y<span class="sym">,</span>z<span class="sym">=</span>z<span class="sym">))</span>
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">()</span>
+<img src='graphics/1fe591b6eef1dc2cbd4e336ef93bc641.png' />
+
+&gt; 
+&gt; <span class="slc"># Add aesthetic mappings</span>
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size <span class="sym">=</span> ..level..<span class="sym">))</span>
+<img src='graphics/eb16f63df9f77749d4e0769d08fd6b5a.png' />
+
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour <span class="sym">=</span> ..level..<span class="sym">))</span>
+<img src='graphics/00e66ac4f2f7da4260e62d0f2e757a01.png' />
+
+&gt; 
+&gt; <span class="slc"># Change <a href='scale_.html'>scale</a></span>
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour <span class="sym">=</span> ..level..<span class="sym">),</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">) +</span
++ 	scale_colour_gradient<span class="sym">(</span>low<span class="sym">=</span><span class="str">&quot;brown&quot;</span><span class="sym">,</span> high<span class="sym">=</span><span class="str">&quot;white&quot;</span><span class="sym">)</span>
+<img src='graphics/2a4aefe96cbe2eb3fc4f2667f401af25.png' />
+
+&gt; 
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">() +</span> scale_z_continuous<span class="sym">(</span>breaks<span class="sym">=</span>c<span class="sym">(</span><span class="num">100</span><span class="sym">,</span> <span class="num">150</span><span class="sym">))</span>
+<img src='graphics/b8a7ae5dde78fde723e9c11f7ae25a73.png' />
+
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span>size<span class="sym">=</span><span class="num">0.5</span><span class="sym">) +</span> scale_z_continuous<span class="sym">(</span>breaks<span class="sym">=</span>seq<span class="sym">(</span><span class="num">95</span><span class="sym">,</span> <span class="num">195</span><span class="sym">,</span> by<span class="sym">=</span><span class="num">2</span><span class="sym">))</span>
+<img src='graphics/1f84b04667a256024f8ac4427d193ffc.png' />
+
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">() +</span> scale_z_log10<span class="sym">()</span>
+<img src='graphics/27a15d1df7ca3ab8da519e8b1e5ff520.png' />
+
+&gt; 
+&gt; <span class="slc"># Set aesthetics to fixed value</span>
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span>colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">)</span>
+<img src='graphics/5d3eb2edcc37848b1ebfe4cd09f3b5d8.png' />
+
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span>size<span class="sym">=</span><span class="num">2</span><span class="sym">,</span> linetype<span class="sym">=</span><span class="num">4</span><span class="sym">)</span>
+<img src='graphics/60022f9e4590d17e3ed4e846203aee67.png' />
+
+&gt; 
+&gt; <span class="slc"># Try different geoms</span>
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">(</span><a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;polygon&quot;</span><span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>..level..<span class="sym">))</span>
+<img src='graphics/33e24783b9078666d5e4daec919eeeb1.png' />
+
+&gt; v <span class="sym">+</span> <a href='geom_tile.html' title='Tile plot as densely as possible, assuming that every tile is the same size. '>geom_tile</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>fill<span class="sym">=</span>z<span class="sym">)) +</span> stat_contour<span class="sym">()</span>
+<img src='graphics/0f85fd37f7ca4bf42f14047a3271ccc8.png' />
+
+&gt; 
+&gt; <span class="slc"># Change coordinate system</span>
+&gt; v <span class="sym">+</span> stat_contour<span class="sym">() +</span> <a href='coord_polar.html' title='Polar coordinates'>coord_polar</a><span class="sym">()</span>
+<img src='graphics/fb0ec19fc12b944ecbcb3b071080f132.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> z<span class="sym">,</span> data<span class="sym">=</span>volcano3d<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;contour&quot;</span><span class="sym">)</span>
+<img src='graphics/7424df93487739a19451cd0cfde44916.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> z<span class="sym">,</span> data<span class="sym">=</span>volcano3d<span class="sym">,</span> <a href='stat_.html'>stat</a><span class="sym">=</span><span class="str">&quot;contour&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;path&quot;</span><span class="sym">)</span>
+<img src='graphics/70b863edb50ca12fa6a56ef5b174fa88.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

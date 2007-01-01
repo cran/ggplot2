@@ -1,0 +1,42 @@
+<html>
+
+<head>
+	<title>position_fill. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='position_fill.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>position_fill</h1>
+<p class='desc'>Stack overlapping objects on top of one another, and standardise have equal height</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">),</span> fill<span class="sym">=</span>factor<span class="sym">(</span>vs<span class="sym">))) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;fill&quot;</span><span class="sym">)</span>
+<img src='graphics/cad546c6b7b8eeca750c8dc05b47fd7f.png' />
+
+&gt; 
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">)) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;fill&quot;</span><span class="sym">)</span>
+<img src='graphics/7631212bf8af865f954b9415b07eb6ba.png' />
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">,</span> fill<span class="sym">=</span>cut<span class="sym">)) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;fill&quot;</span><span class="sym">)</span>
+<img src='graphics/8ff9002916a92052c2d8afa96c0a6d37.png' />
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">,</span> fill<span class="sym">=</span>clarity<span class="sym">)) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;fill&quot;</span><span class="sym">)</span>
+<img src='graphics/fe466bb3dffc3b8046a33c1cd34ad0cc.png' />
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">,</span> fill<span class="sym">=</span>colour<span class="sym">)) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;fill&quot;</span><span class="sym">)</span>
+<img src='graphics/17c14692cf6941264620f1808919c39e.png' />
+
+&gt; </pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

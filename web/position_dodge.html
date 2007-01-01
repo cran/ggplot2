@@ -1,0 +1,32 @@
+<html>
+
+<head>
+	<title>position_dodge. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='position_dodge.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>position_dodge</h1>
+<p class='desc'>Adjust position by 'dodging' overlaps to the side</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">),</span> fill<span class="sym">=</span>factor<span class="sym">(</span>vs<span class="sym">))) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;dodge&quot;</span><span class="sym">)</span>
+<img src='graphics/e528b1ce382db26973f37bc390c72499.png' />
+
+&gt; <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>price<span class="sym">,</span> fill<span class="sym">=</span>cut<span class="sym">)) +</span> <a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;dodge&quot;</span><span class="sym">)</span>
+<img src='graphics/95874b7cafcb13be796f57b27999f40e.png' />
+
+&gt; <span class="slc"># see ?<a href='geom_boxplot.html' title='Box and whiskers plot'>geom_boxplot</a> and ?<a href='geom_bar.html' title='Bars, rectangles with bases on y-axis'>geom_bar</a> for more examples</span></pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>
