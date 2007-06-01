@@ -1,0 +1,32 @@
+<pre>
+> (p <- qplot(mpg, cyl, data = mtcars, size = cyl))
+<a href='web/graphics/a5eef783cc5c591ad6e8da3ba932ba8d.pdf'><img src='web/graphics/a5eef783cc5c591ad6e8da3ba932ba8d.png' /></a>
+
+> p + scale_size("cylinders")
+<a href='web/graphics/794ae6d1df1aed74b38397e563844fd1.pdf'><img src='web/graphics/794ae6d1df1aed74b38397e563844fd1.png' /></a>
+
+> p + scale_size("number\nof\ncylinders")
+<a href='web/graphics/2786c15f302612406f95ac0422a4446c.pdf'><img src='web/graphics/2786c15f302612406f95ac0422a4446c.png' /></a>
+
+> p + scale_size(to = c(0, 10))
+<a href='web/graphics/48e4272285265f8ff085b09e7b1346bc.pdf'><img src='web/graphics/48e4272285265f8ff085b09e7b1346bc.png' /></a>
+
+> p + scale_size(to = c(1, 2))
+<a href='web/graphics/a021edb780995847ffeaa9a604220e2c.pdf'><img src='web/graphics/a021edb780995847ffeaa9a604220e2c.png' /></a>
+
+> p + scale_area()
+<a href='web/graphics/1ac2d5435efe0fc15ddda74d91abebb1.pdf'><img src='web/graphics/1ac2d5435efe0fc15ddda74d91abebb1.png' /></a>
+
+> p + scale_area(to = c(1, 25))
+<a href='web/graphics/60db45ad14a58825fbfc212ad871f630.pdf'><img src='web/graphics/60db45ad14a58825fbfc212ad871f630.png' /></a>
+
+> qplot(mpg, cyl, data = mtcars, size = factor(cyl))
+<a href='web/graphics/8817c81d7aa00c32a51c10ae0f831a06.pdf'><img src='web/graphics/8817c81d7aa00c32a51c10ae0f831a06.png' /></a>
+
+> (p <- qplot(mpg, cyl, data = mtcars, size = cyl, geom = "line"))
+<a href='web/graphics/3554401ac0b9dfe420426303f1f41ce6.pdf'><img src='web/graphics/3554401ac0b9dfe420426303f1f41ce6.png' /></a>
+
+> p + scale_size(guide = "line")
+<a href='web/graphics/55e79141af47b49169911cbdb33ed418.pdf'><img src='web/graphics/55e79141af47b49169911cbdb33ed418.png' /></a>
+
+</pre>

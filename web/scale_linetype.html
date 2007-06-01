@@ -1,0 +1,36 @@
+<html>
+
+<head>
+	<title>scale_linetype. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_linetype.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_linetype</h1>
+<p class='desc'>Create a scale for categorical line types</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>wt<span class="sym">,</span> mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">,</span> linetype<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">))</span>
+<img src='graphics/3f6e3759189e5410cb0e725463082175.png' />
+
+&gt; 
+&gt; <span class="slc"># Force all points to be connected together</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>wt<span class="sym">,</span> mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">,</span> linetype<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">),</span> group<span class="sym">=</span><span class="num">1</span><span class="sym">)</span>
+<img src='graphics/f7d09e7859e52c945091121a2d12ece6.png' />
+
+&gt; 
+&gt; <span class="slc"># The linetype <a href='scale_.html'>scale</a> currently has no options, so there's</span>
+&gt; <span class="slc"># no point in adding it manually</span></pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<pre>
+> p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+> p + geom_vline(intercept = 5)
+<a href='web/graphics/d86d1403a4b58b2a167e94f8bd23e7e0.pdf'><img src='web/graphics/d86d1403a4b58b2a167e94f8bd23e7e0.png' /></a>
+
+> p + geom_vline(intercept = 2:5)
+<a href='web/graphics/ff2440fdada4b0a8f2ebec152bffe773.pdf'><img src='web/graphics/ff2440fdada4b0a8f2ebec152bffe773.png' /></a>
+
+> p + geom_vline(intercept = 2:5, colour = "green")
+<a href='web/graphics/982fd92436d1142135beb29c7862d894.pdf'><img src='web/graphics/982fd92436d1142135beb29c7862d894.png' /></a>
+
+> p + geom_vline(intercept = mean(mtcars$wt), size = 2)
+<a href='web/graphics/d355593a7a306a7f5c5d25b6c3d700b2.pdf'><img src='web/graphics/d355593a7a306a7f5c5d25b6c3d700b2.png' /></a>
+
+> p <- ggplot(mtcars, aes(x = wt, y = mpg)) + facet_grid(. ~ cyl) + 
++     geom_point()
+> df <- data.frame(cyl = c(4, 6, 8), intercept = tapply(mtcars$wt, 
++     mtcars$cyl, mean))
+> p + geom_vline(data = df)
+<a href='web/graphics/ae4720e7eef38cbe1c4bc323530a5689.pdf'><img src='web/graphics/ae4720e7eef38cbe1c4bc323530a5689.png' /></a>
+
+> p + geom_vline(data = df, colour = "red")
+<a href='web/graphics/40cc14084f3440ed71614637cac98f65.pdf'><img src='web/graphics/40cc14084f3440ed71614637cac98f65.png' /></a>
+
+</pre>

@@ -1,0 +1,61 @@
+<html>
+
+<head>
+	<title>geom_hline. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_hline.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_hline</h1>
+<p class='desc'>Line, horizontal</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_hline.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_hline(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>colour: <code>black</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>linetype: <code>1</code> <span class='linklist'>(scales: <a href='scale_linetype.html' title='Create a scale for categorical line types'>linetype</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>intercept: <code>0</code> <span class='linklist'></span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_hline(colour = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>colour</code>, border colour</li>
+<li><code>size</code>, size</li>
+<li><code>linetype</code>, line type</li>
+<li><code>intercept</code>, x/y intercept</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_identity.html' title='Identity statistic'>stat_identity</a>.  Override with the <code>stat</code> argument: <code>geom_hline(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_identity.html' title='Position adjust which does nothing'>position_identity</a>.  Override with the <code>position</code> argument: <code>geom_hline(position="jitter")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='geom_vline.html' title='Line, vertical'>geom_vline</a>: for vertical lines</li>
+<li><a href='geom_abline.html' title='Line, specified by slope and intercept'>geom_abline</a>: for lines defined by a slope and intercept</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x <span class="sym">=</span> wt<span class="sym">,</span> y<span class="sym">=</span>mpg<span class="sym">)) +</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">()</span>
+&gt; 
+&gt; p <span class="sym">+</span> geom_hline<span class="sym">(</span>intercept<span class="sym">=</span><span class="num">20</span><span class="sym">)</span>
+<img src='graphics/52dd8b0fed9dbb19e299a894d2d0dd42.png' />
+
+&gt; p <span class="sym">+</span> geom_hline<span class="sym">(</span>intercept<span class="sym">=</span>seq<span class="sym">(</span><span class="num">10</span><span class="sym">,</span> <span class="num">30</span><span class="sym">,</span> by<span class="sym">=</span><span class="num">5</span><span class="sym">))</span>
+<img src='graphics/3ff6db8e286ca5f9a0f1ce39ebbbe339.png' />
+
+&gt; p <span class="sym">+</span> geom_hline<span class="sym">(</span>intercept<span class="sym">=</span>mean<span class="sym">(</span>mtcars$mpg<span class="sym">),</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">)</span>
+<img src='graphics/b37c6e155d8955675ccd5b45818a134f.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

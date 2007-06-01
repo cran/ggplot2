@@ -1,0 +1,12 @@
+<pre>
+> p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+> p + geom_hline(intercept = 20)
+<a href='web/graphics/1b9ccc7c13c8d6b61e032fad778184a6.pdf'><img src='web/graphics/1b9ccc7c13c8d6b61e032fad778184a6.png' /></a>
+
+> p + geom_hline(intercept = seq(10, 30, by = 5))
+<a href='web/graphics/ac3e26cae06bef48bc866fb736fcba82.pdf'><img src='web/graphics/ac3e26cae06bef48bc866fb736fcba82.png' /></a>
+
+> p + geom_hline(intercept = mean(mtcars$mpg), size = 2)
+<a href='web/graphics/a50df6640673236659e3b465af41f684.pdf'><img src='web/graphics/a50df6640673236659e3b465af41f684.png' /></a>
+
+</pre>

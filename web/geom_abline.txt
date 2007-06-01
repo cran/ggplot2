@@ -1,0 +1,42 @@
+<pre>
+> p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+> p + geom_abline()
+<a href='web/graphics/eb15f5c82aae2eb4eea23d8b90fa99f6.pdf'><img src='web/graphics/eb15f5c82aae2eb4eea23d8b90fa99f6.png' /></a>
+
+> p + geom_abline(slope = 5)
+<a href='web/graphics/ab6d7a1f11c19098710df4dae8162353.pdf'><img src='web/graphics/ab6d7a1f11c19098710df4dae8162353.png' /></a>
+
+> p + geom_abline(intercept = 30, slope = -5)
+<a href='web/graphics/d4aadacb17e29bffd1e7c80b16dd3eb4.pdf'><img src='web/graphics/d4aadacb17e29bffd1e7c80b16dd3eb4.png' /></a>
+
+> p + geom_abline(intercept = 10, colour = "red", size = 5)
+<a href='web/graphics/20a3e2db5eb47a42dd64c9e61fdcee3f.pdf'><img src='web/graphics/20a3e2db5eb47a42dd64c9e61fdcee3f.png' /></a>
+
+> p + stat_smooth(method = "lm", se = FALSE)
+<a href='web/graphics/d650feaaefdd7b5b09fbd17cea19f165.pdf'><img src='web/graphics/d650feaaefdd7b5b09fbd17cea19f165.png' /></a>
+
+> p <- ggplot(mtcars, aes(x = wt, y = mpg), . ~ cyl) + geom_point()
+> df <- data.frame(intercept = 25, slope = 2)
+> p + geom_abline(data = df)
+<a href='web/graphics/a9f0a97c625d22e8cc3bca296aa27999.pdf'><img src='web/graphics/a9f0a97c625d22e8cc3bca296aa27999.png' /></a>
+
+> coefs <- do.call(rbind, by(mtcars, mtcars$cyl, function(df) {
++     m <- lm(mpg ~ wt, data = df)
++     data.frame(cyl = df$cyl[1], intercept = coef(m)[1], slope = coef(m)[2])
++ }))
+> str(coefs)
+'data.frame':	3 obs. of  3 variables:
+ $ cyl      : num  4 6 8
+ $ intercept: num  39.6 28.4 23.9
+ $ slope    : num  -5.65 -2.78 -2.19
+
+> p + geom_abline(data = coefs)
+<a href='web/graphics/fc133b5048acfcc8849312ece3e9d9c9.pdf'><img src='web/graphics/fc133b5048acfcc8849312ece3e9d9c9.png' /></a>
+
+> p + geom_smooth(method = "lm")
+<a href='web/graphics/a754e13cd24385391735c9b446ebcaad.pdf'><img src='web/graphics/a754e13cd24385391735c9b446ebcaad.png' /></a>
+
+> p + geom_smooth(method = "lm", fullrange = TRUE)
+<a href='web/graphics/fbe54cc178745b44f0fdd7076347e56c.pdf'><img src='web/graphics/fbe54cc178745b44f0fdd7076347e56c.png' /></a>
+
+</pre>

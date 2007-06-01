@@ -1,0 +1,13 @@
+<pre>
+> qplot(cut, clarity, data = diamonds, geom = "blank", group = 1) + 
++     geom_path()
+<a href='web/graphics/ee1eee2a6c423738622ccc44b7558dbb.pdf'><img src='web/graphics/ee1eee2a6c423738622ccc44b7558dbb.png' /></a>
+
+> qplot(cut, clarity, data = diamonds, geom = "blank", group = 1) + 
++     geom_path(position = "jitter")
+<a href='web/graphics/99b0c5415d8ff8c8560d0214e5f67cc0.pdf'><img src='web/graphics/99b0c5415d8ff8c8560d0214e5f67cc0.png' /></a>
+
+> qplot(cut, clarity, data = diamonds, geom = "tile", stat = "sum")
+<a href='web/graphics/66fd73983d2213dce0d5099f3618330c.pdf'><img src='web/graphics/66fd73983d2213dce0d5099f3618330c.png' /></a>
+
+</pre>

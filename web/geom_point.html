@@ -1,0 +1,97 @@
+<html>
+
+<head>
+	<title>geom_point. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_point.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_point</h1>
+<p class='desc'>Points, as for a scatterplot</p>
+<h2>Details</h2>
+<div class='details'>
+<p>The point <a href='geom_.html'>geom</a> is used to create scatterplots</p>
+<p>The scatterplot is useful for displaying the relationship between two continuous variables, although it can also be used with one continuous and one categorical variable, or two categorical variables.  See <a href='geom_jitter.html' title='Points, jittered to reduce overplotting'>geom_jitter</a> for possibilities</p>
+<p>The <em>bubblechart</em> is a scatterplot with a third variable mapped to the size of points.  There are no special names for scatterplots where another variable is mapped to point shape or colour, however</p>
+<p>The biggest potential problem with a scatterplot is overplotting: whenever you have more than a few points, points may be plotted on top of one another.  This can majorly distort the visual appearance of the plot.  There is no one solution to this problem, but there are some techniques that can help.  You can add additional information with <a href='stat_smooth.html' title='Add a smoother'>stat_smooth</a>, <a href='stat_quantile.html' title='Continuous quantiles'>stat_quantile</a> or stat_density2d.  If you have few unique x values, <a href='geom_boxplot.html' title='Box and whiskers plot'>geom_boxplot</a> may also be useful.  Alternatively, you can summarise the number of points at each location and display that in some way, using <a href='stat_sum.html' title='Sum unique values.  Useful for overplotting on scatterplots'>stat_sum</a>.  Another technique is to use transparent points, geom_point(colour=alpha('black', 0.05))</p>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_point.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_point(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>shape: <code>19</code> <span class='linklist'>(scales: <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_shape.html' title='Discrete position scale'>shape</a>)</span></p></li>
+  <li><p>colour: <code>black</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>size: <code>2</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_point(shape = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>shape</code>, shape of point</li>
+<li><code>colour</code>, border colour</li>
+<li><code>size</code>, size</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_identity.html' title='Identity statistic'>stat_identity</a>.  Override with the <code>stat</code> argument: <code>geom_point(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_identity.html' title='Position adjust which does nothing'>position_identity</a>.  Override with the <code>position</code> argument: <code>geom_point(position="jitter")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='scale_area.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_area</a>: Scale area of points, instead of radius</li>
+<li><a href='geom_jitter.html' title='Points, jittered to reduce overplotting'>geom_jitter</a>: Jittered points for categorical data</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>wt<span class="sym">,</span> y<span class="sym">=</span>mpg<span class="sym">))</span>
+&gt; p <span class="sym">+</span> geom_point<span class="sym">()</span>
+<img src='graphics/592dc65ab3da3f0fc59b9dfd0e7da364.png' />
+
+&gt; 
+&gt; <span class="slc"># Add aesthetic mappings</span>
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>cyl<span class="sym">))</span>
+<img src='graphics/a77d9a59883940c2e23b27dea9874646.png' />
+
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">)))</span>
+<img src='graphics/200ca826f3304f02423fc12b0778a125.png' />
+
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>shape<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">)))</span>
+<img src='graphics/941bce00f2786f2fc7a78ecb96027457.png' />
+
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size<span class="sym">=</span>cyl<span class="sym">))</span>
+<img src='graphics/d5333e332a7904c7f4be6cea35e2643a.png' />
+
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size<span class="sym">=</span>mpg<span class="sym">/</span>wt<span class="sym">))</span>
+<img src='graphics/bef9d7edd7b9bf8438ca7b683145ed15.png' />
+
+&gt; 
+&gt; <span class="slc"># Change scales</span>
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>cyl<span class="sym">)) +</span> scale_colour_gradient<span class="sym">(</span>low<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">)</span>
+<img src='graphics/811ba91f93400858dd8412d1ca98085e.png' />
+
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size<span class="sym">=</span>cyl<span class="sym">)) +</span> <a href='scale_area.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_area</a><span class="sym">()</span>
+<img src='graphics/9b5fe45042c070196883deace29cab3d.png' />
+
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>shape<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">))) +</span> <a href='scale_shape.html' title='Discrete <a href='position_.html'>position</a> <a href='scale_.html'>scale</a>'>scale_shape</a><span class="sym">(</span>solid<span class="sym">=</span>FALSE<span class="sym">)</span>
+<img src='graphics/a5f594e0467a9936e903903a1a8db79e.png' />
+
+&gt; 
+&gt; <span class="slc"># Set aesthetics to fixed value</span>
+&gt; p <span class="sym">+</span> geom_point<span class="sym">(</span>colour <span class="sym">=</span> <span class="str">&quot;red&quot;</span><span class="sym">,</span> size<span class="sym">=</span><span class="num">3</span><span class="sym">)</span>
+<img src='graphics/ce23e8ee507346d77b5705ddf2ddbf12.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">=</span>wt<span class="sym">,</span> y<span class="sym">=</span>mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">)</span>
+<img src='graphics/a326a196923e974acd026cddd6c45a82.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">=</span>wt<span class="sym">,</span> y<span class="sym">=</span>mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;point&quot;</span><span class="sym">)</span>
+<img src='graphics/a326a196923e974acd026cddd6c45a82.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

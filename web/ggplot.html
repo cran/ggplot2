@@ -1,0 +1,77 @@
+<html>
+
+<head>
+	<title>ggplot. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+	<link rel="stylesheet" href="jquery/jquery.tabs.css" type="text/css">
+  <!-- <script src="jquery/jquery-1.1.2.pack.js" type="text/javascript"></script>
+  <script src="jquery/jquery.history_remote.pack.js" type="text/javascript"></script>
+  <script src="jquery/jquery.tabs.pack.js" type="text/javascript"></script> -->
+  <script type="text/javascript">
+  // $(function() {
+  //     $('#xamples').tabs({ fxAutoHeight: true });;
+  // });
+	</script>
+  
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<h1>ggplot</h1>
+
+<p>We start with <code>ggplot</code> which creates a new plot object, and then add (using $+$) the other components: a single <a href='layer.html'>layer</a>, specifying the data, mapping, <a href='geom_.html'>geom</a> and <a href='stat_.html'>stat</a>, the two scales and Cartesian coordinate system.  The <a href='layer.html'>layer</a> is the most complicated component and specifies:</p>
+
+<ul>
+	<li>The <code>data</code> set to use, in this case, the diamonds data.</li>
+	<li>The <code>mapping</code> between data and aesthetics: carat to vertical <a href='position_.html'>position</a>, price to horizontal <a href='position_.html'>position</a>.</li>
+	<li>That the point <code><a href='geom_.html'>geom</a></code>, and the identity <code><a href='stat_.html'>stat</a></code> should be used</li>
+</ul>
+
+<p>Only one of <a href='geom_.html'>geom</a> and <a href='stat_.html'>stat</a> needs to be specified, as each <a href='geom_.html'>geom</a> has a default <a href='stat_.html'>stat</a> and each <a href='stat_.html'>stat</a> has a default <a href='geom_.html'>geom</a>.  You can have any number of layers.</p>
+
+<p>Scales and coordinate systems are added with consistent naming scheme (scales begin with <code><a href='scale_.html'>scale</a>\_</code> and coordinate systems with <code><a href='coord_.html'>coord</a>\_</code>).  You must have one <a href='scale_.html'>scale</a> per aesthetic attribute used, and only one coordinate system.  Adding additional scales or coordinate systems will overwrite existing values.  Often you will tune various parameters to get the plot that you want.  Parameters are specified in the format <code>name = value</code>.  Parameters can also be specified by <a href='position_.html'>position</a>, but this requires much greater familiarity with the code.</p>
+
+<p>The above definition is perfectly explicit, but extremely verbose.  By default, ggplot will automatically add sensible scales and the default coordinate system, so that the following code is equivalent to the that above:</p>
+
+<pre>
+ggplot() + 
+<a href='layer.html'>layer</a>(
+	data = diamonds, mapping = aes(x = carat, y = price),
+	<a href='geom_.html'>geom</a> = "point")
+)
+</pre>
+
+<p>The more complex Figure \ref{fig:logged} can be produced with the following code:</p>
+
+<pre>
+ggplot() + 
+<a href='layer.html'>layer</a>(
+	data = diamonds, mapping = aes(x = carat, y = price),
+	<a href='geom_.html'>geom</a> = "point", <a href='stat_.html'>stat</a> = "identity")
+) + 
+<a href='layer.html'>layer</a>(
+	data = diamonds, mapping = aes(x = carat, y = price),
+	<a href='geom_.html'>geom</a> = "smooth", <a href='stat_.html'>stat</a> = "smooth", method = lm)
+) + 
+scale_y_log10() + 
+scale_x_log10()
+</pre>
+
+<p>Here we have used multiple layers.  In the second <a href='layer.html'>layer</a>, <code>method="lm"</code> specifies an parameter of  the smooth statistic, the method to use, here <code>lm</code> to fit a linear smooth.  Additional arguments to the <a href='layer.html'>layer</a> will be passed to the <a href='stat_.html'>stat</a> or <a href='geom_.html'>geom</a> as appropriate.  If there is any ambiguity, <a href='geom_.html'>geom</a> and <a href='stat_.html'>stat</a> arguments can be specified directly as, e.g. <code><a href='stat_.html'>stat</a>\_params = list(method = "lm")</code>.  </p>
+
+<p>There is some duplication in this example, which we can reduce by using plot defaults:</p>
+
+<pre>
+ggplot(data = diamonds, mapping = aes(x = carat, y = price))  + 
+<a href='layer.html'>layer</a>(<a href='geom_.html'>geom</a> = "point") + 
+<a href='layer.html'>layer</a>(<a href='stat_.html'>stat</a> = "smooth", method = lm) + 
+scale_y_log10() + 
+scale_x_log10()
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

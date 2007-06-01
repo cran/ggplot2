@@ -1,0 +1,57 @@
+<html>
+
+<head>
+	<title>facet_grid. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='facet_grid.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>facet_grid</h1>
+<p class='desc'>Lay out panels in a rectangular/tabular manner.</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>diamonds<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>carat<span class="sym">,</span> y<span class="sym">=</span>price<span class="sym">)) +</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">()</span>
+&gt; 
+&gt; <span class="slc"># With one variable</span>
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span>. ~ cut<span class="sym">)</span>
+<img src='graphics/7bfae4d7d7f85335b0aaacea6c9d9134.png' />
+
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span>cut ~ .<span class="sym">)</span>
+<img src='graphics/ed44da181b41913a046658dd1e16c24a.png' />
+
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span>cut ~ .<span class="sym">,</span> margins<span class="sym">=</span>TRUE<span class="sym">)</span>
+<img src='graphics/1f65970ecf98b223160ca89b25c47ed9.png' />
+
+&gt; 
+&gt; <span class="slc"># With two variables</span>
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span>clarity ~ cut<span class="sym">)</span>
+<img src='graphics/dac591d7c7f53905d188cb7715750217.png' />
+
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span>cut ~ clarity<span class="sym">)</span>
+<img src='graphics/78c9b31d4e9e10ba16f08b07cd43c497.png' />
+
+&gt; <span class="slc"># and only useful if you have a reaaaaaallly long screen</span>
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span>cut <span class="sym">+</span> clarity ~ .<span class="sym">)</span>
+<img src='graphics/eb65f32db193906fa2342c1049fa2ee0.png' />
+
+&gt; 
+&gt; <span class="slc"># You can also use strings, which makes it a little easier</span>
+&gt; <span class="slc"># when writing functions that generate facetting specifications</span>
+&gt; p <span class="sym">+</span> facet_grid<span class="sym">(</span><span class="str">&quot;cut ~ .&quot;</span><span class="sym">)</span>
+<img src='graphics/ed44da181b41913a046658dd1e16c24a.png' />
+ src 
+"\n" 
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

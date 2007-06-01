@@ -1,0 +1,135 @@
+<html>
+
+<head>
+	<title>stat_density. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='stat_density.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>stat_density</h1>
+<p class='desc'>Density estimation, 1D</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  stat_density.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>stat_density(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>y: <code>..density..</code> <span class='linklist'>(scales: <a href='scale_continuous.html' title='Continuous position scale'>continuous</a>, <a href='scale_date.html' title='Continuous scale for date variables'>date</a>, <a href='scale_discrete.html' title='Discrete position scale'>discrete</a>, <a href='scale_pow.html' title='Power scale'>pow</a>, <a href='scale_prob.html' title='Probability scale'>prob</a>)</span></p></li>
+  <li><p>fill: <code>NA</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+</ul>
+<h2>New variables produced by the statistic</h2>
+<p>To use these variables in an aesthetic mapping, you need to surrond them with .., like <code>aes(x = ..output..)</code>.</p>
+<ul>
+<li><code>y</code>, density estimate</li>
+<li><code>scaled</code>, density estimate, scaled to maximum of 1</li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>stat_density(adjust = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>adjust</code>, see \code{\link{density}} for details</li>
+<li><code>kernel</code>, kernel used for density estimation, see \code{\link{density}} for details</li>
+<li><code>trim</code>, NULL</li>
+</ul>
+<h2>Default geom</h2>
+<p><a href='geom_area.html' title='Area plots'>geom_area</a>.  Override with the  <code>geom</code> argument: <code>stat_density(geom="point")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='stat_bin.html' title='Bin data'>stat_bin</a>: for the histogram</li>
+<li>density: for details of the algorithm used</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">))</span>
+&gt; m <span class="sym">+</span> stat_density<span class="sym">()</span>
+<img src='graphics/b6852fc14bfea3f6e129f8dba22c3493.png' />
+
+&gt; 
+&gt; <span class="slc"># Adjust parameters</span>
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>kernel <span class="sym">=</span> <span class="str">&quot;rectangular&quot;</span><span class="sym">)</span>
+<img src='graphics/7425907253905c7f3896461683a9da7f.png' />
+
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>kernel <span class="sym">=</span> <span class="str">&quot;biweight&quot;</span><span class="sym">)</span>
+<img src='graphics/a8b7640339af2332d348b3f73d8c563f.png' />
+
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>kernel <span class="sym">=</span> <span class="str">&quot;epanechnikov&quot;</span><span class="sym">)</span>
+<img src='graphics/ab85ff09a339826d06bfa98f3b5e055a.png' />
+
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>adjust<span class="sym">=</span><span class="num">1</span><span class="sym">/</span><span class="num">5</span><span class="sym">)</span>
+<img src='graphics/973f65415ce8445e874963b3fe71073a.png' />
+ <span class="slc"># Very rough</span>
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>adjust<span class="sym">=</span><span class="num">5</span><span class="sym">)</span>
+<img src='graphics/a1403b28a2ea9b238abed72501a0fbb7.png' />
+ <span class="slc"># Very smooth</span>
+&gt; 
+&gt; <span class="slc"># Adjust aesthetics</span>
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>factor<span class="sym">(</span>Drama<span class="sym">)),</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">,</span> fill<span class="sym">=</span><span class="kwb">NA</span><span class="sym">)</span>
+<img src='graphics/5bd3883c9b0371461ad983c804215fce.png' />
+
+&gt; <span class="slc"># Scale so peaks have same height:</span>
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>factor<span class="sym">(</span>Drama<span class="sym">),</span> y <span class="sym">=</span> ..scaled..<span class="sym">),</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">,</span> fill<span class="sym">=</span><span class="kwb">NA</span><span class="sym">)</span>
+<img src='graphics/a4906ef175c7db98e56f3ad274adbf31.png' />
+
+&gt; 
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>colour<span class="sym">=</span><span class="str">&quot;darkgreen&quot;</span><span class="sym">,</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">)</span>
+<img src='graphics/74495430cc2c8d060eb22aee6e901fd0.png' />
+
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>colour<span class="sym">=</span><span class="str">&quot;darkgreen&quot;</span><span class="sym">,</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">,</span> fill<span class="sym">=</span><span class="kwb">NA</span><span class="sym">)</span>
+<img src='graphics/c4415d2711736c1a68e58fff4ff35390.png' />
+
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>colour<span class="sym">=</span><span class="str">&quot;darkgreen&quot;</span><span class="sym">,</span> size<span class="sym">=</span><span class="num">2</span><span class="sym">,</span> fill<span class="sym">=</span><span class="str">&quot;green&quot;</span><span class="sym">)</span>
+<img src='graphics/ce15b65b8f054a24ca55cdac0d540ac3.png' />
+
+&gt; 
+&gt; <span class="slc"># Change scales</span>
+&gt; <span class="sym">(</span>m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>votes<span class="sym">)) +</span> stat_density<span class="sym">(</span>trim <span class="sym">=</span> TRUE<span class="sym">))</span>
+<img src='graphics/2594759c861d3d62224eebbbeab77f71.png' />
+
+&gt; m <span class="sym">+</span> scale_x_log10<span class="sym">()</span>
+<img src='graphics/d886912e214a39c304cbcc5bc571d27a.png' />
+
+&gt; m <span class="sym">+</span> <a href='coord_trans.html' title='Transformed cartesian coordinate system'>coord_trans</a><span class="sym">(</span>x<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">)</span>
+<img src='graphics/fa060e8285ed099b21afa49f78fe18b3.png' />
+
+&gt; m <span class="sym">+</span> scale_x_log10<span class="sym">() +</span> <a href='coord_trans.html' title='Transformed cartesian coordinate system'>coord_trans</a><span class="sym">(</span>x<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">)</span>
+<img src='graphics/0e48a896ba2d63e5f3cede9d48d6e986.png' />
+
+&gt; 
+&gt; <span class="slc"># Also useful with</span>
+&gt; m <span class="sym">+</span> <a href='stat_bin.html' title='Bin data'>stat_bin</a><span class="sym">()</span>
+<img src='graphics/c47b23d2bc40f5edabb48ec733cf7a2b.png' />
+
+&gt; 
+&gt; <span class="slc"># Need to be careful with weighted data</span>
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">,</span> weight<span class="sym">=</span>votes<span class="sym">))</span>
+&gt; m <span class="sym">+</span> <a href='geom_histogram.html' title='Histogram'>geom_histogram</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>y <span class="sym">=</span> ..count..<span class="sym">)) +</span> stat_density<span class="sym">(</span>fill<span class="sym">=</span><span class="kwb">NA</span><span class="sym">)</span>
+<img src='graphics/2eecd9c06595b0128b9220fa52755b71.png' />
+
+&gt; 
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">,</span> weight<span class="sym">=</span>votes<span class="sym">/</span>sum<span class="sym">(</span>votes<span class="sym">)))</span>
+&gt; m <span class="sym">+</span> <a href='geom_histogram.html' title='Histogram'>geom_histogram</a><span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>y<span class="sym">=</span>..density..<span class="sym">)) +</span> stat_density<span class="sym">(</span>fill<span class="sym">=</span><span class="kwb">NA</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;black&quot;</span><span class="sym">)</span>
+<img src='graphics/2009ed2d8f617ed9279c4d11bd2fde3c.png' />
+
+&gt; 
+&gt; movies$decade <span class="sym">&lt;-</span> round_any<span class="sym">(</span>movies$year<span class="sym">,</span> <span class="num">10</span><span class="sym">)</span>
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>rating<span class="sym">,</span> colour<span class="sym">=</span>decade<span class="sym">,</span> group<span class="sym">=</span>decade<span class="sym">))</span>
+&gt; m <span class="sym">+</span> stat_density<span class="sym">(</span>fill<span class="sym">=</span><span class="kwb">NA</span><span class="sym">)</span>
+<img src='graphics/be5128d12d79c1f3d99c6073100e256a.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>length<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;density&quot;</span><span class="sym">,</span> weight<span class="sym">=</span>rating<span class="sym">)</span>
+<img src='graphics/51b8c5cc12549c1608b21167905c15b1.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>length<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;density&quot;</span><span class="sym">,</span> weight<span class="sym">=</span>rating<span class="sym">/</span>sum<span class="sym">(</span>rating<span class="sym">))</span>
+<img src='graphics/bd64fa2d4b7cab28db9a6541f7788ff1.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

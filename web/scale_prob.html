@@ -1,0 +1,89 @@
+<html>
+
+<head>
+	<title>scale_prob. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_prob.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_prob</h1>
+<p class='desc'>Probability scale</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>See also</h2><ul>
+<li><a href='scale_discrete.html' title='Discrete <a href='position_.html'>position</a> <a href='scale_.html'>scale</a>'>scale_discrete</a>: Discrete position scales</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; <span class="sym">(</span>m <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> votes<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">))</span>
+<img src='graphics/cc0909c4cc362795d2f00eaa5592a3b9.png' />
+
+&gt; 
+&gt; <span class="slc"># Manipulating the default <a href='position_.html'>position</a> scales lets you:</span>
+&gt; 
+&gt; <span class="slc">#  * change the axis labels</span>
+&gt; m <span class="sym">+</span> scale_y_continuous<span class="sym">(</span><span class="str">&quot;number of votes&quot;</span><span class="sym">)</span>
+<img src='graphics/4e3fea95a8cbb25f6cfc7cc62b881d6d.png' />
+
+&gt; m <span class="sym">+</span> scale_y_continuous<span class="sym">(</span>expression<span class="sym">(</span>votes^alpha<span class="sym">))</span>
+<img src='graphics/7971f9bb8ec4679b5e1b41f165eefc27.png' />
+
+&gt; 
+&gt; <span class="slc">#  * modify the axis limits</span>
+&gt; m <span class="sym">+</span> scale_y_continuous<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="kwb">NA</span><span class="sym">,</span> <span class="num">5000</span><span class="sym">))</span>
+<img src='graphics/99cb7efb83c4ce4baa61d0e2622ac255.png' />
+
+&gt; m <span class="sym">+</span> scale_y_continuous<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">1000</span><span class="sym">,</span> <span class="kwb">NA</span><span class="sym">))</span>
+<img src='graphics/024035858bc15293561a6844961987b7.png' />
+
+&gt; m <span class="sym">+</span> scale_x_continuous<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">7</span><span class="sym">,</span> <span class="num">8</span><span class="sym">))</span>
+<img src='graphics/a231a18b63e98992a59986716c2eafbf.png' />
+
+&gt; 
+&gt; <span class="slc">#  * choose where the ticks appear</span>
+&gt; m <span class="sym">+</span> scale_x_continuous<span class="sym">(</span>breaks<span class="sym">=</span><span class="num">1</span><span class="sym">:</span><span class="num">10</span><span class="sym">)</span>
+<img src='graphics/058934b4e90f04a82548f662227197b1.png' />
+
+&gt; m <span class="sym">+</span> scale_x_continuous<span class="sym">(</span>breaks<span class="sym">=</span>c<span class="sym">(</span><span class="num">1</span><span class="sym">,</span><span class="num">3</span><span class="sym">,</span><span class="num">7</span><span class="sym">,</span><span class="num">9</span><span class="sym">))</span>
+<img src='graphics/c1c4018df802507332d251ee7c6c8c82.png' />
+
+&gt; 
+&gt; <span class="slc"># There are also a wide range of transformations you can use:</span>
+&gt; m <span class="sym">+</span> scale_y_log10<span class="sym">()</span>
+<img src='graphics/85f436856e41fe460932844a5fc1f304.png' />
+
+&gt; m <span class="sym">+</span> scale_y_log<span class="sym">()</span>
+<img src='graphics/2e623b084b05033e6bc392b77b1208bd.png' />
+
+&gt; m <span class="sym">+</span> scale_y_log2<span class="sym">()</span>
+<img src='graphics/9a4899886624c98447336225c7fd088a.png' />
+
+&gt; m <span class="sym">+</span> scale_y_sqrt<span class="sym">()</span>
+<img src='graphics/66c9a78880f362798b3c63adc4aa3fb7.png' />
+
+&gt; <span class="slc"># see ?transformer for a full list</span>
+&gt; 
+&gt; <span class="slc"># <a href='qplot.html'>qplot</a> allows you to do some of this with a little less typing:</span>
+&gt; <span class="slc">#   * axis limits</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> votes<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> xlim<span class="sym">=</span>c<span class="sym">(</span><span class="num">5</span><span class="sym">,</span><span class="num">10</span><span class="sym">),</span> ylim<span class="sym">=</span>c<span class="sym">(</span><span class="num">50000</span><span class="sym">,</span> <span class="kwb">NA</span><span class="sym">))</span>
+<img src='graphics/dc402a869b46d26749435b4ef8fa9232.png' />
+
+&gt; <span class="slc">#   * axis labels</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> votes<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> xlab<span class="sym">=</span><span class="str">&quot;My x axis&quot;</span><span class="sym">,</span> ylab<span class="sym">=</span><span class="str">&quot;My y axis&quot;</span><span class="sym">)</span>
+<img src='graphics/e35afd450149c22c0bfc8fdc81cf89c7.png' />
+
+&gt; <span class="slc">#   * log scaling</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>rating<span class="sym">,</span> votes<span class="sym">,</span> data<span class="sym">=</span>movies<span class="sym">,</span> log<span class="sym">=</span><span class="str">&quot;xy&quot;</span><span class="sym">)</span>
+<img src='graphics/d48a5e1fc400ce78b3a881b8359c0263.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

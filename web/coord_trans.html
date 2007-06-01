@@ -1,0 +1,64 @@
+<html>
+
+<head>
+	<title>coord_trans. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='coord_trans.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>coord_trans</h1>
+<p class='desc'>Transformed cartesian coordinate system</p>
+<h2>Details</h2>
+<div class='details'>
+<p>The Cartesian coordinate system is the most familiar, and common, type of coordinate system.  There are no options to modify, and it is used by default, so you shouldn't need to call it explicitly</p>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>log10<span class="sym">(</span>carat<span class="sym">),</span> log10<span class="sym">(</span>price<span class="sym">),</span> data<span class="sym">=</span>diamonds<span class="sym">)</span>
+<img src='graphics/ce025f62291930fdbd292b03b181b0bb.png' />
+
+&gt; <span class="slc">#  * by transforming the scales</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> log<span class="sym">=</span><span class="str">&quot;xy&quot;</span><span class="sym">)</span>
+<img src='graphics/919017a0166f26c252da7659c05346fa.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">) +</span> scale_x_log10<span class="sym">() +</span> scale_y_log10<span class="sym">()</span>
+<img src='graphics/919017a0166f26c252da7659c05346fa.png' />
+
+&gt; <span class="slc">#  * by transforming the coordinate system:</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">) +</span> coord_trans<span class="sym">(</span>x<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">,</span> y<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">)</span>
+<img src='graphics/0f350a47652513f516fafc828c1a8290.png' />
+
+&gt; 
+&gt; <span class="slc"># The difference between transforming the scales and</span>
+&gt; <span class="slc"># transforming the coordinate system is that <a href='scale_.html'>scale</a></span>
+&gt; <span class="slc"># transformation occurs BEFORE statistics, and coordinate</span>
+&gt; <span class="slc"># transformation afterwards.  Coordinate transformation also</span>
+&gt; <span class="slc"># changes the shape of geoms:</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> log<span class="sym">=</span><span class="str">&quot;xy&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;smooth&quot;</span><span class="sym">,</span> method<span class="sym">=</span><span class="str">&quot;lm&quot;</span><span class="sym">)</span>
+<img src='graphics/08b176bebca3c6eac9747dc5940968db.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;smooth&quot;</span><span class="sym">,</span> method<span class="sym">=</span><span class="str">&quot;lm&quot;</span><span class="sym">) +</span> coord_trans<span class="sym">(</span>x<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">,</span> y<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">)</span>
+<img src='graphics/9ed9d9a3bd6211cdfad7a25a1ed04591.png' />
+
+&gt; 
+&gt; <span class="slc"># With a combination of <a href='scale_.html'>scale</a> and coordinate transformation, it's</span>
+&gt; <span class="slc"># possible to do back-transformations:</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> log<span class="sym">=</span><span class="str">&quot;xy&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span>c<span class="sym">(</span><span class="str">&quot;point&quot;</span><span class="sym">,</span> <span class="str">&quot;smooth&quot;</span><span class="sym">),</span> method<span class="sym">=</span><span class="str">&quot;lm&quot;</span><span class="sym">) +</span> coord_trans<span class="sym">(</span>x<span class="sym">=</span><span class="str">&quot;pow10&quot;</span><span class="sym">,</span> y<span class="sym">=</span><span class="str">&quot;pow10&quot;</span><span class="sym">)</span>
+<img src='graphics/d42c3192df7abe41c00b1ae033cd8e79.png' />
+
+&gt; <span class="slc"># cf.</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>carat<span class="sym">,</span> price<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span>c<span class="sym">(</span><span class="str">&quot;point&quot;</span><span class="sym">,</span> <span class="str">&quot;smooth&quot;</span><span class="sym">),</span> method<span class="sym">=</span><span class="str">&quot;lm&quot;</span><span class="sym">)</span>
+<img src='graphics/07610efc2361a94e5c455ee430203063.png' />
+ src 
+"\n" 
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

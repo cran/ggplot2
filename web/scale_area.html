@@ -1,0 +1,67 @@
+<html>
+
+<head>
+	<title>scale_area. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_area.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_area</h1>
+<p class='desc'>Size scale for continuous variable</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>See also</h2><ul>
+<li><a href='scale_discrete.html' title='Discrete <a href='position_.html'>position</a> <a href='scale_.html'>scale</a>'>scale_discrete</a>: Discrete position scales</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; <span class="sym">(</span>p <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>mpg<span class="sym">,</span> cyl<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> size<span class="sym">=</span>cyl<span class="sym">))</span>
+<img src='graphics/2ac5a92c7e7236091dd36eb3b86a6317.png' />
+
+&gt; p <span class="sym">+</span> <a href='scale_size.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_size</a><span class="sym">(</span><span class="str">&quot;cylinders&quot;</span><span class="sym">)</span>
+<img src='graphics/30125a0bcfb846b5778418370e8648e2.png' />
+
+&gt; p <span class="sym">+</span> <a href='scale_size.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_size</a><span class="sym">(</span><span class="str">&quot;number</span><span class="esc">\n</span><span class="str">of</span><span class="esc">\n</span><span class="str">cylinders&quot;</span><span class="sym">)</span>
+<img src='graphics/1372aae20fb7a051c3ad181ced4b465d.png' />
+
+&gt; 
+&gt; p <span class="sym">+</span> <a href='scale_size.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_size</a><span class="sym">(</span>to <span class="sym">=</span> c<span class="sym">(</span><span class="num">0</span><span class="sym">,</span> <span class="num">10</span><span class="sym">))</span>
+<img src='graphics/d0418dcdf4490045eb5b03e3008d0910.png' />
+
+&gt; p <span class="sym">+</span> <a href='scale_size.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_size</a><span class="sym">(</span>to <span class="sym">=</span> c<span class="sym">(</span><span class="num">1</span><span class="sym">,</span> <span class="num">2</span><span class="sym">))</span>
+<img src='graphics/21d3a3a170f95f7c3753a8d74481dd64.png' />
+
+&gt; 
+&gt; <span class="slc"># Map area, instead of width/radius</span>
+&gt; <span class="slc"># Perceptually, this is a little better</span>
+&gt; p <span class="sym">+</span> scale_area<span class="sym">()</span>
+<img src='graphics/cb11ae0bfd4a3cf9bbffff11e0f4427e.png' />
+
+&gt; p <span class="sym">+</span> scale_area<span class="sym">(</span>to <span class="sym">=</span> c<span class="sym">(</span><span class="num">1</span><span class="sym">,</span> <span class="num">25</span><span class="sym">))</span>
+<img src='graphics/6a1027e4aae99ec01954c691937ac38f.png' />
+
+&gt; 
+&gt; <span class="slc"># Also works with factors, but not a terribly good</span>
+&gt; <span class="slc"># idea, unless your factor is ordered, as in this example</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>mpg<span class="sym">,</span> cyl<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> size<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">))</span>
+<img src='graphics/4a6278e482cdecc067c4db3767160d83.png' />
+
+&gt; 
+&gt; <span class="slc"># For lines, you need to tell that you want lines on the legend</span>
+&gt; <span class="sym">(</span>p <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>mpg<span class="sym">,</span> cyl<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> size<span class="sym">=</span>cyl<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">))</span>
+<img src='graphics/fe049e72c27fd34b8200791faa462888.png' />
+
+&gt; p <span class="sym">+</span> <a href='scale_size.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_size</a><span class="sym">(</span>guide<span class="sym">=</span><span class="str">&quot;line&quot;</span><span class="sym">)</span>
+<img src='graphics/5dc9ff3b05098c860b4ca82a38466468.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

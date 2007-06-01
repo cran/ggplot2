@@ -1,0 +1,46 @@
+<html>
+
+<head>
+	<title>coord_equal. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='coord_equal.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>coord_equal</h1>
+<p class='desc'>Equal scale cartesian coordinates</p>
+<h2>Details</h2>
+<div class='details'>
+<p>An equal <a href='scale_.html'>scale</a> coordinate system plays a similar role to ?eqscplot in MASS, but it works for all types of graphics, not just scatterplots.</p>
+<p>This coordinate system has one parameter, <code>ratio</code>, which specifies the ratio between the x and y scales.  You will usually need to set the aspect ratio as well - see the example for details.</p>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <span class="sym">(</span>p <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>mpg<span class="sym">,</span> wt<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">) +</span> coord_equal<span class="sym">(</span>ratio<span class="sym">=</span><span class="num">1</span><span class="sym">))</span>
+<img src='graphics/dcef39dbf878f800cc85361f97b54a49.png' />
+
+&gt; p$aspect.ratio <span class="sym">&lt;-</span> <span class="num">1</span><span class="sym">;</span>p
+<img src='graphics/e8f7326aea6b8cbd19de2d00e401420e.png' />
+
+&gt; 
+&gt; <span class="sym">(</span>p <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>mpg<span class="sym">,</span> wt<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">) +</span> coord_equal<span class="sym">(</span>ratio<span class="sym">=</span><span class="num">1</span><span class="sym">/</span><span class="num">5</span><span class="sym">))</span>
+<img src='graphics/a8776317fdc673c14dda1828e37290e8.png' />
+
+&gt; p$aspect.ratio <span class="sym">&lt;-</span> <span class="num">1</span><span class="sym">;</span>p
+<img src='graphics/6de15394f094d6263e115b11dc98661c.png' />
+
+&gt; p$aspect.ratio <span class="sym">&lt;-</span> <span class="num">1</span><span class="sym">/</span><span class="num">5</span><span class="sym">;</span>p
+<img src='graphics/da97a354ee19f31cadf003ff4f2d5d40.png' />
+
+&gt; 
+&gt; <span class="slc"># Resize the plot, and observe that the specified aspect ratio is</span>
+&gt; <span class="slc"># mantained</span></pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

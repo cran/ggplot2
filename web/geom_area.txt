@@ -1,0 +1,36 @@
+<pre>
+> huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
+> huron$decade <- round_any(huron$year, 10, floor)
+> h <- ggplot(huron, aes(x = year))
+> h + geom_ribbon(min = 0, max = level)
+<a href='web/graphics/eeb64e771b62721abffbb585d0154ce6.pdf'><img src='web/graphics/eeb64e771b62721abffbb585d0154ce6.png' /></a>
+
+> h + geom_area(y = level)
+<a href='web/graphics/ea5b4b3c5f69ad93c83f10b0fb2ef5d5.pdf'><img src='web/graphics/ea5b4b3c5f69ad93c83f10b0fb2ef5d5.png' /></a>
+
+> h + geom_ribbon(aes(min = level - 1, max = level + 1))
+<a href='web/graphics/076df72292e46d885660f987c6f00b32.pdf'><img src='web/graphics/076df72292e46d885660f987c6f00b32.png' /></a>
+
+> h + geom_ribbon(aes(min = level - 1, max = level + 1)) + geom_line()
+<a href='web/graphics/5a7b6b04400c0c3ac0962fd884bc7abc.pdf'><img src='web/graphics/5a7b6b04400c0c3ac0962fd884bc7abc.png' /></a>
+
+> h + geom_ribbon(aes(fill = decade, group = decade), min = 580)
+<a href='web/graphics/32b64ec90bbe84efd3be2fac3799e54a.pdf'><img src='web/graphics/32b64ec90bbe84efd3be2fac3799e54a.png' /></a>
+
+> h + geom_ribbon(aes(fill = decade, group = decade), min = 570)
+<a href='web/graphics/32b64ec90bbe84efd3be2fac3799e54a.pdf'><img src='web/graphics/32b64ec90bbe84efd3be2fac3799e54a.png' /></a>
+
+> m <- ggplot(movies, aes(y = votes, x = year))
+> m + geom_point()
+<a href='web/graphics/fcf5ad4b26022a2c9bb63369e6ddc1b6.pdf'><img src='web/graphics/fcf5ad4b26022a2c9bb63369e6ddc1b6.png' /></a>
+
+> m + stat_summary(geom = "ribbon")
+<a href='web/graphics/29d4590f0ade2c16e8d538f422fa8864.pdf'><img src='web/graphics/29d4590f0ade2c16e8d538f422fa8864.png' /></a>
+
+> m + stat_summary(geom = "ribbon", fun = stat_median_hilow)
+<a href='web/graphics/06e5690c5773caadb8c4ccaa3724c9e0.pdf'><img src='web/graphics/06e5690c5773caadb8c4ccaa3724c9e0.png' /></a>
+
+> qplot(year, level, data = huron, geom = c("ribbon", "line"))
+<a href='web/graphics/7bdf3464274446c797829b0330b0f822.pdf'><img src='web/graphics/7bdf3464274446c797829b0330b0f822.png' /></a>
+
+</pre>

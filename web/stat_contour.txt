@@ -1,0 +1,48 @@
+<pre>
+> volcano3d <- rename(melt(volcano), c(X1 = "x", X2 = "y", value = "z"))
+> v <- ggplot(volcano3d, aes(x = x, y = y, z = z))
+> v + stat_contour()
+<a href='web/graphics/46d27ee8cc7d378117d871a372a382d5.pdf'><img src='web/graphics/46d27ee8cc7d378117d871a372a382d5.png' /></a>
+
+> v + stat_contour(aes(size = ..level..))
+<a href='web/graphics/ac5a061d9a84ca751abe9d5444090b08.pdf'><img src='web/graphics/ac5a061d9a84ca751abe9d5444090b08.png' /></a>
+
+> v + stat_contour(aes(colour = ..level..))
+<a href='web/graphics/1516d9cce046d84fe9c512f005c2c40e.pdf'><img src='web/graphics/1516d9cce046d84fe9c512f005c2c40e.png' /></a>
+
+> v + stat_contour(aes(colour = ..level..), size = 2) + scale_colour_gradient(low = "brown", 
++     high = "white")
+<a href='web/graphics/134d4d98183e3079b5ba55bf55e4959a.pdf'><img src='web/graphics/134d4d98183e3079b5ba55bf55e4959a.png' /></a>
+
+> v + stat_contour() + scale_z_continuous(breaks = c(100, 150))
+<a href='web/graphics/166315b73dccf01142aa0f7a720f809f.pdf'><img src='web/graphics/166315b73dccf01142aa0f7a720f809f.png' /></a>
+
+> v + stat_contour(size = 0.5) + scale_z_continuous(breaks = seq(95, 
++     195, by = 2))
+<a href='web/graphics/a610f12ddde0631154cde14ae998229c.pdf'><img src='web/graphics/a610f12ddde0631154cde14ae998229c.png' /></a>
+
+> v + stat_contour() + scale_z_log10()
+<a href='web/graphics/f3182752907474e79cad7d281804218e.pdf'><img src='web/graphics/f3182752907474e79cad7d281804218e.png' /></a>
+
+> v + stat_contour(colour = "red")
+<a href='web/graphics/da7572e0ad6769e0f845ddf6ccaea5f6.pdf'><img src='web/graphics/da7572e0ad6769e0f845ddf6ccaea5f6.png' /></a>
+
+> v + stat_contour(size = 2, linetype = 4)
+<a href='web/graphics/6704d75bd856fb16809019ad29c28f54.pdf'><img src='web/graphics/6704d75bd856fb16809019ad29c28f54.png' /></a>
+
+> v + stat_contour(geom = "polygon", aes(fill = ..level..))
+<a href='web/graphics/09dd402c05c3b655171c2caf6d32edbf.pdf'><img src='web/graphics/09dd402c05c3b655171c2caf6d32edbf.png' /></a>
+
+> v + geom_tile(aes(fill = z)) + stat_contour()
+<a href='web/graphics/6cbe62eab7c68f5f3d35e719873a3ea7.pdf'><img src='web/graphics/6cbe62eab7c68f5f3d35e719873a3ea7.png' /></a>
+
+> v + stat_contour() + coord_polar()
+<a href='web/graphics/444a8b1a8ac1bf9d9cc09a8674b0139c.pdf'><img src='web/graphics/444a8b1a8ac1bf9d9cc09a8674b0139c.png' /></a>
+
+> qplot(x, y, z, data = volcano3d, geom = "contour")
+<a href='web/graphics/644ac443ce3d0b93a95823767b16b806.pdf'><img src='web/graphics/644ac443ce3d0b93a95823767b16b806.png' /></a>
+
+> qplot(x, y, z, data = volcano3d, stat = "contour", geom = "path")
+<a href='web/graphics/9f150a4e6c81606f0b34cc7a3249149d.pdf'><img src='web/graphics/9f150a4e6c81606f0b34cc7a3249149d.png' /></a>
+
+</pre>

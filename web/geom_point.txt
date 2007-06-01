@@ -1,0 +1,36 @@
+<pre>
+> p <- ggplot(mtcars, aes(x = wt, y = mpg))
+> p + geom_point()
+<a href='web/graphics/70948e1d9e62d713797fbd697d840169.pdf'><img src='web/graphics/70948e1d9e62d713797fbd697d840169.png' /></a>
+
+> p + geom_point(aes(colour = cyl))
+<a href='web/graphics/1f81bc17458ed1142f18650b2bf29dfd.pdf'><img src='web/graphics/1f81bc17458ed1142f18650b2bf29dfd.png' /></a>
+
+> p + geom_point(aes(colour = factor(cyl)))
+<a href='web/graphics/3d42940e4b597e09d2b2919773f286f0.pdf'><img src='web/graphics/3d42940e4b597e09d2b2919773f286f0.png' /></a>
+
+> p + geom_point(aes(colour = cyl, shape = cyl))
+<a href='web/graphics/8bf73f8bcf24797cded080eb113db474.pdf'><img src='web/graphics/8bf73f8bcf24797cded080eb113db474.png' /></a>
+
+> p + geom_point(aes(size = cyl))
+<a href='web/graphics/eb4a6dffb58f132dc7f3e5616713e5e7.pdf'><img src='web/graphics/eb4a6dffb58f132dc7f3e5616713e5e7.png' /></a>
+
+> p + geom_point(aes(size = mpg/wt))
+<a href='web/graphics/0460deb5c265ba02682323d510b94394.pdf'><img src='web/graphics/0460deb5c265ba02682323d510b94394.png' /></a>
+
+> p + geom_point(aes(colour = cyl)) + scale_colour_gradient(low = "red")
+<a href='web/graphics/8a016844ab402b0d1961eeb92d9ea654.pdf'><img src='web/graphics/8a016844ab402b0d1961eeb92d9ea654.png' /></a>
+
+> p + geom_point(aes(size = cyl)) + scale_area()
+<a href='web/graphics/eeaeae91d1811c32299a08dbd6984042.pdf'><img src='web/graphics/eeaeae91d1811c32299a08dbd6984042.png' /></a>
+
+> p + geom_point(colour = "red", size = 3)
+<a href='web/graphics/3b1eef55f03c77fdc188a070ef0b1103.pdf'><img src='web/graphics/3b1eef55f03c77fdc188a070ef0b1103.png' /></a>
+
+> qplot(x = wt, y = mpg, data = mtcars)
+<a href='web/graphics/4ab712ef37725a94ccbc3d6370ecc9a9.pdf'><img src='web/graphics/4ab712ef37725a94ccbc3d6370ecc9a9.png' /></a>
+
+> qplot(x = wt, y = mpg, data = mtcars, geom = "point")
+<a href='web/graphics/4ab712ef37725a94ccbc3d6370ecc9a9.pdf'><img src='web/graphics/4ab712ef37725a94ccbc3d6370ecc9a9.png' /></a>
+
+</pre>

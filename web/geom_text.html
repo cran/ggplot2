@@ -1,0 +1,90 @@
+<html>
+
+<head>
+	<title>geom_text. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='geom_text.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>geom_text</h1>
+<p class='desc'>Textual annotations</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Aesthetics</h2>
+<p>The following aesthetics can be used with  geom_text.  They are listed along with their default value.  All geoms and scales can also use the group aesthetic.  Read how this important aesthetic works in scale_group. Typically, you will associate an aesthetic with a variable in your data set.  To do this, you use the <a href='aes.html'>aes</a> function: <code>geom_text(<a href='aes.html'>aes</a>(x = var))</code>. Scales control the details of the mapping between data and aesthetic properties; after each aesthetic are listed scales that can be used with that aesthetic. The <a href='scale_.html'>scale</a> documentation will also provide references to help you interpret the default values.</p>
+<p>Instead of mapping an aesthetic to a variable in your dataset, you can also set it to a fixed value.  See the parameters section for details.</p>
+<ul>
+  <li><p>label: <code></code> <span class='linklist'></span></p></li>
+  <li><p>colour: <code>black</code> <span class='linklist'>(scales: <a href='scale_brewer.html' title='Colour brewer colour scales'>brewer</a>, <a href='scale_gradient.html' title='Continuous colour scale'>gradient</a>, <a href='scale_gradient2.html' title='Colour gradient, with midpoint'>gradient2</a>, <a href='scale_hue.html' title='Colours that vary continuous in hue'>hue</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>)</span></p></li>
+  <li><p>size: <code>1</code> <span class='linklist'>(scales: <a href='scale_area.html' title='Size scale for continuous variable'>area</a>, <a href='scale_manual.html' title='Manual scale, used when you want a direct mapping'>manual</a>, <a href='scale_size.html' title='Size scale for continuous variable'>size</a>, <a href='scale_size_discrete.html' title='Size scale for discrete variables'>size_discrete</a>)</span></p></li>
+  <li><p>angle: <code>0</code> <span class='linklist'></span></p></li>
+  <li><p>hjust: <code>0.5</code> <span class='linklist'></span></p></li>
+  <li><p>vjust: <code>0.5</code> <span class='linklist'></span></p></li>
+</ul>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>geom_text(label = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>label</code>, text label</li>
+<li><code>colour</code>, border colour</li>
+<li><code>size</code>, size</li>
+<li><code>angle</code>, angle</li>
+<li><code>hjust</code>, horizontal justification, between 0 and 1</li>
+<li><code>vjust</code>, vertical justification, between 0 and 1</li>
+</ul>
+<h2>Default statistic</h2>
+<p><a href='stat_identity.html' title='Identity statistic'>stat_identity</a>.  Override with the <code>stat</code> argument: <code>geom_text(stat="identity")</code></p>
+<h2>Default position</h2>
+<p><a href='position_identity.html' title='Position adjust which does nothing'>position_identity</a>.  Override with the <code>position</code> argument: <code>geom_text(position="jitter")</code>.</p>
+<h2>Examples</h2><pre>
+
+&gt; p <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>mtcars<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>wt<span class="sym">,</span> y<span class="sym">=</span>mpg<span class="sym">,</span> label<span class="sym">=</span>rownames<span class="sym">(</span>mtcars<span class="sym">)))</span>
+&gt; 
+&gt; p <span class="sym">+</span> geom_text<span class="sym">()</span>
+<img src='graphics/d267266791232854185e62ce92f58591.png' />
+
+&gt; p <span class="sym">&lt;-</span> p <span class="sym">+</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">()</span>
+&gt; 
+&gt; <span class="slc"># Set aesthetics to fixed value</span>
+&gt; p <span class="sym">+</span> geom_text<span class="sym">()</span>
+<img src='graphics/9dd22d1fbb691a330334a201f63125cd.png' />
+
+&gt; p <span class="sym">+</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">() +</span> geom_text<span class="sym">(</span>hjust<span class="sym">=</span><span class="num">0</span><span class="sym">,</span> vjust<span class="sym">=</span><span class="num">0</span><span class="sym">)</span>
+<img src='graphics/6dc7b2f56b426f0f91d69fa35431e9e1.png' />
+
+&gt; p <span class="sym">+</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">() +</span> geom_text<span class="sym">(</span>angle <span class="sym">=</span> <span class="num">45</span><span class="sym">)</span>
+<img src='graphics/5fd02d89b8e22614de33d626c1e9aecf.png' />
+
+&gt; 
+&gt; <span class="slc"># Add aesthetic mappings</span>
+&gt; p <span class="sym">+</span> geom_text<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">)))</span>
+<img src='graphics/602d642a42086400793283ffb6c4d0b0.png' />
+
+&gt; p <span class="sym">+</span> geom_text<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>colour<span class="sym">=</span>factor<span class="sym">(</span>cyl<span class="sym">))) +</span> scale_colour_discrete<span class="sym">(</span>l<span class="sym">=</span><span class="num">40</span><span class="sym">)</span>
+<img src='graphics/18571776eef3dc631c3b955349f8c443.png' />
+
+&gt; 
+&gt; p <span class="sym">+</span> geom_text<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size<span class="sym">=</span>wt<span class="sym">))</span>
+<img src='graphics/47db5caa014b34bab579f524f519e82e.png' />
+
+&gt; p <span class="sym">+</span> geom_text<span class="sym">(</span><a href='aes.html'>aes</a><span class="sym">(</span>size<span class="sym">=</span>wt<span class="sym">)) +</span> <a href='scale_size.html' title='Size <a href='scale_.html'>scale</a> for continuous variable'>scale_size</a><span class="sym">(</span>to<span class="sym">=</span>c<span class="sym">(</span><span class="num">0.5</span><span class="sym">,</span><span class="num">1.5</span><span class="sym">))</span>
+<img src='graphics/9e5fc29dcdbb43737b1111683946d809.png' />
+
+&gt; 
+&gt; <span class="slc"># Use <a href='qplot.html'>qplot</a> instead</span>
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>wt<span class="sym">,</span> mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> label<span class="sym">=</span>rownames<span class="sym">(</span>mtcars<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span>c<span class="sym">(</span><span class="str">&quot;point&quot;</span><span class="sym">,</span><span class="str">&quot;text&quot;</span><span class="sym">))</span>
+<img src='graphics/1343742eccd21f40ca6ac7a3302a8e5d.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>wt<span class="sym">,</span> mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">,</span> label<span class="sym">=</span>rownames<span class="sym">(</span>mtcars<span class="sym">),</span> <a href='geom_.html'>geom</a><span class="sym">=</span>c<span class="sym">(</span><span class="str">&quot;point&quot;</span><span class="sym">,</span><span class="str">&quot;text&quot;</span><span class="sym">),</span> size<span class="sym">=</span>wt<span class="sym">)</span>
+<img src='graphics/e11abb49901e75ef7f37dab06d552a62.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

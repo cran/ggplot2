@@ -1,0 +1,92 @@
+<html>
+
+<head>
+	<title>scale_gradient. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='scale_gradient.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>scale_gradient</h1>
+<p class='desc'>Continuous colour scale</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>See also</h2><ul>
+<li>scale_colour_gradient2: continuous colour scale with midpoint</li>
+<li>colorRamp: for details of interpolation algorithm</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; dsub <span class="sym">&lt;-</span> subset<span class="sym">(</span>diamonds<span class="sym">,</span> x <span class="sym">&gt;</span> <span class="num">5</span> <span class="sym">&amp;</span> x <span class="sym">&lt;</span> <span class="num">6</span> <span class="sym">&amp;</span> y <span class="sym">&gt;</span> <span class="num">5</span> <span class="sym">&amp;</span> y <span class="sym">&lt;</span> <span class="num">6</span><span class="sym">)</span>
+&gt; <span class="sym">(</span>d <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>x<span class="sym">,</span> y<span class="sym">,</span> data<span class="sym">=</span>dsub<span class="sym">,</span> colour<span class="sym">=</span>z<span class="sym">))</span>
+<img src='graphics/d34a30e83c2e697062e943ee9ac25b4c.png' />
+
+&gt; <span class="slc"># That one point throws our entire <a href='scale_.html'>scale</a> off.  We could</span>
+&gt; <span class="slc"># remove it, or manually tweak the limits of the <a href='scale_.html'>scale</a></span>
+&gt; 
+&gt; <span class="slc"># Tweak <a href='scale_.html'>scale</a> limits.  Any points outside these</span>
+&gt; <span class="slc"># limits will not be plotted, but will continue to affect the</span>
+&gt; <span class="slc"># calculate of statistics, etc</span>
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">10</span><span class="sym">))</span>
+<img src='graphics/5cb7669fd98e82a4691044f9ca72a559.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">))</span>
+<img src='graphics/796dd837cf09ba365767c03395bbad79.png' />
+
+&gt; <span class="slc"># Setting the limits manually is also useful when producing</span>
+&gt; <span class="slc"># multiple plots that need to be comparable</span>
+&gt; 
+&gt; <span class="slc"># Alternatively we could try transforming the <a href='scale_.html'>scale</a>:</span>
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>trans <span class="sym">=</span> <span class="str">&quot;log&quot;</span><span class="sym">)</span>
+<img src='graphics/abc7fcec317338d1b69239892c66ffa2.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>trans <span class="sym">=</span> <span class="str">&quot;sqrt&quot;</span><span class="sym">)</span>
+<img src='graphics/ae0d8c2d8728d25013f5ad46bd28c8ec.png' />
+
+&gt; 
+&gt; <span class="slc"># Other more trivial manipulations, including changing the name</span>
+&gt; <span class="slc"># of the <a href='scale_.html'>scale</a> and the colours.</span>
+&gt; 
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span><span class="str">&quot;Depth&quot;</span><span class="sym">)</span>
+<img src='graphics/ee418ffe648e39079d5e602f69385874.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>expression<span class="sym">(</span>Depth<span class="sym">[</span>mm<span class="sym">]))</span>
+<img src='graphics/1f2f6b8f38d589ee2aacc2b1ad594fac.png' />
+
+&gt; 
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">),</span> low<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">)</span>
+<img src='graphics/8162e9066862607da749d18fe1028743.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">),</span> low<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> high<span class="sym">=</span><span class="str">&quot;white&quot;</span><span class="sym">)</span>
+<img src='graphics/6b05cc12b01ff2475fbb8d65fa198f23.png' />
+
+&gt; <span class="slc"># Much slower</span>
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">),</span> low<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> high<span class="sym">=</span><span class="str">&quot;white&quot;</span><span class="sym">,</span> space<span class="sym">=</span><span class="str">&quot;Lab&quot;</span><span class="sym">)</span>
+<img src='graphics/27b1385d5c059083e1829910ebf1b8ee.png' />
+
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">),</span> space<span class="sym">=</span><span class="str">&quot;Lab&quot;</span><span class="sym">)</span>
+<img src='graphics/91f0e5023f65c5bae834c8c41fd27211.png' />
+
+&gt; 
+&gt; <span class="slc"># Can also make partially transparent</span>
+&gt; d <span class="sym">+</span> scale_colour_gradient<span class="sym">(</span>limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">),</span> alpha<span class="sym">=</span><span class="num">0.5</span><span class="sym">)</span>
+<img src='graphics/29b478f10d86983833f028a106191267.png' />
+
+&gt; 
+&gt; <span class="slc"># scale_fill_continuous works similarly, but for fill colours</span>
+&gt; <span class="sym">(</span>h <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>x <span class="sym">-</span> y<span class="sym">,</span> data<span class="sym">=</span>dsub<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;histogram&quot;</span><span class="sym">,</span> binwidth<span class="sym">=</span><span class="num">0.01</span><span class="sym">,</span> fill<span class="sym">=</span>..count..<span class="sym">))</span>
+<img src='graphics/848f9e65b74aaf0ea378606ab4986e18.png' />
+
+&gt; h <span class="sym">+</span> scale_fill_continuous<span class="sym">(</span>low<span class="sym">=</span><span class="str">&quot;black&quot;</span><span class="sym">,</span> high<span class="sym">=</span><span class="str">&quot;white&quot;</span><span class="sym">,</span> limits<span class="sym">=</span>c<span class="sym">(</span><span class="num">0</span><span class="sym">,</span><span class="kwb">NA</span><span class="sym">))</span>
+<img src='graphics/a018b0c64be9b5d95d59d9cea00b7fb8.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

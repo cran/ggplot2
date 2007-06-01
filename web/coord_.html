@@ -1,0 +1,33 @@
+<html>
+
+<head>
+	<title>coord_. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+	<link rel="stylesheet" href="jquery/jquery.tabs.css" type="text/css">
+  <!-- <script src="jquery/jquery-1.1.2.pack.js" type="text/javascript"></script>
+  <script src="jquery/jquery.history_remote.pack.js" type="text/javascript"></script>
+  <script src="jquery/jquery.tabs.pack.js" type="text/javascript"></script> -->
+  <script type="text/javascript">
+  // $(function() {
+  //     $('#xamples').tabs({ fxAutoHeight: true });;
+  // });
+	</script>
+  
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<h1>Coordinate systems</h1>
+
+<p>A coordinate system, <strong>coord</strong> for short, maps the <a href='position_.html'>position</a> of objects onto the plane of the plot.  Position is often specified by two coordinates $(x, y)$, but could be any number.  The Cartesian coordinate system is most common coordinate system for two dimensions, while polar coordinates and various map projections are used less frequently.  For higher dimensions, we have parallel coordinates (a projective geometry), mosaic plots (a hierarchical coordinate system) and linear projections onto the plane.</p>
+
+<p>Coordinate systems affect all <a href='position_.html'>position</a> variables simultaneously and differ from scales in that they also change the appearance of the geometric objects.  For example, in polar coordinates, bar geoms look like segments of a circle.  Additionally, scaling is performed before statistical transformation, while coordinate transformations occur afterward.</p>
+
+<p>Coordinate systems control how the axes and grid lines are drawn.  Very little advice is available for drawing these for non-Cartesian coordinate systems, so a lot of work needs to be done to produce polished output.</p></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

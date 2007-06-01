@@ -1,0 +1,31 @@
+<html>
+
+<head>
+	<title>position_jitter. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='position_jitter.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>position_jitter</h1>
+<p class='desc'>Jitter points to avoid overplotting</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Examples</h2><pre>
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cut<span class="sym">,</span> clarity<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;blank&quot;</span><span class="sym">,</span> group<span class="sym">=</span><span class="num">1</span><span class="sym">) +</span> <a href='geom_path.html' title='Connect observations, in original order'>geom_path</a><span class="sym">()</span>
+<img src='graphics/0f499622596b4ee040463dbd358a8d1e.png' />
+
+&gt; <a href='qplot.html'>qplot</a><span class="sym">(</span>cut<span class="sym">,</span> clarity<span class="sym">,</span> data<span class="sym">=</span>diamonds<span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;blank&quot;</span><span class="sym">,</span> group<span class="sym">=</span><span class="num">1</span><span class="sym">) +</span> <a href='geom_path.html' title='Connect observations, in original order'>geom_path</a><span class="sym">(</span><a href='position_.html'>position</a><span class="sym">=</span><span class="str">&quot;jitter&quot;</span><span class="sym">)</span>
+<img src='graphics/9e6d3f2f462006de8e602e175e7d98d0.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<html>
+
+<head>
+	<title>stat_summary. had.co.nz</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+
+<body>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "header.html"); ?>
+
+<div id="wrap">
+<img src='stat_summary.png' width='50' height='50' alt='' align='right' class='icon' />
+<h1>stat_summary</h1>
+<p class='desc'>Summarise y values at every unique x</p>
+<h2>Details</h2>
+<div class='details'>
+<p>See <a href='layer.html'>layer</a> and <a href='qplot.html'>qplot</a> for more information on creating a complete plot from multiple components.</p>
+</div>
+<h2>Parameters</h2>
+<p>When an aesthetic is used an a parameter, like <code>stat_summary(fun = 3)</code>, it will override mappings from data.</p>
+<ul>
+<li><code>fun</code>, NULL</li>
+</ul>
+<h2>Default geom</h2>
+<p><a href='geom_pointrange.html' title='An interval represented by a vertical line, with a point in the middle'>geom_pointrange</a>.  Override with the  <code>geom</code> argument: <code>stat_summary(geom="point")</code>.</p>
+<h2>See also</h2><ul>
+<li><a href='geom_errorbar.html' title='Error bars'>geom_errorbar</a>: error bars</li>
+<li><a href='geom_pointrange.html' title='An interval represented by a vertical line, with a point in the middle'>geom_pointrange</a>: range indicated by straight line, with point in the middle</li>
+<li><a href='geom_linerange.html' title='An interval represented by a vertical line'>geom_linerange</a>: range indicated by straight line</li>
+<li><a href='geom_crossbar.html' title='Hollow bar with middle indicated by horizontal line'>geom_crossbar</a>: hollow bar with middle indicated by horizontal line</li>
+<li>smean.sdl: for description of summary functions provide by Hmisc.  Replace the . with a _ to get the ggplot name</li>
+<li><a href='stat_smooth.html' title='Add a smoother'>stat_smooth</a>: for continuous analog</li>
+</ul>
+<h2>Examples</h2><pre>
+
+&gt; c <span class="sym">&lt;-</span> <a href='qplot.html'>qplot</a><span class="sym">(</span>cyl<span class="sym">,</span> mpg<span class="sym">,</span> data<span class="sym">=</span>mtcars<span class="sym">)</span>
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">()</span>
+<img src='graphics/2fad4e3ce92e18b68ca84cc0e570725c.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_normal&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">)</span>
+<img src='graphics/b76adaba65872bdb15ee2e1875778ddb.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_normal&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;crossbar&quot;</span><span class="sym">)</span>
+<img src='graphics/7363b700bb9bf0254d5e157338f88d55.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_normal&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;crossbar&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.2</span><span class="sym">)</span>
+<img src='graphics/c3f7618cca79bddedba4587a1089aee3.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_normal&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;errorbar&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.2</span><span class="sym">)</span>
+<img src='graphics/34763847962340819186fca345c018c6.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_normal&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;linerange&quot;</span><span class="sym">)</span>
+<img src='graphics/52002942f5736441025bafa5875ba3a5.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_normal&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;smooth&quot;</span><span class="sym">)</span>
+<img src='graphics/6e36c2775cf806f70faab4bce92e43f2.png' />
+
+&gt; 
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;point&quot;</span><span class="sym">)</span>
+<img src='graphics/d94ed0d2e566517c3fa63b734486781c.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;path&quot;</span><span class="sym">)</span>
+<img src='graphics/c0744548aaae79584f57b44606233b29.png' />
+
+&gt; c <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;sum&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;point&quot;</span><span class="sym">)</span>
+<img src='graphics/4d1cfeba55ca302ffc3735de9cc6983c.png' />
+
+&gt; 
+&gt; statsumbar <span class="sym">&lt;-</span> <span class="kwa">function</span><span class="sym">(</span>fun<span class="sym">,</span> ...<span class="sym">) {</span
++ 	stat_summary<span class="sym">(</span>fun<span class="sym">=</span>fun<span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;crossbar&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.2</span><span class="sym">,</span> ...<span class="sym">)</span
++ <span class="sym">}</span>
+&gt; 
+&gt; c <span class="sym">+</span> statsumbar<span class="sym">(</span><span class="str">&quot;mean_cl_boot&quot;</span><span class="sym">)</span>
+<img src='graphics/66b9caac07eba1aae2fbf613a49f282d.png' />
+
+&gt; c <span class="sym">+</span> statsumbar<span class="sym">(</span><span class="str">&quot;mean_sdl&quot;</span><span class="sym">)</span>
+<img src='graphics/5b1791c6672ae6195f020d57387e0d0f.png' />
+
+&gt; c <span class="sym">+</span> statsumbar<span class="sym">(</span><span class="str">&quot;mean_sdl&quot;</span><span class="sym">,</span> stat_params <span class="sym">=</span> list<span class="sym">(</span>mult<span class="sym">=</span><span class="num">1</span><span class="sym">))</span>
+<img src='graphics/46383725c032a5567f19f2050390908d.png' />
+
+&gt; c <span class="sym">+</span> statsumbar<span class="sym">(</span><span class="str">&quot;median_hilow&quot;</span><span class="sym">)</span>
+<img src='graphics/b9f3432822c99d574f264bcb90ee4d4a.png' />
+
+&gt; 
+&gt; <span class="slc"># A bigger dataset, where these summaries are actually useful</span>
+&gt; m <span class="sym">&lt;-</span> <a href='ggplot.html'>ggplot</a><span class="sym">(</span>movies<span class="sym">,</span> <a href='aes.html'>aes</a><span class="sym">(</span>x<span class="sym">=</span>round<span class="sym">(</span>rating<span class="sym">),</span> y<span class="sym">=</span>votes<span class="sym">)) +</span> <a href='geom_point.html' title='Points, as for a scatterplot'>geom_point</a><span class="sym">()</span>
+&gt; 
+&gt; <span class="sym">(</span>m2 <span class="sym">&lt;-</span> m <span class="sym">+</span> stat_summary<span class="sym">(</span>fun<span class="sym">=</span><span class="str">&quot;mean_cl_boot&quot;</span><span class="sym">,</span> <a href='geom_.html'>geom</a><span class="sym">=</span><span class="str">&quot;crossbar&quot;</span><span class="sym">,</span> colour<span class="sym">=</span><span class="str">&quot;red&quot;</span><span class="sym">,</span> width<span class="sym">=</span><span class="num">0.3</span><span class="sym">))</span>
+<img src='graphics/f4efda6b43331948d8ebc6503855090d.png' />
+
+&gt; <span class="slc"># Notice how the overplotting skews out visual perception of the mean</span>
+&gt; <span class="slc"># supplementing the raw data with summary statisitcs is _very_ important</span>
+&gt; 
+&gt; <span class="slc"># Next, we'll put votes on a log <a href='scale_.html'>scale</a>.</span>
+&gt; <span class="slc"># Transforming the <a href='scale_.html'>scale</a> performs the transforming before the statistic.</span>
+&gt; <span class="slc"># This means we're calculating the summary on the logged data</span>
+&gt; m2 <span class="sym">+</span> scale_y_log10<span class="sym">()</span>
+<img src='graphics/662c949b0cebe3cb939b9d29158e1818.png' />
+
+&gt; <span class="slc"># Transforming the coordinate system performs the transforming after the statistic</span>
+&gt; <span class="slc"># This means we're calculating the summary on the raw data, and stretching</span>
+&gt; <span class="slc"># the geoms onto the log <a href='scale_.html'>scale</a></span>
+&gt; m2 <span class="sym">+</span> <a href='coord_trans.html' title='Transformed cartesian coordinate system'>coord_trans</a><span class="sym">(</span>y<span class="sym">=</span><span class="str">&quot;log10&quot;</span><span class="sym">)</span>
+<img src='graphics/4631410e8a5aaeb24b4d2a65ef13ea16.png' />
+</pre></div>
+
+<?php include($_SERVER["DOCUMENT_ROOT"] . "footer.html"); ?>
+</body>
+</html>

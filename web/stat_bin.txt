@@ -1,0 +1,28 @@
+<pre>
+> m <- ggplot(movies, aes(x = rating))
+> m + stat_bin()
+<a href='web/graphics/f9695da81fb0f7d9498b362dc3d3284b.pdf'><img src='web/graphics/f9695da81fb0f7d9498b362dc3d3284b.png' /></a>
+
+> m + stat_bin(binwidth = 0.1)
+<a href='web/graphics/c5062aaa96b4ca888e962227c73b5473.pdf'><img src='web/graphics/c5062aaa96b4ca888e962227c73b5473.png' /></a>
+
+> m + stat_bin(breaks = seq(4, 6, by = 0.1))
+<a href='web/graphics/7fb5ae65fc714ae20de751ef6e9de26f.pdf'><img src='web/graphics/7fb5ae65fc714ae20de751ef6e9de26f.png' /></a>
+
+> (linehist <- m + stat_bin(aes(y = ..density..), geom = "line"))
+<a href='web/graphics/41dda54c796e211308597f86a281b079.pdf'><img src='web/graphics/41dda54c796e211308597f86a281b079.png' /></a>
+
+> linehist + stat_density(colour = "blue")
+<a href='web/graphics/05167c47d09d22a353e4adb298dc1337.pdf'><img src='web/graphics/05167c47d09d22a353e4adb298dc1337.png' /></a>
+
+> ggplot(mtcars, aes(x = factor(cyl), fill = factor(vs))) + layer(stat = "bin", 
++     position = "stack") + coord_polar(theta = "y")
+<a href='web/graphics/782f1038c8d0f6dcdf4c00511efc6262.pdf'><img src='web/graphics/782f1038c8d0f6dcdf4c00511efc6262.png' /></a>
+
+> ggplot(movies, aes(x = mpaa)) + stat_bin()
+<a href='web/graphics/531d36f75d860f845f89b96bce565a14.pdf'><img src='web/graphics/531d36f75d860f845f89b96bce565a14.png' /></a>
+
+> qplot(movies$mpaa, stat = "bin")
+<a href='web/graphics/76e059f3cb86c7c4065544a231904e3e.pdf'><img src='web/graphics/76e059f3cb86c7c4065544a231904e3e.png' /></a>
+
+</pre>
