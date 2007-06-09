@@ -27,7 +27,6 @@ ggplot_plot <- function(plot, pretty=TRUE) {
 	
 	# Facet
 	data <- mapply(function(d, p) facet$stamp_data(d), data, layers, SIMPLIFY=FALSE)
-
 	# Transform scales where possible.  Also need to train so statisics
 	# (e.g. stat_smooth) have access to info
 	data <- dlapply(function(d, p) p$scales_transform(d, scales))
@@ -57,7 +56,7 @@ ggplot_plot <- function(plot, pretty=TRUE) {
 	viewport <- viewport_default(plot, guides, plot$scales, cs)
 	panels <- panels_default(plot, grobs)
 	
-	plotgrob <- gTree(children=do.call("gList", c(unlist(guides, recursive=FALSE), panels)), childrenvp = viewport, name="plot")
+	plotgrob <- ggname("plot", gTree(children=do.call("gList", c(unlist(guides, recursive=FALSE), panels)), childrenvp = viewport))
 	if (!pretty) return(plotgrob)
 
 	prettyplot(plot, plotgrob, scales)

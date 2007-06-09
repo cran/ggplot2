@@ -1,7 +1,7 @@
 Package: ggplot2
 Type: Package
 Title: An implementation of the Grammar of Graphics in R
-Version: 0.5
+Version: 0.5.1
 Date: 2007-01-01
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
@@ -11,4 +11,4 @@ Suggests: quantreg, Hmisc, mapproj, maps
 License: GPL
 SaveImage: true
 LazyData: true
-Packaged: Fri Jun  1 10:22:10 2007; hadley
+Packaged: Sat Jun  9 10:58:29 2007; hadley

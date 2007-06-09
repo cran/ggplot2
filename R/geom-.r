@@ -17,16 +17,15 @@ Geom <- proto(TopLevel, expr={
 		groups <- split(data, factor(data$group))
 		grobs <- lapply(groups, function(group) .$draw(group, scales, coordinates, ...))
 		
-		gTree(
-			children = do.call("gList", grobs), 
-			cl=paste("geom", .$objname, sep="-")
-		)
+		ggname(paste(.$objname, "s", sep=""), gTree(
+			children = do.call("gList", grobs)
+		))
 	}
 	
 	adjust_scales_data <- function(., scales, data) data
 	
-	new <- function(., aesthetics=aes(), data=NULL, stat=NULL, position=NULL, ...){
-		layer(aesthetics=aesthetics, data=data, stat=stat, geom=., position=position, ...)
+	new <- function(., mapping=aes(), data=NULL, stat=NULL, position=NULL, ...){
+		do.call("layer", list(mapping=mapping, data=data, stat=stat, geom=., position=position, ...))
 	}
 	
 	pprint <- function(., newline=TRUE) {

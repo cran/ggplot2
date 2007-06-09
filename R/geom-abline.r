@@ -1,22 +1,22 @@
 GeomAbline <- proto(Geom, {
-	new <- function(., aesthetics=aes(), data=NULL, intercept=0, slope=1, ...) {
+	new <- function(., mapping=aes(), data=NULL, intercept=0, slope=1, ...) {
 		if (missing(data)) {
 			data <- data.frame(intercept = intercept, slope=slope)
 		}
-		aesthetics <- defaults(aesthetics, aes(intercept=intercept, slope=slope))
-		layer(aesthetics=aesthetics, data=data, geom = ., geom_params = list(...))
+		mapping <- defaults(mapping, aes(intercept=intercept, slope=slope))
+		layer(mapping=mapping, data=data, geom = ., geom_params = list(...))
 	}
 
 	draw <- function(., data, scales, coordinates, ...) {
 		xrange <- coordinates$frange()$x
 
-		gTree(children = do.call(gList, lapply(1:nrow(data), function(i) {
+		ggname(.$my_name(), gTree(children = do.call(gList, lapply(1:nrow(data), function(i) {
 			row <- data[c(i, i), ]
 			row$y <- xrange * row$slope + row$intercept
 			row$x <- xrange
 			
 			GeomPath$draw(row, scales, coordinates)
-		})))
+		}))))
 	}
 
 	# Documetation -----------------------------------------------

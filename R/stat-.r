@@ -43,9 +43,8 @@ Stat <- proto(TopLevel, expr={
 	
 	class <- function(.) "stat"
 	
-	new <- function(., aesthetics=aes(), data=NULL, geom=NULL, position=NULL, ...){
-		es <- structure(as.list(match.call()[-1]), class="uneval")
-		layer(aesthetics=aesthetics, data=data, geom=geom, stat=., position=position, params=list(...))
+	new <- function(., mapping=aes(), data=NULL, geom=NULL, position=NULL, ...){
+		do.call("layer", list(mapping=mapping, data=data, geom=geom, stat=., position=position, ...))
 	}
 
 })

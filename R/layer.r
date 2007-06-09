@@ -13,7 +13,7 @@
 # 
 # @keyword internal
 Layer <- proto(expr = {	
-	new <- function(., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, aesthetics=NULL, position=NULL, params=NULL, ...) {
+	new <- function(., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ...) {
 		
 		if (is.null(geom) && is.null(stat)) stop("Need at least one of stat and geom")
 		
@@ -31,7 +31,7 @@ Layer <- proto(expr = {
 			stat_params <- params[match(names(stat$parameters()), names(params), nomatch=0)]
 		}
 		
-		proto(., geom=geom, geom_params=geom_params, stat=stat, stat_params=stat_params, data=data, aesthetics=aesthetics, position=position)
+		proto(., geom=geom, geom_params=geom_params, stat=stat, stat_params=stat_params, data=data, aesthetics=mapping, position=position)
 	}
 	
 	clone <- function(.) as.proto(.$as.list())
@@ -193,6 +193,7 @@ calc_aesthetics <- function(plot, data = plot$data, aesthetics) {
 	df <- data.frame(eval.each(aesthetics))
 	df <- cbind(df, data[,intersect(names(data), cond), drop=FALSE])
 	
+	if (is.null(plot$data)) return(df)
 	expand.grid.df(df, unique(plot$data[, setdiff(cond, names(df)), drop=FALSE]), unique=FALSE)
 }
 

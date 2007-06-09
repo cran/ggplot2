@@ -102,7 +102,15 @@ Scales <- proto(Scale, expr={
 
 		if (length(datacols) == 0) return()
 		
-		vartypes <- c("discrete", "continuous")[sapply(datacols, is.numeric) + 1]
+		vartype <- function(x) {
+			if (inherits(x, "Date")) return("date")
+			if (is.numeric(x)) return("continuous")
+			if (is.factor(x)) return("discrete")
+			
+			"discrete"
+		}
+		
+		vartypes <- sapply(datacols, vartype)
 
 		scale_name_type <- paste("scale", new_aesthetics, vartypes, sep="_")
 		scale_name <- paste("scale", new_aesthetics, sep="_")

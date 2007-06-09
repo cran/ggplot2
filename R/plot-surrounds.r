@@ -86,10 +86,10 @@ prettyplot <- function(plot, plotgrob, scales=plot$scales, cs=plot$coordinates) 
 		lf <- placeGrob(lf, title,    row=1,  col=2)
 		if (position == "manual") {
 			
-			leg <- gTree(
+			leg <- ggname("surrounds", gTree(
 				children=gList(legend), 
 				vp=viewport(x=coords[1], y=coords[2], just=plot$legend.justification, width=grobWidth(legend), height=grobHeight(legend))
-			)
+			))
 			lf <- placeGrob(lf, leg, row=2, col=2)
 		}
 	}

@@ -38,13 +38,13 @@ CoordPolar <- proto(Coord, {
 		
 		gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
 		
-		gTree(name = "grill", children = gList(
-			rectGrob(gp=gpar(fill=plot$grid.fill, col=NA), name="grill-background"),
-			segmentsGrob(0, 0, r * sin(theta), r*cos(theta), gp=gp, default.units="native"),
-			textGrob(.$theta_scale()$labels(), r * 1.05 * sin(theta), r * 1.05 * cos(theta), gp=gpar(col=plot$axis.colour), default.units="native"),
-			polylineGrob(rep(rfine, each=length(thetafine)) * sin(thetafine), rep(rfine, each=length(thetafine)) * cos(thetafine), default.units="native", gp=gp),
-			textGrob(.$r_scale()$labels(), 0.02, rfine + 0.04, default.units="native", gp=gpar(col=plot$axis.colour), hjust=0)
-		))
+		ggname("grill", gTree(children = gList(
+			ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
+			ggname("major-angle", segmentsGrob(0, 0, r * sin(theta), r*cos(theta), gp=gp, default.units="native")),
+			ggname("labels-angle", textGrob(.$theta_scale()$labels(), r * 1.05 * sin(theta), r * 1.05 * cos(theta), gp=gpar(col=plot$axis.colour), default.units="native")),
+			ggname("major-radius", polylineGrob(rep(rfine, each=length(thetafine)) * sin(thetafine), rep(rfine, each=length(thetafine)) * cos(thetafine), default.units="native", gp=gp)),
+			ggname("labels-radius", textGrob(.$r_scale()$labels(), 0.02, rfine + 0.04, default.units="native", gp=gpar(col=plot$axis.colour), hjust=0))
+		)))
 	}
 
 	
@@ -76,7 +76,7 @@ CoordPolar <- proto(Coord, {
 		# working on it.  Also need to deal properly with cyclical
 		# variables
 		
-		qplot(length, rating, data=movies, geom=c("point", "smooth")) + coord_polar()
+		qplot(length, rating, data=movies, geom=c("point", "smooth"), method="lm") + coord_polar()
 	}
 
 })

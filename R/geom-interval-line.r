@@ -14,7 +14,7 @@ GeomLinerange <- proto(GeomInterval, {
 	default_aes <- function(.) aes(colour = "black", size=1, linetype=1)
 
 	draw <- function(., data, scales, coordinates, ...) {
-		GeomSegment$draw(transform(data, xend=x, y=min, yend=max), scales, coordinates, ...)
+		ggname(.$my_name(), GeomSegment$draw(transform(data, xend=x, y=min, yend=max), scales, coordinates, ...))
 	}
 
 	icon <- function(.) segmentsGrob(c(0.3, 0.7), c(0.1, 0.2), c(0.3, 0.7), c(0.7, 0.95))

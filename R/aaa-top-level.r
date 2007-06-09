@@ -23,7 +23,9 @@ TopLevel <- proto(expr = {
 	accessors <- function(.) create_accessors(.$find_all(), .$class())
 	accessors_print <- function(.) invisible(lapply(.$accessors(), cat))
 
-	examples <- function(.) {}
+	examples <- function(.) {
+		# Coming soon
+	}
 
 	examples_text <- function(.) {
 		source <- attr(get("examples", .), "source")
@@ -86,6 +88,7 @@ TopLevel <- proto(expr = {
 	}
 		
 	html_page_create <- function(., path="web/") {
+		cat("Creating html documentation for", .$my_name(), "\n")
 		target <- ps(path, .$html_path())
 		
 		.$html_img_draw(path)
@@ -272,8 +275,13 @@ TopLevel <- proto(expr = {
 
 	# Examples -----------------------
 	html_examples <- function(.) {
-		if (is.null(.$examples_text())) return("")
-		if (length(parse(text = .$examples_text())) == 0) return("")
+		require(decumar, quiet=TRUE, warn=FALSE)
+		if (!.$doc) return(FALSE)
+		
+		if (length(parse(text = .$examples_text())) == 0) {
+			output <- paste("> ", highlight.html(.$examples_text()), collapse="\n")
+			return(ps("<h2>Examples</h2>\n", html_auto_link(output)))
+		}
 			
 		curdir <- getwd()
 		on.exit(setwd(curdir))
@@ -282,8 +290,9 @@ TopLevel <- proto(expr = {
 		
 		parsed <- nice_parse(.$examples_text())
 		html_auto_link(ps(
-			"<h2>Examples</h2>",
-			ps(capture.output(html(parsed)),collapse="\n")
+			"<h2>Examples</h2>\n",
+			ps(capture.output(create_html(parsed)),collapse="\n"),
+			"\n"
 		), .$my_name())
 	}
 	

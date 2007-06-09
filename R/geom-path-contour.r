@@ -2,10 +2,10 @@ GeomContour <- proto(GeomPath, {
 	objname <- "contour"
 	desc <- "Display contours of a 2d surface in 3d"
 	icon <- function(.) {
-		gTree(children=gList(
+		ggname(.$my_name(), gTree(children=gList(
 			polygonGrob(c(0.45,0.5,0.6, 0.5), c(0.5, 0.4, 0.55, 0.6)),
 			polygonGrob(c(0.25,0.6,0.8, 0.5), c(0.5, 0.2, 0.75, 0.9), gp=gpar(fill=NA))
-		))
+		)))
 	}
 	default_aes <- function(.) defaults(aes(weight=1, colour="grey50"), GeomPath$default_aes())
 

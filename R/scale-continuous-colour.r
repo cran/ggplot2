@@ -19,10 +19,21 @@ ScaleGradient <- proto(ScaleContinuous, expr={
 	
 	rbreaks <- function(.) .$map(.$breaks())
 	guide_legend_geom <- function(.) GeomTile
+	common <- c("colour", "fill")
+
+	# Documetation -----------------------------------------------
 	
 	objname <- "gradient"
-	common <- c("colour", "fill")
-	desc <- "Continuous colour scale"
+	desc <- "Smooth colour gradient"
+	icon <- function(.) {
+		g <- scale_fill_gradient()
+		g$train(1:5)
+		rectGrob(c(0.1, 0.3, 0.5, 0.7, 0.9), width=0.21, 
+			gp=gpar(fill=g$map(1:5), col=NA)
+		)		
+	}
+
+
 	desc_params <- list(
 		low = "colour at low end of scale", 
 		high = "colour at high end of scale",
@@ -102,7 +113,16 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
 	
 	objname <-"gradient2"
 	common <- c("colour", "fill")
-	desc <- "Colour gradient, with midpoint"
+	desc <- "Smooth colour gradient, with midpoint"
+
+	icon <- function(.) {
+		g <- scale_fill_gradient2()
+		g$train(1:5 - 3)
+		rectGrob(c(0.1, 0.3, 0.5, 0.7, 0.9), width=0.21, 
+			gp=gpar(fill=g$map(1:5 - 3), col=NA)
+		)
+	}
+
 	desc_params <- list(
 		low = "colour at low end of scale", 
 		mid = "colour at mid point of scale",
@@ -121,18 +141,18 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
 		dsub <- subset(diamonds, x > 5 & x < 6 & y > 5 & y < 6)
 		(d <- qplot(x, y, data=dsub, colour=x-y))
 		
-		d + scale_colour_gradient()
+		d + scale_colour_gradient2()
 		# Change scale name
-		d + scale_colour_gradient(expression(x - y))
-		d + scale_colour_gradient("Difference\nbetween\nwidth and\nheight")
+		d + scale_colour_gradient2(expression(x - y))
+		d + scale_colour_gradient2("Difference\nbetween\nwidth and\nheight")
 
 		# Change limits and colours
-		d + scale_colour_gradient(limits=c(-0.2, 0.2))
-		d + scale_colour_gradient(mid="black", high="yellow", low="yellow")
+		d + scale_colour_gradient2(limits=c(-0.2, 0.2))
+		d + scale_colour_gradient2(mid="black", high="yellow", low="yellow")
 		
 		# You can also use a non-zero midpoint
 		(d <- qplot(carat, price, data=diamonds, colour=price/carat))
-		d + scale_colour_gradient(midpoint=mean(diamonds$price / diamonds$carat), high="darkgreen", mid="yellow")
+		d + scale_colour_gradient2(midpoint=mean(diamonds$price / diamonds$carat), high="darkgreen", mid="yellow")
 		
 		# Fill gradients work much the same way
 	}

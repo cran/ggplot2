@@ -30,8 +30,8 @@ guides_basic <- function(plot, scales, coordinates) {
   nr <- nrow(gm)
   nc <- ncol(gm)
 
-	axes_v <- matrix(lapply(1:nr, function(n) editGrob(guides$y, name=paste("xaxis", n, sep=""))), ncol=1)
-	axes_h <- matrix(lapply(1:nc, function(n) editGrob(guides$x, name=paste("yaxis", n, sep=""))), nrow=1)
+	axes_v <- matrix(lapply(1:nr, function(n) ggname("xaxis", guides$y)), ncol=1)
+	axes_h <- matrix(lapply(1:nc, function(n) ggname("yaxis", guides$x)), nrow=1)
 	
 	grid <- matrix(rep(list(coordinates$guide_inside(plot)), nc * nr), ncol = nc)
   grid[is.na(gm)] <- list(rectGrob(gp=gpar(fill=NA, col=NA), name="background-empty"))
@@ -39,9 +39,10 @@ guides_basic <- function(plot, scales, coordinates) {
 
 	# Name 
 	pg <- expand.grid(1:nr, 1:nc)
-	grid <- matrix(mapply(function(x,y) {
-	  editGrob(grid[[x,y]], name=vp_path(x, y, "guide-inside"))
-	}, pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc)
+	grid <- matrix(mapply(
+		function(x,y) ggname("guide", grid[[x,y]]), 
+		pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc
+	)
 	
 	list(
 		background = list(rectGrob(gp=gpar(fill=plot$background.fill, col=NA), name="background")),

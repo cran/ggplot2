@@ -3,13 +3,13 @@ GeomPolygon <- proto(Geom, {
 		n <- nrow(data)
 		if (n == 1) return()
 		
-		gTree(children=gList(
+		ggname(.$my_name(), gTree(children=gList(
 			with(coordinates$munch(data), 
-				polygonGrob(x, y, default.units="native", # , name="polygon"
+				polygonGrob(x, y, default.units="native",
 				gp=gpar(col=colour, fill=fill, lwd=size, linetype=linetype))
 			)
 			#GeomPath$draw(data, scales, coordinates)
-		))
+		)))
 	}
 
 	objname <- "polygon"
@@ -23,5 +23,9 @@ GeomPolygon <- proto(Geom, {
 		geom_path = "an unfilled polygon",
 		geom_ribbon = "a polygon anchored on the x-axis"
 	)
+	
+	examples <- function(.) {
+		# Coming soon
+	}
 })
 

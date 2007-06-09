@@ -13,5 +13,7 @@ GeomDensity <- proto(GeomArea, {
 
 	default_aes <- function(.) defaults(aes(fill=NA, weight=1, colour="black"), GeomRibbon$default_aes())
 
-	examples <- function(.) {}
+	examples <- function(.) {
+		# See stat_density for examples
+	}
 })

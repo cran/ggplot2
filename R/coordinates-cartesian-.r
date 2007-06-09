@@ -35,8 +35,8 @@ CoordCartesian <- proto(Coord, expr={
 		)
 	}
 	
-	xlabel <- function(., gp) textGrob(.$x()$name, just=c("centre", "bottom"), gp=gp, name="xlabel")
-	ylabel <- function(., gp) textGrob(.$y()$name, rot=90, just=c("centre","top"), gp=gp, name="ylabel")
+	xlabel <- function(., gp) ggname("xlabel", textGrob(.$x()$name, just=c("centre", "bottom"), gp=gp))
+	ylabel <- function(., gp) ggname("ylabel", textGrob(.$y()$name, rot=90, just=c("centre","top"), gp=gp))
 
 	# Axis labels should go in here somewhere too
 	guide_inside <- function(., plot) {
@@ -50,17 +50,17 @@ CoordCartesian <- proto(Coord, expr={
 	
 	draw_grid <- function(plot, breaks) {
 		gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
-		gTree(name = "grill", children = gList(
-			rectGrob(gp=gpar(fill=plot$grid.fill, col=NA), name="grill-background"),
+		ggname("grill", gTree(children = gList(
+			ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
 
-			segmentsGrob(breaks$x$minor, unit(0, "npc"), breaks$x$minor, unit(1, "npc"), gp = gpar(col="grey95", lwd=0.8), default.units="native", name="minor-vertical"),
-			segmentsGrob(breaks$x$major, unit(0, "npc"), breaks$x$major, unit(1, "npc"), gp = gp, default.units="native", name="major-vertical"),
+			ggname("major-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$major, unit(1, "npc"), breaks$y$major, gp = gp, default.units="native")),
+			ggname("major-vertical", segmentsGrob(breaks$x$major, unit(0, "npc"), breaks$x$major, unit(1, "npc"), gp = gp, default.units="native")),
 
-			segmentsGrob(unit(0, "npc"), breaks$y$minor, unit(1, "npc"), breaks$y$minor, gp = gpar(col="grey95", lwd=0.8), default.units="native", name="minor-horizontal", ),
-			segmentsGrob(unit(0, "npc"), breaks$y$major, unit(1, "npc"), breaks$y$major, gp = gp, default.units="native", name="grill-horizontal"),
+			ggname("minor-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$minor, unit(1, "npc"), breaks$y$minor, gp = gpar(col="grey95", lwd=0.8), default.units="native")),
+			ggname("minor-vertical", segmentsGrob(breaks$x$minor, unit(0, "npc"), breaks$x$minor, unit(1, "npc"), gp = gpar(col="grey95", lwd=0.8), default.units="native")),
 
-			rectGrob(gp=gpar(col=plot$grid.colour, lwd=3, fill=NA), name="grill-border")
-		))		
+			ggname("border", rectGrob(gp=gpar(col=plot$grid.colour, lwd=3, fill=NA)))
+		)))
 	}
 	
 	# Documetation -----------------------------------------------

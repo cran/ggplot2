@@ -7,7 +7,7 @@ GeomBar <- proto(GeomInterval, {
 	draw <- function(., data, scales, coordinates, ...) {
 		if (coordinates$muncher()) {
 			data <- transform(data, top=max, bottom=min, left=x - width/2, right=x + width/2)
-			gTree(children=do.call("gList", lapply(1:nrow(data), function(i) {
+			ggname("bar",gTree(children=do.call("gList", lapply(1:nrow(data), function(i) {
 				data <- data[i, ]
 				df <- cbind(with(data, rbind(
 					cbind(y=top, x=left),
@@ -17,12 +17,12 @@ GeomBar <- proto(GeomInterval, {
 					cbind(y=top, x=left)
 				)), data[rep(1,5), setdiff(names(.$default_aes()), c("min","max"))])
 				GeomPolygon$draw(df, scales, coordinates)
-			})))
+			}))))
 		} else {
 		with(data, 
-			rectGrob(x, max, width=width, height=max-min, default.units="native", just=c("centre", "top"), 
-			gp=gpar(col=colour, fill=fill, lwd=size, lty=linetype)) #, name="rect"
-		)
+			ggname(.$my_name(), rectGrob(x, max, width=width, height=max-min, default.units="native", just=c("centre", "top"), 
+			gp=gpar(col=colour, fill=fill, lwd=size, lty=linetype))
+		))
 		}
 		
 	}

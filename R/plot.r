@@ -30,8 +30,6 @@ ggplot <- function(data, ...) UseMethod("ggplot")
 # @alias package-ggplot
 # @alias ggplot
 # @arguments default data frame
-# @arguments formula describing row and column layout, see \\code{\\link[reshape]{reshape}} for more details
-# @arguments a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins
 # @arguments default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual geom functions for more details)
 # @seealso \url{http://had.co.nz/ggplot}, \\code{\\link[reshape]{stamp}}, \\code{\\link[reshape]{reshape}}, \\code{\\link{ggopt}}, \\code{vignette("introduction", "ggplot")}
 # @keyword hplot
@@ -71,8 +69,8 @@ print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, save=ggopt()$save,
 	if (newpage) grid.newpage()
 	if (is.null(vp)) {
 		grid.draw(ggplot_plot(x, ...)) 
-	} else { 
-		pushViewport(vp)
+	} else {
+		if (is.character(vp)) seekViewport(vp) else pushViewport(vp)
 		grid.draw(ggplot_plot(x, ...)) 
 		upViewport()
 	}

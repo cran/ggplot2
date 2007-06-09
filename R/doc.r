@@ -28,7 +28,7 @@
 html_index <- function() {
 	ps(
 		TopLevel$html_header("ggplot"),
-		"<h1>ggplot</h1>\n",
+		html_auto_link(ps(readLines("templates/index.html"), collapse="\n"), skip="ggplot"),
 		"<h2>Geoms</h2>\n",
 		"<p>Geoms, short for geometric objects, describe the type of plot you will produce.  <a href='geom_.html'>Read more</a></p>\n",
 		html_linked_list(Geom$find_all()),
@@ -66,7 +66,7 @@ html_index_create <- function(path="web/") {
 # @arguments path to create files in
 # @keyword internal
 all_html_pages_create <- function(path="web/") {
-	html_autolink_index()
+	system("rm web/graphics/*")
 	html_index_create(path)
 	Geom$all_html_pages_create()
 	Stat$all_html_pages_create()
@@ -74,6 +74,9 @@ all_html_pages_create <- function(path="web/") {
 	Coord$all_html_pages_create()
 	Position$all_html_pages_create()
 	Facet$all_html_pages_create()
+	system("pdf2png web/graphics/*.pdf",  show.output.on.console=FALSE)
+	system("rm web/graphics/*.pdf")
+	system("optipng web/graphics/*.png",  show.output.on.console=FALSE)
 }
 
 # Generate html for templated files
@@ -146,13 +149,13 @@ html_autolink_index <- function() {
 		aes = "<a href='aes.html'>aes</a>", 
 		ggplot = "<a href='ggplot.html'>ggplot</a>", 
 		layer = "<a href='layer.html'>layer</a>", 
-		qplot = "<a href='qplot.html'>qplot</a>",
-		scale = "<a href='scale_.html'>scale</a>",
-		geom = "<a href='geom_.html'>geom</a>",
-		stat = "<a href='stat_.html'>stat</a>",
-		coord = "<a href='coord_.html'>coord</a>",
-		position = "<a href='position_.html'>position</a>",
-		facet = "<a href='facet_.html'>facet</a>"
+		qplot = "<a href='qplot.html'>qplot</a>"
+		# scale = "<a href='scale_.html'>scale</a>",
+		# geom = "<a href='geom_.html'>geom</a>",
+		# stat = "<a href='stat_.html'>stat</a>",
+		# coord = "<a href='coord_.html'>coord</a>",
+		# position = "<a href='position_.html'>position</a>",
+		# facet = "<a href='facet_.html'>facet</a>"
 	)
 }
 
@@ -160,6 +163,8 @@ html_autolink_index <- function() {
 # 
 # @keyword internal
 html_auto_link <- function(input, skip="") {
+	if (!exists("links")) html_autolink_index()
+	
 	for (n in names(links)[names(links) != skip	]) {
 		input <- gsub(ps("\\b", n, "\\b"), links[n], input)
 	}

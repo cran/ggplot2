@@ -8,7 +8,7 @@ GeomInterval <- proto(Geom, {
 		
 		scale_x <- scales$get_scales("x")
 		if (scale_x$discrete()) {
-			scale_x$.expand[2] <- max(data$width / 2) + 0.1
+			scale_x$.expand[2] <- max(scale_x$.expand[2], max(data$width / 2) + 0.1)
 			parts <- compact(list(
 				tryNULL(transform(data, y=min, x = x)),
 				tryNULL(transform(data, y=max, x = x))
