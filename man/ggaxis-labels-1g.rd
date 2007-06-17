@@ -9,7 +9,7 @@ Grob for axis lables
 \usage{ggaxis_labels(at, labels, position)}
 \arguments{
 \item{at}{position of ticks}
-\item{labels}{labels at ticks}
+\item{labels}{grob labels at ticks}
 \item{position}{position of axis (top, bottom, left or right)}
 }
 

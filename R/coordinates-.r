@@ -33,4 +33,6 @@ Coord <- proto(TopLevel, expr={
 		
 		if (newline) cat("\n") 
 	}
+	
+	guide_foreground <- function(., plot) {}
 })

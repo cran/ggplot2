@@ -1,4 +1,23 @@
+ggplot 0.5.4
+
+	* border now drawn on top of geoms, instead of below - this results in better appearance when adjusting scale limits
+	* ggplot() + aes() now modifies existing default aesthetic mapping, rather than overwriting
+	* polish examples in facet_grid
+
+ggplot 0.5.3
+
+	* added experimental scatterplot matrix, see ?plotmatrix
+	* added new border.colour and grid.minor.colour options for better control over plot apperance
+	* updated theme_bw to do better when drawing a plot with white background 
+	* better default colour choices for gradients (and more discussion in examples)
+	* fixed bug in ScaleGradient2 where scales with different positive and negative ranges were not scaled correctly
+	* allow expressions as result from strip.text
+	* fixed rare bug in geom_vline and geom_hline
+	* fixed example in geom_abline
+	* tweaked display of multiline axis labels
+
 ggplot 0.5.2
+
 	* add argument to position dodge so it's now possible to accurately dodge things with different widths to their physical widths 
 	* added median summary
 	* new examples:
@@ -7,7 +26,6 @@ ggplot 0.5.2
 		* evaluation of arguments to layer is no longer delayed
 		* can use categorical xseq with stat_smooth
 		* x and y axes named incorrectly (thanks to Dieter Menne for spotting this)
-		* won't bin if y value set
 		* can now pass position objects to qplot
 		* y jitter calculated correctly, and jittered data rescales axis now
 		* removed silly legend from quantile plot

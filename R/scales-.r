@@ -77,10 +77,13 @@ Scales <- proto(Scale, expr={
 	
 	transform_df <- function(., df) {
 		if (length(.$.scales) == 0) return(df)
+		if (is.null(df)) return(df)
 		mapped <- compact(lapply(.$.scales, function(scale) {
 			scale$transform_df(df)
 		}))
-		do.call(data.frame,c(mapped[sapply(mapped, nrow) > 0], df[!(names(df) %in% .$input())]))
+		mapped <- do.call("data.frame", mapped)
+		
+		do.call("data.frame", c(mapped, df[!(names(df) %in% .$input())]))
 		
 	}
 	

@@ -12,14 +12,14 @@
 # @keyword internal
 labels_default <- function(plot, strip = plot$striplabel) {
 	add.names <- function(x) {
-		for(i in 1:ncol(x)) x[,i] <- plot$strip.text(colnames(x)[i], x[,i])
+		for(i in 1:ncol(x)) x[[i]] <- plot$strip.text(colnames(x)[i], x[,i])
 		x
 	}
 
 	gm <- plot$facet$grid(plot$data)
 	row.labels <- add.names(rrownames(gm))
 	col.labels <- add.names(rcolnames(gm))
-  
+	
   strip_h <- apply(col.labels, c(2,1), ggstrip, strip.gp=plot$strip.gp, text.gp=plot$strip.text.gp)
 	strip_v <- apply(row.labels, c(1,2), ggstrip, hor=FALSE, strip.gp=plot$strip.gp, text.gp=plot$strip.text.gp)
 
@@ -40,6 +40,7 @@ labels_default <- function(plot, strip = plot$striplabel) {
 # @keyword hplot 
 # @keyword internal
 ggstrip <- function(text, horizontal=TRUE, strip.gp=ggopt()$strip.gp, text.gp=ggopt()$strip.text.gp) {
+	if (is.list(text)) text <- text[[1]]
 	ggname("strip", gTree(children = gList(
 		ggname("background", rectGrob(gp=strip.gp)),
 		ggname("label", textGrob(text, rot=-90 * (1 - horizontal), gp=text.gp)) 

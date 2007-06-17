@@ -33,23 +33,28 @@ guides_basic <- function(plot, scales, coordinates) {
 	axes_v <- matrix(lapply(1:nr, function(n) ggname("yaxis", guides$y)), ncol=1)
 	axes_h <- matrix(lapply(1:nc, function(n) ggname("xaxis", guides$x)), nrow=1)
 	
+	foreground <- matrix(rep(list(coordinates$guide_foreground(plot)), nc * nr), ncol = nc)
+	dim(foreground) <- dim(gm)
+
 	grid <- matrix(rep(list(coordinates$guide_inside(plot)), nc * nr), ncol = nc)
   grid[is.na(gm)] <- list(rectGrob(gp=gpar(fill=NA, col=NA), name="background-empty"))
   dim(grid) <- dim(gm)
 
 	# Name 
+	name_guide <- function(x,y) ggname("guide", grid[[x,y]])
+	name_foreground <- function(x,y) ggname("guide", foreground[[x,y]])
+	
 	pg <- expand.grid(1:nr, 1:nc)
-	grid <- matrix(mapply(
-		function(x,y) ggname("guide", grid[[x,y]]), 
-		pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc
-	)
+	grid <- matrix(mapply(name_guide, pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc)
+	foreground <- matrix(mapply(name_foreground, pg[,1], pg[,2], SIMPLIFY=FALSE), ncol=nc)
 	
 	list(
 		background = list(rectGrob(gp=gpar(fill=plot$background.fill, col=NA), name="background")),
 		grid =   plot_grob_matrix(grid, "panel"), 
 		axes_v = plot_grob_matrix(axes_v, "axis_v"),
 		axes_h = plot_grob_matrix(axes_h, "axis_h"),
-		labels = labels_default(plot)
+		labels = labels_default(plot),
+		foreground = plot_grob_matrix(foreground, "panel")
 	)
 }
 
