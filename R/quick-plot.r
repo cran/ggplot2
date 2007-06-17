@@ -73,10 +73,12 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
 	if (!is.null(ylab)) p$ylabel <- ylab
 
 	# Add geoms/statistics
+	if (is.proto(position)) position <- list(position)
+	
 	mapply(function(g, s, ps) {
 		if(is.character(g)) g <- Geom$find(g)
 		if(is.character(s)) s <- Stat$find(s)
-		if(is.character(p)) ps <- Position$find(ps)
+		if(is.character(ps)) ps <- Position$find(ps)
 
 		params <- arguments[setdiff(names(arguments), c(.all_aesthetics, argnames))]
 		

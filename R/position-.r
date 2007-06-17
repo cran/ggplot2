@@ -7,6 +7,11 @@ Position <- proto(TopLevel, expr = {
 	class <- function(.) "position"
 	
 	new <- function(.) proto(.)
+
+	parameters <- function(.) {
+		params <- formals(get("new", .))
+		params[setdiff(names(params), c("."))]
+	}
 	
 	pprint <- function(., newline=TRUE) {
 		cat("position_", .$objname, ": ()", sep="")

@@ -50,6 +50,14 @@ fullseq <- function(range, size) {
 }
 
 StatBin <- proto(Stat, {
+	calculate_groups <- function(., data, ...) {
+		# if (!is.null(data$y)) {
+		# 	message("y value set, ignoring binning.  Perhaps you should be using stat='identity'?")
+		# 	return(data)
+		# }
+		.super$calculate_groups(., data, ...)
+	}
+	
 	calculate <- function(., data, scales, binwidth=NULL, breaks=NULL, width=0.9, ...) {
 		range <- scales$get_scales("x")$frange()
 

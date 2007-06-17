@@ -1,3 +1,20 @@
+ggplot 0.5.2
+	* add argument to position dodge so it's now possible to accurately dodge things with different widths to their physical widths 
+	* added median summary
+	* new examples:
+		* logistic regression example in stat_smooth
+	* bugs fixed:
+		* evaluation of arguments to layer is no longer delayed
+		* can use categorical xseq with stat_smooth
+		* x and y axes named incorrectly (thanks to Dieter Menne for spotting this)
+		* won't bin if y value set
+		* can now pass position objects to qplot
+		* y jitter calculated correctly, and jittered data rescales axis now
+		* removed silly legend from quantile plot
+		* extra arguments not being passed on to geoms/stats
+		* fixed bug in stat_summary when summarising a factor
+		* fixed bugs in stat_summary, geom_ribbon, and coord_trans examples
+
 ggplot 0.5.1
 
 	* renamed scale_manual to scale_identity to map position_identity and stat_identity
@@ -7,7 +24,6 @@ ggplot 0.5.1
 	* bug fixes to x axis range with interval geoms
 	* added ability to turn legend off for single scale (currently undocumented)
 	* added economics data set and matching examples
-
 
 ggplot2 0.5
 

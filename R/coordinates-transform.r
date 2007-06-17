@@ -86,8 +86,9 @@ CoordTransform <- proto(CoordCartesian, expr={
 		# transformation occurs BEFORE statistics, and coordinate
 		# transformation afterwards.  Coordinate transformation also 
 		# changes the shape of geoms:
-		qplot(carat, price, data=diamonds, log="xy", geom="smooth", method="lm")
-		qplot(carat, price, data=diamonds, geom="smooth", method="lm") + coord_trans(x="log10", y="log10")
+		library(mgcv)
+		qplot(carat, price, data=diamonds, log="xy", geom=c("point","smooth"), method="gam", formula=y ~ s(x, bs="cr"))
+		qplot(carat, price, data=diamonds, geom=c("point","smooth"), method="gam", formula=y ~ s(x, bs="cr"))  + coord_trans(x="log10", y="log10")
 		
 		# With a combination of scale and coordinate transformation, it's
 		# possible to do back-transformations:

@@ -30,7 +30,7 @@ StatSummary <- proto(Stat, {
 
 		c + stat_summary(fun="mean", colour="red", geom="point")
 		c + stat_summary(fun="mean", colour="red", geom="path")
-		c + stat_summary(fun="sum", colour="red", geom="point")
+		c + stat_summary(fun="median", colour="red", geom="point")
 		
 		statsumbar <- function(fun, ...) {
 			stat_summary(fun=fun, colour="red", geom="crossbar", width=0.2, ...)
@@ -38,8 +38,12 @@ StatSummary <- proto(Stat, {
 		
 		c + statsumbar("mean_cl_boot")
 		c + statsumbar("mean_sdl")
-		c + statsumbar("mean_sdl", stat_params = list(mult=1))
+		c + statsumbar("mean_sdl", mult=1)
 		c + statsumbar("median_hilow")
+		
+		# Use to augment boxplot
+		qplot(color, price, data=diamonds, geom="boxplot") + stat_summary(geom="point",fun="mean")
+		qplot(color, price, data=diamonds, geom="boxplot") + stat_summary(aes(group=1), geom="line",fun="mean")
 		
 		# A bigger dataset, where these summaries are actually useful
 		m <- ggplot(movies, aes(x=round(rating), y=votes)) + geom_point()
@@ -60,7 +64,7 @@ StatSummary <- proto(Stat, {
 })
 
 summaryby <- function(data, split, summary=yrange, ...) {
-	parts <- split(data, split)
+	parts <- split(data, factor(split))
 	unique <- lapply(parts, function(df) uniquecols(df[setdiff(names(df), c("y"))]))
 	
 	summary <- lapply(parts, summary, ...)
@@ -68,13 +72,17 @@ summaryby <- function(data, split, summary=yrange, ...) {
 	parts <- mapply(function(x,y) {
 		cbind(x, y[rep(1, nrow(x)), ,drop=FALSE])
 	}, summary, unique, SIMPLIFY=FALSE)
-
 	do.call("rbind.fill", parts)
 }
 
 wrap_hmisc <- function(x, fun, ...) {
 	try_require("Hmisc")
-	rename(data.frame(t(fun(x, ...))), c(Median="y", Mean="y", Lower="min", Upper="max"))
+
+	params <- list(...)
+	fun.params <- params[intersect(names(formals(fun)), names(params))]
+	
+	result <- do.call(fun, c(x=list(x), fun.params))
+	rename(data.frame(t(result)), c(Median="y", Mean="y", Lower="min", Upper="max"))
 }
 
 stat_mean_cl_boot <- function(df, ...) wrap_hmisc(df$y, fun=smean.cl.boot, ...)
@@ -84,6 +92,8 @@ stat_median_hilow <- function(df, ...) wrap_hmisc(df$y, fun=smedian.hilow, ...)
 
 stat_range <- function(data, ...) summaryby(data, data$x, yrange)
 stat_mean <- function(data, ...) summaryby(data, data$x, ymean)
+stat_median <- function(data, ...) summaryby(data, data$x, ymean)
 
 yrange <- function(df, ...) data.frame(min=min(df$y, na.rm=TRUE), max=max(df$y, na.rm=TRUE))
 ymean <- function(df, ...) data.frame(y=mean(df$y, na.rm=TRUE))
+ymedian <- function(df, ...) data.frame(y=median(df$y, na.rm=TRUE))

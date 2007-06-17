@@ -13,7 +13,7 @@ StatQuantile <- proto(Stat, {
 	)
 	
 	default_geom <- function(.) GeomQuantile
-	default_aes <- function(.) aes(group = ..quantile.., size = ..quantile..)
+	default_aes <- function(.) aes(group = ..quantile..)
 
 	calculate <- function(., data, scales, quantiles=c(0.25, 0.5, 0.75), formula=y ~ x, xseq = NULL, ...) {
 		try_require("quantreg")
@@ -35,7 +35,6 @@ StatQuantile <- proto(Stat, {
 		m <- ggplot(movies, aes(y=rating, x=year)) + geom_point() 
 		m + stat_quantile()
 		m + stat_quantile(quantiles = seq(0.05, 0.95, by=0.05))
-		m + stat_quantile(formula=y~x)
 
 		# Add aesthetic mappings
 		m + stat_quantile(aes(weight=votes))
@@ -43,7 +42,7 @@ StatQuantile <- proto(Stat, {
 		# Change scale
 		m + stat_quantile(aes(colour = ..quantile..), quantiles = seq(0.05, 0.95, by=0.05))
 		m + stat_quantile(aes(colour = ..quantile..), quantiles = seq(0.05, 0.95, by=0.05)) +
-			scale_colour_gradient(midpoint=0.5, low="green", mid="yellow", high="green")
+			scale_colour_gradient2(midpoint=0.5, low="green", mid="yellow", high="green")
 
 		# Set aesthetics to fixed value
 		m + stat_quantile(colour="red", size=2, linetype=2)
