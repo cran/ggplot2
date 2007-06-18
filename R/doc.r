@@ -74,9 +74,9 @@ all_html_pages_create <- function(path="web/") {
 	Coord$all_html_pages_create()
 	Position$all_html_pages_create()
 	Facet$all_html_pages_create()
-	system("pdf2png web/graphics/*.pdf",  show.output.on.console=FALSE)
+	system("pdf2png web/graphics/*.pdf > /dev/null")
 	system("rm web/graphics/*.pdf")
-	system("optipng web/graphics/*.png",  show.output.on.console=FALSE)
+	system("optipng web/graphics/*.png  > /dev/null")
 }
 
 # Generate html for templated files

@@ -24,11 +24,20 @@ Layer <- proto(expr = {
 		if (is.null(geom)) geom <- stat$default_geom()
 		if (is.null(stat)) stat <- geom$default_stat()
 		if (is.null(position)) position <- geom$default_pos()
+
+		match.params <- function(possible, params) {
+			if ("..." %in% names(possible)) {
+				params
+			} else {
+				params[match(names(possible), names(params), nomatch=0)]
+			}
+			
+		}
 		
 		if (is.null(geom_params) && is.null(stat_params)) {
-			params <- c(params, aes(...))
-			geom_params <- params[match(names(geom$parameters()), names(params), nomatch=0)]
-			stat_params <- params[match(names(stat$parameters()), names(params), nomatch=0)]
+			params <- c(params, list(...))
+			geom_params <- match.params(geom$parameters(), params)
+			stat_params <- match.params(stat$parameters(), params)
 		}
 		
 		proto(., geom=geom, geom_params=geom_params, stat=stat, stat_params=stat_params, data=data, aesthetics=mapping, position=position)

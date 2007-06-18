@@ -3,13 +3,18 @@ StatSmooth <- proto(Stat, {
 		if (nrow(data) < 2) return(NULL)
 		if (is.null(data$weight)) data$weight <- 1
 		
-		range <- if (fullrange) scales$get_scales("x")$frange() else range(data$x, na.rm=TRUE)
-		
-		if (is.null(xseq)) xseq <- seq(range[1], range[2], length=n)
+		if (is.null(xseq)) {
+			range <- if (fullrange) scales$get_scales("x")$frange() else range(data$x, na.rm=TRUE)	
+			xseq <- seq(range[1], range[2], length=n)
+		}
 		if (is.character(method)) method <- match.fun(method)
 		
-		model <- method(formula, data=data, weights=weight, ...)
-		pred <- predict(model, data.frame(x=xseq), se=se)
+		params <- list(...)
+		model.params <- params[intersect(names(formals(method)), names(params))]
+		
+		method.special <- function(...) method(formula, data=data, weights=weight, ...)
+		model <- do.call(method.special, model.params)
+		pred <- predict(model, data.frame(x=xseq), se=se, type="response")
 
 		if (se) {
 			std <- qnorm(level/2 + 0.5)
@@ -77,5 +82,14 @@ StatSmooth <- proto(Stat, {
 
 		# Use qplot instead
 		qplot(qsec, wt, data=mtcars, geom=c("smooth", "point"))
-	}	
+		
+		# Example with logistic regression
+		data("kyphosis", package="rpart")
+		qplot(Age, Kyphosis, data=kyphosis)
+		qplot(Age, Kyphosis, data=kyphosis, position="jitter")
+		qplot(Age, Kyphosis, data=kyphosis, position=position_jitter(y=5))
+
+		qplot(Age, as.numeric(Kyphosis) - 1, data=kyphosis) + stat_smooth(method="glm", family="binomial")
+		qplot(Age, as.numeric(Kyphosis) - 1, data=kyphosis) + stat_smooth(method="glm", family="binomial", fill="grey70")
+	}
 })

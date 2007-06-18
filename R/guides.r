@@ -30,8 +30,8 @@ guides_basic <- function(plot, scales, coordinates) {
   nr <- nrow(gm)
   nc <- ncol(gm)
 
-	axes_v <- matrix(lapply(1:nr, function(n) ggname("xaxis", guides$y)), ncol=1)
-	axes_h <- matrix(lapply(1:nc, function(n) ggname("yaxis", guides$x)), nrow=1)
+	axes_v <- matrix(lapply(1:nr, function(n) ggname("yaxis", guides$y)), ncol=1)
+	axes_h <- matrix(lapply(1:nc, function(n) ggname("xaxis", guides$x)), nrow=1)
 	
 	grid <- matrix(rep(list(coordinates$guide_inside(plot)), nc * nr), ncol = nc)
   grid[is.na(gm)] <- list(rectGrob(gp=gpar(fill=NA, col=NA), name="background-empty"))

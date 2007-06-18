@@ -272,6 +272,8 @@
 \alias{wrap_hmisc}
 \alias{ymean}
 \alias{yrange}
+\alias{ymedian}
+\alias{stat_median}
 \alias{\%+\%}
 
 

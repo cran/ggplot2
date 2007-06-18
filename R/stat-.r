@@ -38,7 +38,7 @@ Stat <- proto(TopLevel, expr={
 	
 	parameters <- function(.) {
 		params <- formals(get("calculate", .))
-		params[setdiff(names(params), c(".","data","scales", "..."))]
+		params[setdiff(names(params), c(".","data","scales"))]
 	}
 	
 	class <- function(.) "stat"

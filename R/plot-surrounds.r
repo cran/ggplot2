@@ -33,21 +33,27 @@ prettyplot <- function(plot, plotgrob, scales=plot$scales, cs=plot$coordinates) 
 	xlabel <- cs$xlabel(gp)
 	ylabel <- cs$ylabel(gp)
 	
+	ylab_width <- unit(1, "grobwidth", ylabel)
+	if (length(ylabel$label) != 0) ylab_width <- ylab_width + unit(0.5, "lines")
+
+	xlab_height <- unit(1, "grobheight", xlabel)
+	if (length(xlabel$label) != 0) xlab_height <- xlab_height + unit(0.5, "lines")
+
 	widths <- switch(position, 
-		right =  unit.c(unit(1.5, "grobwidth", ylabel), unit(1, "null"), unit(1, "grobwidth", legend)),
-		left =   unit.c(unit(1, "grobwidth", legend), unit(1.2, "grobwidth", ylabel), unit(1, "null")), 
+		right =  unit.c(unit(2, "grobwidth", ylabel), unit(1, "null"), unit(1, "grobwidth", legend)),
+		left =   unit.c(unit(1, "grobwidth", legend), unit(1.5, "grobwidth", ylabel), unit(1, "null")), 
 		top =    ,
 		bottom = ,
 		manual = ,
-		none =   unit.c(unit(1.2, "grobwidth", ylabel), unit(1, "null"))
+		none =   unit.c(ylab_width, unit(1, "null"))
 	)
 	heights <- switch(position,
-		top =    unit.c(unit(1, "grobheight", title), unit(1, "grobheight", legend), unit(1, "null"), unit(1.2, "grobheight", xlabel)),
-		bottom = unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(1.2, "grobheight", xlabel), unit(1, "grobheight", legend)),
+		top =    unit.c(unit(1, "grobheight", title), unit(1, "grobheight", legend), unit(1, "null"), xlab_height),
+		bottom = unit.c(unit(2, "grobheight", title), unit(1, "null"), xlab_height, unit(1, "grobheight", legend)),
 		right =  ,
 		left =   ,
 		manual = ,
-		none =   unit.c(unit(2, "grobheight", title), unit(1, "null"), unit(2, "grobheight", xlabel))
+		none =   unit.c(unit(2, "grobheight", title), unit(1, "null"), xlab_height)
 	)
 
 	layout <- grid.layout(length(heights), length(widths), widths=widths, heights=heights)

@@ -4,7 +4,10 @@ ScaleDiscrete <- proto(Scale, expr={
 	.expand <- c(0, 0.5)
 
 	train <- function(., x) {
-		if (is.numeric(x)) warning("Numeric variable supplied to discrete scale ", .$name, ".", call.=FALSE)
+		if (is.numeric(x)) {
+			warning("Numeric variable supplied to discrete scale ", .$name, ".", call.=FALSE) 
+			.$.frange <- range(x)
+		}
 		.$.domain <- union(.$.domain, levels(x))
 	}
 	discrete <- function(.) TRUE
@@ -31,7 +34,8 @@ ScaleDiscrete <- proto(Scale, expr={
 		}	
 	}
 	
-	frange <- function(.) c(1, length(.$domain()))
+	.frange <- NULL
+	frange <- function(.) if (is.null(.$.frange)) c(1, length(.$domain())) else .$.frange
 
 	# Guides
 	# -------------------

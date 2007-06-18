@@ -43,24 +43,21 @@ GeomRibbon <- proto(GeomInterval, {
 		h <- ggplot(huron, aes(x=year))
 
 		h + geom_ribbon(aes(min=0, max=level))
-		h + geom_area(y = level)
+		h + geom_area(aes(y = level))
 
 		# Add aesthetic mappings
 		h + geom_ribbon(aes(min=level-1, max=level+1))
-		h + geom_ribbon(aes(min=level-1, max=level+1)) + geom_line()
+		h + geom_ribbon(aes(min=level-1, max=level+1)) + geom_line(aes(y=level))
 		
-		h + geom_ribbon(aes(fill=decade, group=decade), min=580)
-		h + geom_ribbon(aes(fill=decade, group=decade), min=570)
-
 		# Another data set, with multiple y's for each x
 		m <- ggplot(movies, aes(y=votes, x=year)) 
-		m + geom_point()
+		(m <- m + geom_point())
 		
 		m + stat_summary(geom="ribbon")
 		m + stat_summary(geom="ribbon", fun=stat_median_hilow)
 		
 		# Use qplot instead
-		qplot(year, level, data=huron, geom=c("ribbon", "line"))
+		qplot(year, level, data=huron, geom=c("area", "line"))
 	}	
 })
 

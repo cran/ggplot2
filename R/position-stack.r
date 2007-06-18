@@ -6,12 +6,15 @@ PositionStack <- proto(Position, {
 		if (!all(data$min == 0)) warning("Stacking not well defined when min != 0")
 	
 		adjust <- function(data) {
+			data <- data[order(data$x), ]
+			
 			y <- with(data, ifelse(is.na(y), 0, y))
 			heights <- c(0, cumsum(y))
 			if (.$rescale) heights <- rescale(heights, c(0,1))
 			transform(data, 
 				min = heights[-length(heights)],
-				max = heights[-1]
+				max = heights[-1],
+				y = heights[-1]
 			)
 		}
 
@@ -56,7 +59,6 @@ PositionFill <- proto(PositionStack, {
 		ggplot(diamonds, aes(x=price, fill=cut)) + geom_bar(position="fill")
 		ggplot(diamonds, aes(x=price, fill=clarity)) + geom_bar(position="fill")
 		ggplot(diamonds, aes(x=price, fill=colour)) + geom_bar(position="fill")
-			
 	}
 
 

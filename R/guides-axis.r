@@ -86,7 +86,7 @@ ggaxis_labels <- function(at, labels, position) {
 
 	ggname("labels", switch(position,
 		bottom = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
-			ggname("label", textGrob(labels[[i]], unit(at[i], "native"), unit(0.8, "npc"), just = c("centre","top")))
+			ggname("label", textGrob(labels[[i]], unit(at[i], "native"), unit(0, "npc"), just = c("centre","bottom")))
 		})), vp=vp, gp=gp),
 
 		left = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
@@ -116,7 +116,7 @@ ggaxis_vp <- function(position, labels, scale=c(0,1)) {
 	
 	label_size <- switch(position, 
 		top = ,
-		bottom = do.call("max", lapply(labels, function(x) stringHeight(as.expression(x)))) * 2,
+		bottom = do.call("max", lapply(labels, function(x) stringHeight(as.expression(x)))) * 1.2,
 		left = ,
 		right = do.call("max", lapply(labels, function(x) stringWidth(as.expression(x)))) * 1.2
 	)
