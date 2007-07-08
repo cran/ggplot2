@@ -4,7 +4,7 @@
 	if (is.data.frame(object)) {
 		p$data <- object
 	} else if(inherits(object, "uneval")) {
-			p$defaults <- object
+			p$defaults <- defaults(object, p$defaults)
 	} else if(is.list(object)) {
 		for (o in object) {
 			p <- p + o

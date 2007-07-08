@@ -48,18 +48,21 @@ CoordCartesian <- proto(Coord, expr={
 		draw_grid(plot, breaks)
 	}
 	
+	guide_foreground <- function(., plot) {
+		ggname("border", rectGrob(gp=gpar(col=plot$border.colour, lwd=2, fill=NA)))
+	}
+	
+	
 	draw_grid <- function(plot, breaks) {
-		gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
+		gp <- gpar(col=plot$grid.colour)
 		ggname("grill", gTree(children = gList(
 			ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
 
+			ggname("minor-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$minor, unit(1, "npc"), breaks$y$minor, gp = gpar(col=plot$grid.minor.colour, lwd=0.8), default.units="native")),
+			ggname("minor-vertical", segmentsGrob(breaks$x$minor, unit(0, "npc"), breaks$x$minor, unit(1, "npc"), gp = gpar(col=plot$grid.minor.colour, lwd=0.8), default.units="native")),
+
 			ggname("major-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$major, unit(1, "npc"), breaks$y$major, gp = gp, default.units="native")),
-			ggname("major-vertical", segmentsGrob(breaks$x$major, unit(0, "npc"), breaks$x$major, unit(1, "npc"), gp = gp, default.units="native")),
-
-			ggname("minor-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$minor, unit(1, "npc"), breaks$y$minor, gp = gpar(col="grey95", lwd=0.8), default.units="native")),
-			ggname("minor-vertical", segmentsGrob(breaks$x$minor, unit(0, "npc"), breaks$x$minor, unit(1, "npc"), gp = gpar(col="grey95", lwd=0.8), default.units="native")),
-
-			ggname("border", rectGrob(gp=gpar(col=plot$grid.colour, lwd=3, fill=NA)))
+			ggname("major-vertical", segmentsGrob(breaks$x$major, unit(0, "npc"), breaks$x$major, unit(1, "npc"), gp = gp, default.units="native"))
 		)))
 	}
 	

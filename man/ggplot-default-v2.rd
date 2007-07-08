@@ -11,9 +11,8 @@ Create a new ggplot plot
 \usage{ggplot.default(data = NULL, mapping=aes(), ...)}
 \arguments{
 \item{data}{default data frame}
-\item{mapping}{formula describing row and column layout, see \\code{\\link[reshape]{reshape}} for more details}
-\item{...}{a vector of names giving which margins to display, can include grand\_row and grand\_col or uss TRUE to display all margins}
-\item{}{default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual geom functions for more details)}
+\item{mapping}{default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual geom functions for more details)}
+\item{...}{}
 }
 
 \details{This function creates the basic ggplot object which you can then

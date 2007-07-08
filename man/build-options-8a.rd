@@ -73,5 +73,23 @@ p <- qplot(wt, mpg, data=mtcars, colour=factor(cyl))
 p$legend.position <- c(0.9,0.9); p
 p$legend.position <- c(0.5,0.5)
 p$legend.justification <- "center"
+p
+
+DF <- data.frame(
+x=rnorm(20), 
+y=rnorm(20), 
+g1=rep(letters[1:2], 10),
+g2=rep(LETTERS[1:2], each=10)
+)
+
+(p <- qplot(x, y, data=DF, facets = g1 ~ g2))
+
+p$strip.text <- function (variable, value) {
+greek <- c("A" = "alpha", "B" = "beta")[value]
+makelabel <- function (g) substitute(variable == greek, list(variable=as.name(variable), greek=as.name(g)))
+
+lapply(greek, makelabel)
+}
+
 p}
 \keyword{manip}

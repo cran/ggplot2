@@ -56,7 +56,7 @@ ggplot_plot <- function(plot, pretty=TRUE) {
 	viewport <- viewport_default(plot, guides, plot$scales, cs)
 	panels <- panels_default(plot, grobs)
 	
-	plotgrob <- ggname("plot", gTree(children=do.call("gList", c(unlist(guides, recursive=FALSE), panels)), childrenvp = viewport))
+	plotgrob <- ggname("plot", gTree(children=do.call("gList", c(unlist(guides, recursive=FALSE), panels, guides$foreground)), childrenvp = viewport))
 	if (!pretty) return(plotgrob)
 
 	prettyplot(plot, plotgrob, scales)

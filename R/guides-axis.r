@@ -76,17 +76,17 @@ ggaxis_ticks <- function(at, position) {
 # Grob for axis lables
 # 
 # @arguments position of ticks
-# @arguments labels at ticks
+# @arguments grob labels at ticks
 # @arguments position of axis (top, bottom, left or right)
 # @keyword hplot 
 # @keyword internal
 ggaxis_labels <- function(at, labels, position) {
 	vp <- axis_vp_path(position, "labels")
-	gp <- gpar(cex=0.9)
-
+	gp <- gpar(cex=0.9, lineheight=0.9)
+	
 	ggname("labels", switch(position,
 		bottom = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
-			ggname("label", textGrob(labels[[i]], unit(at[i], "native"), unit(0, "npc"), just = c("centre","bottom")))
+			ggname("label", textGrob(labels[[i]], unit(at[i], "native"), unit(0.5, "npc"), just = c("centre","centre")))
 		})), vp=vp, gp=gp),
 
 		left = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
@@ -113,12 +113,12 @@ ggaxis_labels <- function(at, labels, position) {
 # @keyword internal
 ggaxis_vp <- function(position, labels, scale=c(0,1)) {
 	tick_size <- unit(0.4, "lines")
-	
+
 	label_size <- switch(position, 
 		top = ,
-		bottom = do.call("max", lapply(labels, function(x) stringHeight(as.expression(x)))) * 1.2,
+		bottom = max(stringHeight(labels)),
 		left = ,
-		right = do.call("max", lapply(labels, function(x) stringWidth(as.expression(x)))) * 1.2
+		right = max(stringWidth(labels))
 	)
 	
 	#viewport with named parts labels and text

@@ -67,6 +67,24 @@
 #X p$legend.position <- c(0.5,0.5)
 #X p$legend.justification <- "center"
 #X p
+#X 
+#X DF <- data.frame(
+#X 	x=rnorm(20), 
+#X 	y=rnorm(20), 
+#X 	g1=rep(letters[1:2], 10),
+#X 	g2=rep(LETTERS[1:2], each=10)
+#X )
+#X 
+#X (p <- qplot(x, y, data=DF, facets = g1 ~ g2))
+#X 
+#X p$strip.text <- function (variable, value) {
+#X 	greek <- c("A" = "alpha", "B" = "beta")[value]
+#X 	makelabel <- function (g) substitute(variable == greek, list(variable=as.name(variable), greek=as.name(g)))
+#X 
+#X 	lapply(greek, makelabel)
+#X }
+#X 
+#X p
 .build_options <- function(opt) {
 	class(opt) <- "options"
 	
@@ -100,12 +118,14 @@ theme_default <- list(
 	axis.colour = "grey50",
 	background.colour = "black",
 	background.fill = "white",
+	border.colour = "white",
 	grid.colour = "white",
+	grid.minor.colour = "grey95",
 	grid.fill = "grey90",
 	legend.position = "right",
 	legend.justification = c("right", "top"),
 	save = FALSE,
-	strip.gp = gpar(col = "white", fill = "grey80", lwd=3),
+	strip.gp = gpar(col = "white", fill = "grey80", lwd=2),
 	strip.text = function(variable, value) value, #paste(variable, value, sep=": "),
 	strip.text.gp = gpar()
 )
@@ -114,7 +134,10 @@ ggopt <- .build_options(theme_default)
 
 theme_bw <- list(
 	grid.colour = "grey80",
-	grid.fill = "white"
+	grid.minor.colour = "NA",
+	grid.fill = "white",
+	axis.colour = "black",
+	border.colour = "black"
 )
 
 # Access ggplot options

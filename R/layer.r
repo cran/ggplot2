@@ -79,7 +79,7 @@ Layer <- proto(expr = {
 	}
 	
 	calc_statistic <- function(., data, scales) {
-		if (nrow(data) == 0) return(data)
+		if (is.null(data) || nrow(data) == 0) return()
 
 		do.call(.$stat$calculate_groups, c(
 			list(data=as.name("data"), scales=as.name("scales")), 
@@ -98,7 +98,7 @@ Layer <- proto(expr = {
 	}
 	
 	map_statistic <- function(., data, plot) {
-		if (nrow(data) == 0) return()
+		if (is.null(data) || nrow(data) == 0) return()
 		aesthetics <- defaults(.$aesthetics, defaults(plot$defaults, .$stat$default_aes()))
 		
 		match <- "\\.\\.([a-zA-z._]+)\\.\\."
@@ -125,10 +125,12 @@ Layer <- proto(expr = {
 	}
 
 	make_grobs <- function(., data, scales, cs) {
+		force(data)
 		gg_apply(data, function(x) .$make_grob(x, scales, cs))
 	}
 
 	make_grob <- function(., data, scales, cs) {
+		if (is.null(data) || nrow(data) == 0) return()
 		data <- .$use_defaults(data)
 		
 		do.call(.$geom$draw_groups, c(

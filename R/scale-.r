@@ -77,7 +77,7 @@ Scale <- proto(TopLevel, expr={
 	}
 
 	transform_df <- function(., df) {
-		df <- data.frame(.$stransform(df[[.$input()]]))
+		df <- data.frame(.$stransform(df[, .$input()]))
 		if (ncol(df) == 0) return(NULL)
 		names(df) <- .$output()
 		df

@@ -65,7 +65,14 @@ StatSmooth <- proto(Stat, {
 		c + stat_smooth(method = lm, formula= y ~ ns(x,3)) + geom_point()	
 		c + stat_smooth(method = rlm, formula= y ~ ns(x,3)) + geom_point()	
 		
-		# Add aesthetic mappings
+		# The default confidence band uses a transparent colour. 
+		# This currently only works on a limited number of graphics devices 
+		# (including Quartz, PDF, and Cairo) so you may need to set the
+		# fill colour to a opaque colour, as shown below
+		c + stat_smooth(fill="grey50", size=2)
+		c + stat_smooth(fill="blue", size=2)
+		
+		# The colour of the line can be controlled with the colour aesthetic
 		c + stat_smooth(fill="blue", colour="darkblue", size=2)
 		c + stat_smooth(fill=alpha("blue", 0.2), colour="darkblue", size=2)
 		c + geom_point() + stat_smooth(fill=alpha("blue", 0.2), colour="darkblue", size=2)

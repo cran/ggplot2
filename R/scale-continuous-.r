@@ -26,7 +26,9 @@ ScaleContinuous <- proto(Scale, {
 	train <- function(., x) {
 		if (!is.numeric(x)) 
 			warning("Non-numeric variable supplied to continuous scale ", .$name, ".", call.=FALSE)
-		.$.domain <- range(range(x, na.rm=TRUE), .$.domain, na.rm=TRUE)
+		if (all(is.na(x))) return()
+			
+		.$.domain <- range(range(x, na.rm=TRUE), .$.domain, na.rm=TRUE, finite=TRUE)
 	}
 
 	# Scale range

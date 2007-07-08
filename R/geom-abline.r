@@ -58,8 +58,8 @@ GeomAbline <- proto(Geom, {
 		p + geom_abline(data=coefs)
 		
 		# It's actually a bit easier to do this with stat_smooth
-		p + geom_smooth(method="lm")
-		p + geom_smooth(method="lm", fullrange=TRUE)
+		p + geom_smooth(aes(group=cyl), method="lm")
+		p + geom_smooth(aes(group=cyl), method="lm", fullrange=TRUE)
 		
 	}	
 })

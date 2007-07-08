@@ -57,7 +57,7 @@ GeomTile <- proto(Geom, {
 	objname <- "tile"
 	desc <- "Tile plot as densely as possible, assuming that every tile is the same size. "
 	
-	details <- "<p>Similar to levelplot and  image.</p>"
+	details <- "<p>Similar to levelplot and image.</p>"
 
 	icon <- function(.) {
 		rectGrob(c(0.25, 0.25, 0.75, 0.75), c(0.25, 0.75, 0.75, 0.25), width=0.5, height=c(0.67, 0.5, 0.67, 0.5), gp=gpar(col="grey60", fill=c("#804070", "#668040")))

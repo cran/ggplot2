@@ -1,6 +1,6 @@
 GeomInterval <- proto(Geom, {
 	adjust_scales_data <- function(., scales, data) {
-		if (is.null(data) || nrow(data) == 0) return(data)
+		if (is.null(data) || nrow(data) == 0) return()
 		if (is.null(data$width)) data$width <- 0
 		if (is.null(data$min)) data$min <- 0
 		if (is.null(data$max)) data$max <- data$y
