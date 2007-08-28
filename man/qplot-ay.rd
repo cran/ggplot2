@@ -6,25 +6,24 @@
 \description{
 Quick plot is a convenient wrapper function for creating simple ggplot plot objects.
 }
-\usage{qplot(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE, geom = "point", stat=list(NULL), position=list(NULL), xlim = c(NA, NA), ylim = c(NA, NA), log = "", main = NULL, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), add=NULL)}
+\usage{qplot(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE, geom = "point", stat=list(NULL), position=list(NULL), xlim = c(NA, NA), ylim = c(NA, NA), log = "", main = NULL, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)))}
 \arguments{
 \item{x}{x values}
 \item{y}{y values}
-\item{z}{data frame to use (optional)}
-\item{...}{facetting formula to use}
-\item{data}{grob type(s) to draw (can be a vector of multiple names)}
-\item{facets}{limits for x axis (aesthetics to range of data)}
-\item{margins}{limits for y axis (aesthetics to range of data)}
-\item{geom}{which variables to log transform ("x", "y", or "xy")}
-\item{stat}{character vector or expression for plot title}
-\item{position}{character vector or expression for x axis label}
-\item{xlim}{character vector or expression for y axis label}
-\item{ylim}{if specified, build on top of this ggplot, rather than creating a new one}
-\item{log}{other arguments passed on to the geom functions}
-\item{main}{}
-\item{xlab}{}
-\item{ylab}{}
-\item{add}{}
+\item{z}{z values}
+\item{...}{other arguments passed on to the geom functions}
+\item{data}{data frame to use (optional)}
+\item{facets}{facetting formula to use}
+\item{margins}{whether or not margins will be displayed}
+\item{geom}{geom to use (can be a vector of multiple names)}
+\item{stat}{statistic to use (can be a vector of multiple names)}
+\item{position}{position adjustment to use (can be a vector of multiple names)}
+\item{xlim}{limits for x axis (aesthetics to range of data)}
+\item{ylim}{limits for y axis (aesthetics to range of data)}
+\item{log}{which variables to log transform ("x", "y", or "xy")}
+\item{main}{character vector or expression for plot title}
+\item{xlab}{character vector or expression for x axis label}
+\item{ylab}{character vector or expression for y axis label}
 }
 
 \details{FIXME: describe how to get more information
@@ -47,9 +46,5 @@ qplot(mpg, wt, facets=vs ~ am)
 
 # Use different geoms
 qplot(mpg, wt, geom="path")
-qplot(factor(cyl), wt, geom=c("boxplot", "jitter"))
-
-# Add to an existing plot
-p <- qplot(mpg, wt, geom="path")
-qplot(mpg, wt, geom="point", add=p)}
+qplot(factor(cyl), wt, geom=c("boxplot", "jitter"))}
 \keyword{hplot}

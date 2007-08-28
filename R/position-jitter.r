@@ -29,8 +29,8 @@ PositionJitter <- proto(Position, {
 	
 	icon <- function(.) GeomJitter$icon()
 	desc_params <- list(
-		xjitter = "degree of jitter in x direction, see \\code{\\link{jitter} for details, defaults to 1 if the x variable is a factor, 0 otherwise", 
-		yjitter = "degree of jitter in y direction, see \\code{\\link{jitter} for details, defaults to 1 if the y variable is a factor, 0 otherwise"
+		xjitter = "degree of jitter in x direction, see ?jitter for details, defaults to 1 if the x variable is a factor, 0 otherwise", 
+		yjitter = "degree of jitter in y direction, see ?jitter for details, defaults to 1 if the y variable is a factor, 0 otherwise"
 		)
 
 	examples <- function(.) {

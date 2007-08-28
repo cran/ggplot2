@@ -1,28 +1,40 @@
 # ggsave
 # Save a ggplot with sensible defaults
 # 
-# @arguments plot to save
+# ggsave is a convenient function for saving a plot.  It defaults to
+# saving the last plot that you displayed, and for a default size uses 
+# the size of the current graphics device.  It also guess the type of 
+# graphics device from the extension.  This means the only argument you 
+# need to supply is the path.
+# 
+# @arguments plot to save, defaults to last plot displayed
 # @arguments file name/path of plot
 # @arguments device to use, automatically extract from file name extension
 # @arguments scaling factor
 # @arguments width (in inches)
 # @arguments height (in inches)
-# @arguments grid to use, normal for white on pale grey, print for pale grey on white
 # @arguments dpi to use for raster graphics
-# @arguments other arguments passed to device function
+# @arguments other arguments passed to graphics device
 # @keyword file 
-ggsave <- function(plot = .last_plot, filename=default_name(plot), device=default_device(filename), scale=1, width=par("din")[1], height=par("din")[2], grid="normal", dpi=96, ...) {
+#X \dontrun{
+#X ratings <- qplot(rating, data=movies, geom="histogram")
+#X qplot(length, data=movies, geom="histogram")
+#X ggsave(file="length-hist.pdf")
+#X ggsave(file="length-hist.png")
+#X ggsave(ratings, file="ratings.pdf")
+#X ggsave(ratings, file="ratings.pdf", width=4, height=4)
+#X # make twice as big as on screen
+#X ggsave(ratings, file="ratings.pdf", scale=2)
+#X }
+ggsave <- function(plot = .last_plot, filename=default_name(plot), device=default_device(filename), scale=1, width=par("din")[1], height=par("din")[2], dpi=96, ...) {
 
-	ps <- function(..., width, height) grDevices:::ps(..., width=width, height=height)
-	tex <- function(..., width, height) grDevices:::pictex(..., width=width, height=height)
-	pdf <- function(..., version="1.4") grDevices:::pdf(..., version=version)
-
-	# if (require("cairoDevice", quiet=TRUE)) Cairo(..., width=width*dpi, height=height*dpi, surface="png") else
-	png <- function(..., width, height)  grDevices:::png(..., width=width*dpi, height=height*dpi)
-	# if (require("cairoDevice", quiet=TRUE)) Cairo(..., width=width*dpi, height=height*dpi, surface="jpeg") else
-	jpeg <- function(..., width, height)  grDevices:::jpeg(..., width=width*dpi, height=height*dpi)
-	jpeg <- function(..., width, height) grDevices:::bmp(..., width=width*dpi, height=height*dpi)
-	wmf <- function(..., width, height) grDevices:::win.metafile(..., width=width, height=height)
+	ps <- function(..., width, height)  grDevices::ps(..., width=width, height=height)
+	tex <- function(..., width, height) grDevices::pictex(..., width=width, height=height)
+	pdf <- function(..., version="1.4") grDevices::pdf(..., version=version)
+	png <- function(..., width, height) grDevices::png(..., width=width*dpi, height=height*dpi)
+	jpeg <- function(..., width, height) grDevices::jpeg(..., width=width*dpi, height=height*dpi)
+	bmp <- function(..., width, height) grDevices::bmp(..., width=width*dpi, height=height*dpi)
+	wmf <- function(..., width, height) grDevices::win.metafile(..., width=width, height=height)
 	
 	default_name <- function(plot) { 
 		title <- if (is.null(plot$title) || nchar(plot$title) == 0) "ggplot" else plot$title
@@ -39,13 +51,9 @@ ggsave <- function(plot = .last_plot, filename=default_name(plot), device=defaul
 	width <- width * scale
 	height <- height * scale
 	
-	if (grid != "normal") {
-		plot$grid.colour = "grey80"
-		plot$grid.fill = "white"
-	}
-	
 	device(file=filename, width=width, height=height, ...)
 	print(plot)
-	a <- capture.output(dev.off())
+	capture.output(dev.off())
 	
+	invisible()
 }

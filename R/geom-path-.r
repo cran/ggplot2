@@ -4,7 +4,7 @@ GeomPath <- proto(Geom, {
 	draw <- function(., data, scales, coordinates, ...) {
 		if (is.null(data$group)) data$group <- 1
 		munched <- coordinates$munch(data)
-		
+
 		n <- nrow(munched)
 		start <- unlist(tapply(1:n, munched$group, function(x) x[-length(x)]))
 		end <- unlist(tapply(1:n, munched$group, function(x) x[-1]))

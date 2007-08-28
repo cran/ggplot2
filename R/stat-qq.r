@@ -7,9 +7,6 @@ StatQq <- proto(Stat, {
 		dist = "Distribution function to use, if x not specified",
 		"..." = "Other arguments passed to distribution function"
 	)
-	desc_aes <- list(
-		quantile = "quantile of distribution"
-	)
 	
 	default_geom <- function(.) GeomPoint
 	default_aes <- function(.) aes(y = ..y..)
@@ -17,7 +14,10 @@ StatQq <- proto(Stat, {
 	calculate <- function(., data, scales, quantiles=ppoints(length(data$x)), distribution=qnorm, ...) {
 		
 		if (is.null(data$y)) {
-			qy <- distribution(quantiles, ...)
+			params <- list(...)
+			dist.params <- params[intersect(names(formals(distribution)), names(params))]
+			
+			qy <- do.call(distribution, c(list(quantiles), dist.params))
 		} else {
 			qy <- quantile(data$y, probs=quantiles, na.rm=TRUE)
 		}
@@ -45,7 +45,7 @@ StatQq <- proto(Stat, {
 
 		# Not bad, apart from in the tails
 		# We'll try something a little longer-tailed
-		distt <- fitdistr(movies$rating, "t")
+		distt <- suppressWarnings(fitdistr(movies$rating, "t"))
 		m + stat_qq(distribution=function(x) qt(x, distt$estimate[3], distt$estimate[1]) * distt$estimate[2]) + geom_abline()
 		
 		ggplot(movies, aes(x=rating, y=rating * 2)) + stat_qq()

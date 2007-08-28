@@ -43,29 +43,17 @@ GeomBar <- proto(GeomInterval, {
 	
 	examples <- function(.) {
 		# Generate data
-		c <- ggplot(mtcars, aes(x=factor(cyl)))
+		mtcars$cyl <- factor(mtcars$cyl)
+		c <- ggplot(mtcars, aes(x=cyl))
 		
 		c + geom_bar()
 		c + geom_bar() + coord_flip()
 		c + geom_bar(fill="white", colour="darkgreen")
 		
-		# Make a coxcomb
-		c + geom_bar() + scale_y_sqrt()
-		c + geom_bar(width=1, colour="black") + coord_polar()
-		
 		# Use qplot
-		cyl <- factor(mtcars$cyl)
-		qplot(cyl, geom="bar")
-		qplot(cyl, geom="bar", fill=cyl)
-		qplot(cyl, geom="bar", fill=cyl) + coord_polar()
-		qplot(cyl, geom="blank", fill=cyl) + geom_bar(width=1) + coord_polar()
-		qplot(cyl, geom="bar", fill=cyl) + coord_polar(theta="y")
+		qplot(cyl, data=mtcars, geom="bar")
+		qplot(cyl, data=mtcars, geom="bar", fill=cyl)
 		
-		# Make a stacked bar chart
-		c <- ggplot(mtcars, aes(x=1,fill=factor(cyl))) + geom_bar()
-		c + coord_polar()
-		c + coord_polar(theta="y")
-
 		# Dodged bar charts		
 		ggplot(diamonds, aes(x=price, fill=cut)) + geom_bar(position="dodge")
 		ggplot(diamonds, aes(x=clarity, fill=cut)) + geom_bar(position="dodge")
@@ -87,6 +75,8 @@ GeomBar <- proto(GeomInterval, {
 		meanprice <- tapply(diamonds$price, diamonds$cut, mean)
 		qplot(unique(diamonds$cut), meanprice)
 		qplot(unique(diamonds$cut), meanprice, geom="bar", stat="identity")
+		
+		rm(mtcars)
 	}	
 
 })

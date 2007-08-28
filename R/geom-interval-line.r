@@ -14,6 +14,8 @@ GeomLinerange <- proto(GeomInterval, {
 	default_aes <- function(.) aes(colour = "black", size=1, linetype=1)
 
 	draw <- function(., data, scales, coordinates, ...) {
+		munched <- coordinates$transform(data)
+
 		ggname(.$my_name(), GeomSegment$draw(transform(data, xend=x, y=min, yend=max), scales, coordinates, ...))
 	}
 
@@ -31,10 +33,13 @@ GeomLinerange <- proto(GeomInterval, {
 		qplot(cut, fit, data=cuts, geom="bar")
 		
 		# Display estimates and standard errors in various ways
-		qplot(cut, min=fit - se.fit, max=fit + se.fit, y=fit, data=cuts, geom="linerange")
-		qplot(cut, min=fit - se.fit, max=fit + se.fit, y=fit, data=cuts, geom="pointrange")
-		qplot(cut, min=fit - se.fit, max=fit + se.fit, y=fit, data=cuts, geom="errorbar", width=0.5)
-		qplot(cut, min=fit - se.fit, max=fit + se.fit, y=fit, data=cuts, geom="crossbar", width=0.5)
+		se <- ggplot(cuts, aes(x = cut, min=fit - se.fit, max=fit + se.fit, y=fit))
+		se + geom_linerange()
+		se + geom_pointrange()
+		se + geom_errorbar(width = 0.5)
+		se + geom_crossbar(width = 0.5)
 
+		# Use coord_flip to flip the x and y axes
+		se + geom_linerange() + coord_flip()
 	}	
 })

@@ -25,11 +25,15 @@ GeomErrorbar <- proto(GeomInterval, {
 			l = x - width / 2, r = x + width / 2
 		)
 		
-		with(data, ggname(.$my_name(), polylineGrob(
-			as.vector(rbind(l, r, x, x, r, l)), as.vector(rbind(max, max, max, min, min, min)),
-			default.units="native", id.lengths=rep(6, nrow(data)),
-			gp=gpar(col=colour, lwd=size, lty=linetype)
-		)))
+		GeomPath$draw(with(data, data.frame( 
+			x = as.vector(rbind(l, r, x, x, r, l)), 
+			y = as.vector(rbind(max, max, max, min, min, min)),
+			colour = rep(colour, each = 6),
+			size = rep(size, each = 6),
+			linetype = rep(linetype, each = 6),
+			stringsAsFactors = FALSE, 
+			row.names = 1:(nrow(data) * 6)
+		)), scales, coordinates, ...)
 	}
 	
 	examples <- function(.) {
@@ -49,17 +53,24 @@ GeomErrorbar <- proto(GeomInterval, {
 		
 		p <- ggplot(df, aes(fill=group, y=resp, x=trt))
 		p + geom_bar(position="dodge")
-		p + geom_bar(position="dodge") + geom_errorbar(limits, position="dodge", width=0.8)
+		
+		# Because the bars and errorbars have different widths
+		# we need to specify how wide the objects we are dodging are
+		dodge <- position_dodge(width=0.9)
+		p + geom_bar(position=dodge) + geom_errorbar(limits, position=dodge, width=0.25)
 		
 		p <- ggplot(df2, aes(fill=group, y=resp, x=trt))
-		p + geom_bar(position="dodge")
-		p + geom_bar(position="dodge") + geom_errorbar(limits, position="dodge")
+		p + geom_bar(position=dodge)
+		p + geom_bar(position=dodge) + geom_errorbar(limits, position=dodge, width=0.25)
 
 		p <- ggplot(df, aes(colour=group, y=resp, x=trt))
 		p + geom_point() + geom_errorbar(limits, width=0.2)
 		p + geom_pointrange(limits)
 		p + geom_crossbar(limits, width=0.2)
 
+		# If we want to draw lines, we need to manually set the
+		# groups which define the lines - here the groups in the 
+		# original dataframe
 		p + geom_line(aes(group=group)) + geom_errorbar(limits, width=0.2)		
 	}
 })

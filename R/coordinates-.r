@@ -34,5 +34,16 @@ Coord <- proto(TopLevel, expr={
 		if (newline) cat("\n") 
 	}
 	
-	guide_foreground <- function(., plot) {}
+	guide_foreground <- function(., plot) {
+		ggname("border", rectGrob(gp=gpar(col=plot$border.colour, lwd=2, fill=NA)))
+	}	
+	# Html defaults
+	
+	html_returns <- function(.) {
+		ps(
+			"<h2>Returns</h2>\n",
+			"<p>This function returns a coordinate system object.</p>"
+		)
+	}
+	
 })

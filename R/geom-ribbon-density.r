@@ -7,11 +7,22 @@ GeomDensity <- proto(GeomArea, {
 		linesGrob(x, 0.05 + y / max(y) * 0.9, default="npc")
 	}
 	default_stat <- function(.) StatDensity
+	default_pos <- function(.) PositionIdentity
+
+	adjust_scales_data <- function(., scales, data) {
+		if (!is.null(data$min)) {
+			y <- scales$get_scales("y")
+			y$train(data$min)
+			y$train(data$max)			
+		}
+		data
+	}
+	
 	seealso <- list(
 		geom_histogram = "for the histogram"
 	)	
 
-	default_aes <- function(.) defaults(aes(fill=NA, weight=1, colour="black"), GeomRibbon$default_aes())
+	default_aes <- function(.) defaults(aes(fill=NA, weight=1, colour="black"), GeomArea$default_aes())
 
 	examples <- function(.) {
 		# See stat_density for examples

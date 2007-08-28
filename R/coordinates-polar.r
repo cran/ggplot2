@@ -8,15 +8,30 @@ CoordPolar <- proto(Coord, {
 	}
 
 	theta_scale <- function(.) .$.scales$get_scales(.$theta)
-	theta_range <- function(.) expand_range(.$theta_scale()$frange(), 0, .$theta_scale()$.expand[2])
+	theta_range <- function(.) {
+		if (.$theta_discrete()) {
+			expand_range(.$theta_scale()$frange(), 0,0.5)
+		} else {
+			expand_range(.$theta_scale()$frange(), 0,0)
+		}
+	}
 	theta_rescale <- function(., x) rescale(x, c(0, 2 * pi), .$theta_range())
+	theta_discrete <- function(., x) .$.scales$get_scales(.$theta)$objname == "discrete"
 	
 	xlabel <- function(., gp) textGrob(NULL)
 	ylabel <- function(., gp) textGrob(NULL)
 	
 	r_scale <- function(.) .$.scales$get_scales(.$r)
-	r_range <- function(.) expand_range(.$r_scale()$frange(), 0,0)#.$r_scale()$.expand[1], .$r_scale()$.expand[2])
+	r_range <- function(.) {
+		if (.$r_discrete()) {
+			expand_range(.$r_scale()$frange(), 0,0.5)
+		} else {
+			expand_range(.$r_scale()$frange(), 0,0)
+		}
+	}
+	
 	r_rescale <- function(., x) rescale(x, c(0, 1), .$r_range())
+	r_discrete <- function(., x) .$.scales$get_scales(.$r)$objname == "discrete"
 
 	muncher <- function(.) TRUE
 	transform <- function(., data) {
@@ -41,9 +56,9 @@ CoordPolar <- proto(Coord, {
 		ggname("grill", gTree(children = gList(
 			ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
 			ggname("major-angle", segmentsGrob(0, 0, r * sin(theta), r*cos(theta), gp=gp, default.units="native")),
-			ggname("labels-angle", textGrob(.$theta_scale()$labels(), r * 1.05 * sin(theta), r * 1.05 * cos(theta), gp=gpar(col=plot$axis.colour), default.units="native")),
-			ggname("major-radius", polylineGrob(rep(rfine, each=length(thetafine)) * sin(thetafine), rep(rfine, each=length(thetafine)) * cos(thetafine), default.units="native", gp=gp)),
-			ggname("labels-radius", textGrob(.$r_scale()$labels(), 0.02, rfine + 0.04, default.units="native", gp=gpar(col=plot$axis.colour), hjust=0))
+			ggname("labels-angle", textGrob(.$theta_scale()$labels(), r * 1.1 * sin(theta), r * 1.1 * cos(theta), gp=gpar(col=plot$axis.colour), default.units="native")),
+			ggname("major-radius", polylineGrob(rep(rfine, each=length(thetafine)) * sin(thetafine), rep(rfine, each=length(thetafine)) * cos(thetafine), default.units="native", gp=gp))# ,
+			# 			ggname("labels-radius", textGrob(.$r_scale()$labels(), 0.02, rfine + 0.04, default.units="native", gp=gpar(col=plot$axis.colour), hjust=0))
 		)))
 	}
 
@@ -58,7 +73,7 @@ CoordPolar <- proto(Coord, {
 	guide_axes <- function(.) {
 		list(
 			x = ggaxis(c(-1, 1), "", "bottom", c(-1,1)),
-			y = ggaxis(c(-1, 1), "", "left", c(-1,1))
+			y = ggaxis(.$r_rescale(.$r_scale()$breaks()) / 2 + 0.6, .$r_scale()$labels(), "left", c(0, 1.2))
 		)
 	}
 
@@ -71,12 +86,43 @@ CoordPolar <- proto(Coord, {
 	details <- "<p>The polar coordinate system is most commonly used for pie charts, which are a stacked bar chart in polar coordinates.</p>\n\n<p>This coordinate system has one argument, <code>theta</code>, which determines which variable is mapped to angle and which to radius.  Valid values are \"x\" and \"y\".</p>\n"
 	
 	examples <- function(.) {
-		# See stat_bin and geom_bar for pie charts
 		# Still very experimental, so a bit on the buggy side, but I'm
 		# working on it.  Also need to deal properly with cyclical
 		# variables
+		ggopt(aspect.ratio = 1)
+		mtcars$cyl <- factor(mtcars$cyl)
 		
-		qplot(length, rating, data=movies, geom=c("point", "smooth"), method="lm") + coord_polar()
+		
+		# NOTE: Use these plots with caution - polar coordinates has
+		# major perceptual problems.  The main point of these examples is 
+		# to demonstrate how these common plots can be described in the
+		# grammar.  Use with EXTREME caution.
+
+		# A coxcomb plot = bar chart + polar coordinates
+		cxc <- ggplot(mtcars, aes(x=factor(cyl))) + geom_bar(width=1, colour="black")
+		cxc + coord_polar()
+		# A new type of plot?
+		cxc + coord_polar(theta = "y")
+		
+		# A pie chart = stacked bar chart + polar coordinates
+		pie <- ggplot(mtcars, aes(x=factor(1), fill=cyl)) + geom_bar(width=1)
+		pie + coord_polar(theta="y")
+		# A new type of plot?
+		pie + coord_polar()
+		
+		# Windrose + doughnut plot
+		movies$rrating <- factor(round_any(movies$rating, 1))
+		movies$budgetq <- factor(chop(movies$budget, 4), labels=1:4)
+		
+		doh <- ggplot(movies, aes(x=rrating, fill=budgetq))
+		
+		# Wind rose
+		doh + geom_bar(width=1) + coord_polar()
+		#Doughnut plot
+		doh + geom_bar(width=0.9, position="fill") + coord_polar(theta="y")
+		ggopt(aspect.ratio = NULL)
+		
+		rm(mtcars)
 	}
 
 })

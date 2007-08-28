@@ -38,14 +38,14 @@ StatSmooth <- proto(Stat, {
 	desc_params <- list(
 		method = "smoothing method (function) to use, eg. lm, glm, gam, loess, rlm",
 		formula =  "formula to use in smoothing function, eg. y ~ x, y ~ poly(x, 2), y ~ log(x)",
-		se = "display one standard error on either side of fit? (true by default)",
+		se = "display confidence interval around smooth? (true by default, see level to control)",
 		fullrange = "should the fit span the full range of the plot, or just the data",
-		level = "level of confidence interval to use",
+		level = "level of confidence interval to use (0.95 by default)",
 		n = "number of points to evaluate smoother at",
 		xseq = "exact points to evaluate smooth at, overrides n",
 		"..." = "other arguments are passed to smoothing function"
 	)
-	desc_output <- list(
+	desc_outputs <- list(
 		"y" = "predicted value",
 		"min" = "lower pointwise confidence interval around the mean",
 		"max" = "upper pointwise confidence interval around the mean",

@@ -12,7 +12,7 @@ bin <- function(x, weights=NULL, binwidth=NULL, breaks=NULL, range=NULL, width=0
 		width <- width
 		bins <- x
 	} else if (is.numeric(x)) {
-		bins <- cut(x, sort(breaks))
+		bins <- cut(x, sort(breaks), include.lowest=TRUE)
 		left <- breaks[-length(breaks)]
 		right <- breaks[-1]
 		x <- (left + right)/2
@@ -31,7 +31,6 @@ bin <- function(x, weights=NULL, binwidth=NULL, breaks=NULL, range=NULL, width=0
 	results <- transform(results,
 		density = count / width / sum(count, na.rm=TRUE)
 	)
-	
 	
 	transform(results,
 		ncount = count / max(count, na.rm=TRUE),
@@ -72,7 +71,7 @@ StatBin <- proto(Stat, {
 		count = "number of points in bin",
 		density = "density of points in bin, scaled to integrate to 1",
 		ncount = "count, scaled to maximum of 1",
-		densiy = "density, scaled to maximum of 1"
+		ndensity = "density, scaled to maximum of 1"
 	)
 	
 	default_aes <- function(.) aes(y = ..count..)
@@ -87,14 +86,11 @@ StatBin <- proto(Stat, {
 		
 		# To create a unit area histogram, use aes(y = ..density..)
 		(linehist <- m + stat_bin(aes(y = ..density..), geom="line"))
-		linehist + stat_density(colour="blue")
-		
-		ggplot(mtcars, aes(x=factor(cyl), fill=factor(vs))) + layer(stat="bin", position="stack") + coord_polar(theta="y")
+		linehist + stat_density(colour="blue", fill=NA)
 		
 		# Also works with categorical variables
 		ggplot(movies, aes(x=mpaa)) + stat_bin()
-		qplot(movies$mpaa, stat="bin")
-		
+		qplot(mpaa, data=movies, stat="bin")
 		
 	}
 	

@@ -35,6 +35,3 @@
 	if (ggopt()$auto.print & length(p$layers) > 0) try(print(p))
 	(.last_plot <<- p)
 }
-
-# should work with facetting as well
-

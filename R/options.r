@@ -89,6 +89,7 @@
 	class(opt) <- "options"
 	
 	function(...) {
+		if (length(list(...)) == 0) return(opt)
 		old <- opt
 		opt <<- updatelist(opt, list(...))
 		invisible(old)

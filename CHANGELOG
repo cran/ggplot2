@@ -1,10 +1,49 @@
+ggplot 0.5.5
+----------------------------------------
+
+Improvements:
+	* ggplot now gives rather more helpful errors if you have misspecified a variable name in the aesthetic mapping
+	* changed default hline and vline intercepts to 0
+	* added "count" output variable from stat_density for creating stacked/conditional density plots
+	* added parameters to geom_boxplot to control appearance of outlying points
+	* overriding aesthetics with fixed values that have already been set with aesthetics now actually works
+	* slightly better names for xaxis and yaxis grobs
+	* added aes_string function to make it easier to construction aesthetic mapping specifications in functions
+	* continuous scales now have labels argument so that you can manually specify labels if desired
+	* stat_density now calculates densities on a common grid across groups.  This means that position_fill and position_stack now work properly
+	* if numeric, legend labels right aligned
+	* polar coordinates much improved, and with better examples
+
+Documentation:
+	* fixed argument documentation for qplot
+	* added (very) rudimentary documentation about what functions return
+	* documentation now lists extra variables created by statistics
+
+Bug fixes:
+	* coord_flip now works with segment and all interval geoms
+	* geom_errorbar now works in all coordinate systems
+	* derived y axes (eg. on histogram) are now labelled correctly
+	* fixed bug in stat_quantile caused by new output format from predict.rq
+	* fixed bug if x or y are constant
+	* fixed bug in histogram where sometimes lowest bar was omitted
+	* fixed bug in stat_qq which prevent setting aesthetics
+	* fixed bug in qplot(..., geom="density", position="identity")
+	* fixed stat_qq so that unnecessary arguments are no longer passed to the distribution function
+
+Subtractions:
+	* removed grid argument from ggsave, replaced by ggtheme(theme_bw)
+	* removed add argument from qplot
+
+
 ggplot 0.5.4
+----------------------------------------
 
 	* border now drawn on top of geoms, instead of below - this results in better appearance when adjusting scale limits
 	* ggplot() + aes() now modifies existing default aesthetic mapping, rather than overwriting
 	* polish examples in facet_grid
 
 ggplot 0.5.3
+----------------------------------------
 
 	* added experimental scatterplot matrix, see ?plotmatrix
 	* added new border.colour and grid.minor.colour options for better control over plot apperance
@@ -17,6 +56,7 @@ ggplot 0.5.3
 	* tweaked display of multiline axis labels
 
 ggplot 0.5.2
+----------------------------------------
 
 	* add argument to position dodge so it's now possible to accurately dodge things with different widths to their physical widths 
 	* added median summary
@@ -34,6 +74,7 @@ ggplot 0.5.2
 		* fixed bugs in stat_summary, geom_ribbon, and coord_trans examples
 
 ggplot 0.5.1
+----------------------------------------
 
 	* renamed scale_manual to scale_identity to map position_identity and stat_identity
 	* ensured all grob consistently named
@@ -44,6 +85,7 @@ ggplot 0.5.1
 	* added economics data set and matching examples
 
 ggplot2 0.5
+----------------------------------------
 
  * complete rewrite of ggplot code base
 

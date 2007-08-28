@@ -17,6 +17,7 @@
 	"shape"= "shape of point", 
 	"size"= "size", 
 	"slope"= "slope of line", 
+	"quantile" = "quantile of distribution",
 	"vjust"= "vertical justification, between 0 and 1", 
 	"weight"= "observation weight used in statistical transformation", 
 	"width" = "width of geom"

@@ -10,8 +10,7 @@
 #  * aesthetic mapping
 # 
 # Can think about grob creation as a series of data frame transformations.
-# 
-# @keyword internal
+
 Layer <- proto(expr = {	
 	new <- function(., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ...) {
 		
@@ -46,7 +45,10 @@ Layer <- proto(expr = {
 	clone <- function(.) as.proto(.$as.list())
 	
 	use_defaults <- function(., data) {
-		aesdefaults(data, defaults(compact(.$aesthetics), .$geom$default_aes()), .$geom_params)
+		df <- aesdefaults(data, .$geom$default_aes(), compact(.$aesthetics))
+		gp <- intersect(names(.$geom$parameters()), names(.$geom_params))
+		df[gp] <- .$geom_params[gp]
+		df
 	}
 	
 	pprint <- function(.) {
@@ -69,6 +71,10 @@ Layer <- proto(expr = {
 		if (is.null(data)) stop("No data for layer", call.=FALSE)
 		
 		aesthetics <- compact(defaults(.$aesthetics, plot$defaults))
+		# Override grouping if specified in layer
+		if (!is.null(.$geom_params$group)) {
+			aesthetics["group"] <- .$geom_params$group
+		} 
 		plot$scales$add_defaults(plot$data, aesthetics)
 		
 		calc_aesthetics(plot, data, aesthetics)
@@ -197,10 +203,16 @@ calc_aesthetics <- function(plot, data = plot$data, aesthetics) {
 	if (is.null(data)) data <- plot$data
 	if (!is.data.frame(data)) stop("data is not a data.frame")
 	
-	eval.each <- function(dots) tryapply(dots, function(x) eval(x, data, parent.frame()))
+	eval.each <- function(dots) lapply(dots, function(x) eval(x, data, parent.frame()))
 	# Conditioning variables needed for facets
 	cond <- plot$facet$conditionals()
 	
+	# Remove aesthetics mapped to variables created by statistics
+	match <- "\\.\\.([a-zA-z._]+)\\.\\."
+	stats <- rep(F, length(aesthetics))
+	stats[grep(match, sapply(aesthetics, as.character))] <- TRUE
+	aesthetics <- aesthetics[!stats]
+
 	df <- data.frame(eval.each(aesthetics))
 	df <- cbind(df, data[,intersect(names(data), cond), drop=FALSE])
 	

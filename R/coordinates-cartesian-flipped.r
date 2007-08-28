@@ -3,14 +3,14 @@ CoordFlipped <- proto(CoordCartesian, expr={
 	y <- function(.) .$.scales$get_scales("x")
 	
 	muncher <- function(.) TRUE
-	transform <- function(., data) rename(data, c(x="y", y="x"))
+	transform <- function(., data) rename(data, c(x="y", y="x", xend="yend", yend="xend"))
 	munch <- function(., data) .$transform(data)
 
 	# Documetation -----------------------------------------------
 
 	objname <- "flip"
 	desc <- "Flipped cartesian coordinates"
-	details <- "<p>Flipped cartesian coordinates so that horizontal becomes vertical, and vertical, horizontal.  This is primarly useful for converting geoms and statistics which display y conditional on x, to x conditional on y</p>"
+	details <- "<p>Flipped cartesian coordinates so that horizontal becomes vertical, and vertical, horizontal.  This is primarily useful for converting geoms and statistics which display y conditional on x, to x conditional on y</p>"
 	icon <- function(.) {
 		angles <- seq(0, pi/2, length=20)[-c(1, 20)]
 		gTree(children=gList(
