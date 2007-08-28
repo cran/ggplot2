@@ -15,39 +15,39 @@ bolus.proto <- function(x) x$bolus()
 # @alias digest.proto
 # @keyword internal
 #X hash_tests <- list(
-#X 	list(
-#X 		ggplot() + scale_x_continuous() + scale_y_continuous(),
-#X 		ggplot() + scale_y_continuous() + scale_x_continuous()
-#X 	),
-#X 	list(
-#X 		qplot(mpg, wt, data=mtcars),
-#X 		ggplot(mtcars, aes(y=wt, x=mpg)) + geom_point()
-#X 	),
-#X 	list(
-#X 		qplot(mpg, wt, data=mtcars, xlab = "blah"),
-#X 		qplot(mpg, wt, data=mtcars) + scale_x_continuous("blah")
-#X 	)
+#X   list(
+#X     ggplot() + scale_x_continuous() + scale_y_continuous(),
+#X     ggplot() + scale_y_continuous() + scale_x_continuous()
+#X   ),
+#X   list(
+#X     qplot(mpg, wt, data=mtcars),
+#X     ggplot(mtcars, aes(y=wt, x=mpg)) + geom_point()
+#X   ),
+#X   list(
+#X     qplot(mpg, wt, data=mtcars, xlab = "blah"),
+#X     qplot(mpg, wt, data=mtcars) + scale_x_continuous("blah")
+#X   )
 #X )
 #X 
 #X lapply(hash_tests, function(equal) {
-#X 	hashes <- lapply(equal, digest.ggplot)
-#X 	
-#X 	if (length(unique(hashes)) != 1) {
-#X 		lapply(equal, function(x) print(str(bolus(x))))
-#X 		stop("Above plots not equal")
-#X 	}
+#X   hashes <- lapply(equal, digest.ggplot)
+#X   
+#X   if (length(unique(hashes)) != 1) {
+#X     lapply(equal, function(x) print(str(bolus(x))))
+#X     stop("Above plots not equal")
+#X   }
 #X })
 bolus.ggplot <- function(x, ...) {
-	with(x, list(
-		data = digest(data),
-		mapping = defaults[order(names(defaults))],
-		layers = sapply(layers, function(x) x$hash()),
-		scales = scales$hash(),
-		facet = facet$hash(),
-		coord = coordinates$hash(),
-		title = title,
-		options = x[intersect(names(ggplot), names(ggopt()))]
-	))
+  with(x, list(
+    data = digest(data),
+    mapping = defaults[order(names(defaults))],
+    layers = sapply(layers, function(x) x$hash()),
+    scales = scales$hash(),
+    facet = facet$hash(),
+    coord = coordinates$hash(),
+    title = title,
+    options = x[intersect(names(ggplot), names(ggopt()))]
+  ))
 }
 
 digest.proto <- function(x, ...) x$hash(, ...)
@@ -57,42 +57,42 @@ digest.ggplot <- function(x, ...) {
 }
 
 TopLevel$settings <- function(.) {
-	mget(ls(.), .)
+  mget(ls(.), .)
 }
 
 Layer$hash <- TopLevel$hash <- function(., ...) {
-	digest(.$bolus(), ...)
+  digest(.$bolus(), ...)
 }
 Scales$hash <- function(.) {
-	sc <- sapply(.$.scales, function(x) x$hash())
-	sc[order(sc)]
+  sc <- sapply(.$.scales, function(x) x$hash())
+  sc[order(sc)]
 }
 
 Scales$bolus <- function(.) {
-	lapply(.$.scales, function(x) x$bolus())
+  lapply(.$.scales, function(x) x$bolus())
 }
 TopLevel$bolus <- function(.) {
-	list(
-		name = .$objname,
-		settings = .$settings()
-	)
+  list(
+    name = .$objname,
+    settings = .$settings()
+  )
 }
 Scale$bolus <- function(.) {
-	list(
-		name = .$objname,
-		input = .$.input,
-		output = .$.output,
-		settings = .$settings()
-	)
+  list(
+    name = .$objname,
+    input = .$.input,
+    output = .$.output,
+    settings = .$settings()
+  )
 }
 Layer$bolus <- function(.) {
-	list(
-		geom = .$geom$objname,
-		stat = .$stat$objname,
-		pos  = .$position$objname,
-		data = .$data,
-		mapping = .$aesthetics,
-		params = unique(c(.$geom_params, .$stat_params))
-	)
+  list(
+    geom = .$geom$objname,
+    stat = .$stat$objname,
+    pos  = .$position$objname,
+    data = .$data,
+    mapping = .$aesthetics,
+    params = unique(c(.$geom_params, .$stat_params))
+  )
 }
 

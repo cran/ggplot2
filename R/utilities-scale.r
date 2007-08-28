@@ -15,11 +15,11 @@
 # # @arguments multiplicative expansion factor (experimental)
 # # @keyword internal
 # best_scale <- function(data, expand=0) {
-# 	scales <- possible_scales(data, expand)
-# 	scores <- as.data.frame(t(mapply(function(s, q) scale_quality(s, q, data), scales, .Q)))
-# 	scores$sum <- rowMeans(scores)
-# 	
-# 	scales[[which.max(scores$sum)]]
+#   scales <- possible_scales(data, expand)
+#   scores <- as.data.frame(t(mapply(function(s, q) scale_quality(s, q, data), scales, .Q)))
+#   scores$sum <- rowMeans(scores)
+#   
+#   scales[[which.max(scores$sum)]]
 # }
 # 
 # # Possible scales
@@ -30,19 +30,19 @@
 # # @arguments multiplicative expansion factor (experimental)
 # # @keyword internal
 # possible_scales <- function(data, expand=0) {
-# 	range <- expand_range(range(data), expand)
-# 	rd <- diff(range)
-# 	
-# 	a <- round_any(range[1], 10 ^ floor(log10(rd)), floor)
-# 	range <- range - a
-# 	
-# 	z <- floor(log10(rd / .Q))
-# 	sml <- round_any(range[1],  .Q*10^z, floor) + a
-# 	lge <- round_any(range[2],  .Q*10^z, ceiling) + a
-# 	
-# 	scales <- mapply(seq, sml, lge, .Q*10^z, SIMPLIFY=FALSE)
-# 	names(scales) <- .Q
-# 	scales
+#   range <- expand_range(range(data), expand)
+#   rd <- diff(range)
+#   
+#   a <- round_any(range[1], 10 ^ floor(log10(rd)), floor)
+#   range <- range - a
+#   
+#   z <- floor(log10(rd / .Q))
+#   sml <- round_any(range[1],  .Q*10^z, floor) + a
+#   lge <- round_any(range[2],  .Q*10^z, ceiling) + a
+#   
+#   scales <- mapply(seq, sml, lge, .Q*10^z, SIMPLIFY=FALSE)
+#   names(scales) <- .Q
+#   scales
 # }
 # 
 # # Scale quality
@@ -53,19 +53,19 @@
 # # @arguments vector of data
 # # @keyword internal 
 # scale_quality <- function(s, q, data) {
-# 	m <- 5 # desired number of ticks
+#   m <- 5 # desired number of ticks
 # 
-# 	if (min(data) < min(s) || max(data) > max(s)) return(c(0,0,0))
+#   if (min(data) < min(s) || max(data) > max(s)) return(c(0,0,0))
 # 
-# 	i <- which(.Q == q)
-# 	v <- 0 %in% s
-# 	k <- length(s)
-# 	rs <- diff(range(s))
-# 	rd <- diff(range(data))
+#   i <- which(.Q == q)
+#   v <- 0 %in% s
+#   k <- length(s)
+#   rs <- diff(range(s))
+#   rd <- diff(range(data))
 # 
-# 	simplicity <- 1 + (v - i)/length(.Q)
-# 	granularity <- (1 - abs(k - m)/m) * (k < 2*m)
-# 	coverage <- (rd / rs) * (rd / rs > 0.75)
+#   simplicity <- 1 + (v - i)/length(.Q)
+#   granularity <- (1 - abs(k - m)/m) * (k < 2*m)
+#   coverage <- (rd / rs) * (rd / rs > 0.75)
 # 
-# 	c(s = simplicity * 0.8, g = granularity, c = coverage)
+#   c(s = simplicity * 0.8, g = granularity, c = coverage)
 # }

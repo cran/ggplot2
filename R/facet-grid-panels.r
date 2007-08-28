@@ -13,15 +13,15 @@
 # @keyword internal
 plot_grob_matrix <- function(gm, type=deparse(substitute(gm))) {
   if (is.null(gm)) return()
-	grid <- expand.grid(x=1:nrow(gm), y=1:ncol(gm))
-	
-	update.viewport <- function(x,y)  {
-		if (is.null(gm[[x,y]])) return()
-		editGrob(gm[[x,y]], vp=vp_path(x, y, type))
-	}
-	grobs <- mapply(update.viewport, grid$x, grid$y, SIMPLIFY=FALSE)
-	
-	do.call("gList", grobs)
+  grid <- expand.grid(x=1:nrow(gm), y=1:ncol(gm))
+  
+  update.viewport <- function(x,y)  {
+    if (is.null(gm[[x,y]])) return()
+    editGrob(gm[[x,y]], vp=vp_path(x, y, type))
+  }
+  grobs <- mapply(update.viewport, grid$x, grid$y, SIMPLIFY=FALSE)
+  
+  do.call("gList", grobs)
 }
 
 # Default panels function.
@@ -32,14 +32,14 @@ plot_grob_matrix <- function(gm, type=deparse(substitute(gm))) {
 # @keyword hplot
 # @keyword internal
 panels_default <- function(plot, grobs) {
-	
+  
   panels <- unlist(lapply(grobs, plot_grob_matrix, "panel"), recursive=FALSE)
-	nr <- dim(grobs[[1]][[1]])[1]
-	nc <- dim(grobs[[1]][[1]])[2]
+  nr <- dim(grobs[[1]][[1]])[1]
+  nc <- dim(grobs[[1]][[1]])[2]
 
-	do.call("gList", panels)
+  do.call("gList", panels)
 }
 
 pd <- function(plot, grobs) {
-	lapply(grobs, plot_grob_matrix, geom="panel")
+  lapply(grobs, plot_grob_matrix, geom="panel")
 }

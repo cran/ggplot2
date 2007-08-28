@@ -40,56 +40,56 @@
 #X # Use different geoms
 #X qplot(mpg, wt, geom="path")
 #X qplot(factor(cyl), wt, geom=c("boxplot", "jitter"))
-qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE, geom = "point", stat=list(NULL), position=list(NULL), xlim = c(NA, NA), ylim = c(NA, NA), log = "", main = NULL, xlab = deparse(substitute(x)), ylab = deparse(substitute(y))) {
+quickplot <- qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE, geom = "point", stat=list(NULL), position=list(NULL), xlim = c(NA, NA), ylim = c(NA, NA), log = "", main = NULL, xlab = deparse(substitute(x)), ylab = deparse(substitute(y))) {
 
-	argnames <- names(as.list(match.call(expand.dots=FALSE)[-1]))
-	arguments <- as.list(match.call()[-1])
-	aesthetics <- compact(arguments[.all_aesthetics])
-	class(aesthetics) <- "uneval"
-	
-	# Create data if not explicitly specified
-	if (missing(data)) {
-		data <- as.data.frame(lapply(aesthetics, eval, parent.frame(n=2)))
+  argnames <- names(as.list(match.call(expand.dots=FALSE)[-1]))
+  arguments <- as.list(match.call()[-1])
+  aesthetics <- compact(arguments[.all_aesthetics])
+  class(aesthetics) <- "uneval"
+  
+  # Create data if not explicitly specified
+  if (missing(data)) {
+    data <- as.data.frame(lapply(aesthetics, eval, parent.frame(n=1)))
 
-		facetvars <- all.vars(facets)
-		facetvars <- facetvars[facetvars != "."]
-		facetsdf <- as.data.frame(sapply(facetvars, get))
-		if (nrow(facetsdf)) data <- cbind(data, facetsdf)
-	} else {
-		if (!is.data.frame(data)) stop("data is not a data.frame")
-		if (ncol(data) == 0) stop("data has no columns")
-		if (nrow(data) == 0) stop("data has no rows")
-	}
+    facetvars <- all.vars(facets)
+    facetvars <- facetvars[facetvars != "."]
+    facetsdf <- as.data.frame(sapply(facetvars, get))
+    if (nrow(facetsdf)) data <- cbind(data, facetsdf)
+  } else {
+    if (!is.data.frame(data)) stop("data is not a data.frame")
+    if (ncol(data) == 0) stop("data has no columns")
+    if (nrow(data) == 0) stop("data has no rows")
+  }
 
-	p <- ggplot(data, aesthetics) + facet_grid(facets=deparse(facets), margins=margins)
-	
-	if (!is.null(main)) p$title <- main
-	if (!is.null(xlab)) p$xlabel <- xlab
-	if (!is.null(ylab)) p$ylabel <- ylab
+  p <- ggplot(data, aesthetics) + facet_grid(facets=deparse(facets), margins=margins)
+  
+  if (!is.null(main)) p$title <- main
+  if (!is.null(xlab)) p$xlabel <- xlab
+  if (!is.null(ylab)) p$ylabel <- ylab
 
-	# Add geoms/statistics
-	if (is.proto(position)) position <- list(position)
-	
-	mapply(function(g, s, ps) {
-		if(is.character(g)) g <- Geom$find(g)
-		if(is.character(s)) s <- Stat$find(s)
-		if(is.character(ps)) ps <- Position$find(ps)
+  # Add geoms/statistics
+  if (is.proto(position)) position <- list(position)
+  
+  mapply(function(g, s, ps) {
+    if(is.character(g)) g <- Geom$find(g)
+    if(is.character(s)) s <- Stat$find(s)
+    if(is.character(ps)) ps <- Position$find(ps)
 
-		params <- arguments[setdiff(names(arguments), c(.all_aesthetics, argnames))]
-		
-		p <<- p + layer(geom=g, stat=s, geom_params=params, stat_params=params, position=ps)
-	}, geom, stat, position)
-	
-	logv <- function(var) var %in% strsplit(log, "")[[1]]
+    params <- arguments[setdiff(names(arguments), c(.all_aesthetics, argnames))]
+    
+    p <<- p + layer(geom=g, stat=s, geom_params=params, stat_params=params, position=ps)
+  }, geom, stat, position)
+  
+  logv <- function(var) var %in% strsplit(log, "")[[1]]
 
-	if (logv("x")) p <- p + scale_x_log10()
-	if (logv("y")) p <- p + scale_y_log10()
-	
-	if (!missing(xlab)) assign("name", xlab, envir=p$scales$get_scales("x"))
-	if (!missing(ylab)) assign("name", ylab, envir=p$scales$get_scales("y"))
-	
-	if (!missing(xlim)) assign("limits", xlim, envir=p$scales$get_scales("x"))
-	if (!missing(ylim)) assign("limits", ylim, envir=p$scales$get_scales("y"))
-	
-	p
+  if (logv("x")) p <- p + scale_x_log10()
+  if (logv("y")) p <- p + scale_y_log10()
+  
+  if (!missing(xlab)) assign("name", xlab, envir=p$scales$get_scales("x"))
+  if (!missing(ylab)) assign("name", ylab, envir=p$scales$get_scales("y"))
+  
+  if (!missing(xlim)) assign("limits", xlim, envir=p$scales$get_scales("x"))
+  if (!missing(ylim)) assign("limits", ylim, envir=p$scales$get_scales("y"))
+  
+  p
 }

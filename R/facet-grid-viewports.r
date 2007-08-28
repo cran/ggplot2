@@ -17,24 +17,24 @@
 # @keyword hplot 
 # @keyword internal
 viewport_default <- function(plot, guides, scales, coordinates) {
-	gm <- plot$facet$grid(plot$data)
-	row.labels <- rrownames(gm)
-	col.labels <- rcolnames(gm)
-	
-	rows <- nrow(gm) + ncol(col.labels) + 1
-	cols <- ncol(gm) + ncol(row.labels) + 1
-	
-	layout <- plot_layout(gm, rows, cols, row.labels, col.labels, guides$axes_h, guides$axes_v, plot$aspect.ratio)
-	range <- coordinates$frange()
-	
-	viewports <- do.call("vpList", c(
-		setup_viewports("strip_h", data=t(col.labels),      offset=c(0,1),       range=range),
-		setup_viewports("strip_v", data=row.labels,         offset=c(ncol(col.labels), cols-ncol(row.labels)), range=range),
-		setup_viewports("axis_h",   rows=1, cols=ncol(gm),   offset=c(rows-1, 1), range=range),
-		setup_viewports("axis_v",   rows=nrow(gm), cols=1,   offset=c(ncol(col.labels), 0),      range=range),
-		setup_viewports("panel",    data=gm,                 offset=c(ncol(col.labels),1), range=range)
-	))
-	vpTree(viewport(layout=layout, name="layout"), viewports)
+  gm <- plot$facet$grid(plot$data)
+  row.labels <- rrownames(gm)
+  col.labels <- rcolnames(gm)
+  
+  rows <- nrow(gm) + ncol(col.labels) + 1
+  cols <- ncol(gm) + ncol(row.labels) + 1
+  
+  layout <- plot_layout(gm, rows, cols, row.labels, col.labels, guides$axes_h, guides$axes_v, plot$aspect.ratio)
+  range <- coordinates$frange()
+  
+  viewports <- do.call("vpList", c(
+    setup_viewports("strip_h", data=t(col.labels),      offset=c(0,1),       range=range),
+    setup_viewports("strip_v", data=row.labels,         offset=c(ncol(col.labels), cols-ncol(row.labels)), range=range),
+    setup_viewports("axis_h",   rows=1, cols=ncol(gm),   offset=c(rows-1, 1), range=range),
+    setup_viewports("axis_v",   rows=nrow(gm), cols=1,   offset=c(ncol(col.labels), 0),      range=range),
+    setup_viewports("panel",    data=gm,                 offset=c(ncol(col.labels),1), range=range)
+  ))
+  vpTree(viewport(layout=layout, name="layout"), viewports)
 }
 
 
@@ -52,18 +52,18 @@ viewport_default <- function(plot, guides, scales, coordinates) {
 # @keyword hplot 
 # @keyword internal
 plot_layout <- function(gm, rows, cols, row.labels, col.labels, axes_h, axes_v, aspect_ratio) {
-	respect <- !is.null(aspect_ratio)
-	if (is.null(aspect_ratio)) aspect_ratio <- 1
-	cell.widths   <- rep(unit(1, "null"), ncol(gm))
-	cell.heights  <- rep(unit(1 * aspect_ratio, "null"), nrow(gm))
-	label.widths  <- rep(unit(1, "lines"), ncol(row.labels))
-	label.heights <- rep(unit(1, "lines"), ncol(col.labels))
+  respect <- !is.null(aspect_ratio)
+  if (is.null(aspect_ratio)) aspect_ratio <- 1
+  cell.widths   <- rep(unit(1, "null"), ncol(gm))
+  cell.heights  <- rep(unit(1 * aspect_ratio, "null"), nrow(gm))
+  label.widths  <- rep(unit(1, "lines"), ncol(row.labels))
+  label.heights <- rep(unit(1, "lines"), ncol(col.labels))
 
-	grid.layout(rows, cols, 
-		respect = respect,
-		widths =  unit.c(sum(layout.widths(viewport.layout(axes_v[[1]]$childrenvp$parent))), cell.widths, label.widths),
-		heights = unit.c(label.heights, cell.heights, sum(layout.heights(viewport.layout(axes_h[[1]]$childrenvp$parent))))
-	)
+  grid.layout(rows, cols, 
+    respect = respect,
+    widths =  unit.c(sum(layout.widths(viewport.layout(axes_v[[1]]$childrenvp$parent))), cell.widths, label.widths),
+    heights = unit.c(label.heights, cell.heights, sum(layout.heights(viewport.layout(axes_h[[1]]$childrenvp$parent))))
+  )
 }
 
 
@@ -80,7 +80,7 @@ plot_layout <- function(gm, rows, cols, row.labels, col.labels, axes_h, axes_v, 
 # @keyword hplot 
 # @keyword internal
 vp_path <- function(row, col, type) {
-	vpPath("layout", vp_name(row, col, type))
+  vpPath("layout", vp_name(row, col, type))
 }
 
 # Viewport name
@@ -94,7 +94,7 @@ vp_path <- function(row, col, type) {
 # @keyword hplot 
 # @keyword internal
 vp_name <- function(row, col, type) {
-	paste(type, row, col, sep="_")
+  paste(type, row, col, sep="_")
 }
 
 # Setup viewports
@@ -109,7 +109,7 @@ vp_name <- function(row, col, type) {
 # @keyword hplot 
 # @keyword internal
 setup_viewports <- function(type, rows=nrow(data), cols=ncol(data), data, offset=c(0,0), range, angle=0) {
-	vp <- function(x,y) viewport(name=vp_name(x,y, type), xscale=range$x, yscale=range$y, layout.pos.row=x  + offset[1], layout.pos.col=y  + offset[2], clip="on", angle=angle)
-	pos <- expand.grid(x=(1:rows), y=(1:cols))
-	do.call("vpList", mapply(vp, pos$x, pos$y, SIMPLIFY=FALSE))
+  vp <- function(x,y) viewport(name=vp_name(x,y, type), xscale=range$x, yscale=range$y, layout.pos.row=x  + offset[1], layout.pos.col=y  + offset[2], clip="on", angle=angle)
+  pos <- expand.grid(x=(1:rows), y=(1:cols))
+  do.call("vpList", mapply(vp, pos$x, pos$y, SIMPLIFY=FALSE))
 }

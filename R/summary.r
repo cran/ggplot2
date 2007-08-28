@@ -12,12 +12,12 @@ summary.ggplot <- function(object, ...) {
   
   cat("Title:   ", object$title, "\n", sep="")
   cat("Labels:  x=", object$xlabel, ", y=", object$ylabel, "\n", sep="")
-	cat("-----------------------------------\n")
+  cat("-----------------------------------\n")
   cat("Data:    ", paste(names(object$data), collapse=", "), " [", nrow(object$data), "x", ncol(object$data), "] ", "\n", sep="")
   cat("Mapping: ", defaults(), "\n", sep="")
   object$scales$pprint()
   object$facet$pprint()
   cat("-----------------------------------\n")
-	invisible(lapply(object$layers, function(x) {print(x); cat("\n")}))
+  invisible(lapply(object$layers, function(x) {print(x); cat("\n")}))
 
 } 

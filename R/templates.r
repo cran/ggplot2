@@ -34,15 +34,15 @@
 #X p + geom_line()
 #X p + geom_line(aes(colour=mpg)) 
 ggpcp <- function(data, vars=names(data), scale="range", ...) {
-  force(vars)	
-	scaled <- rescaler(data[, vars], type=scale)
-	data <- cbind(scaled, data[, setdiff(names(data), vars), drop=FALSE])
-	
-	data$ROWID <- 1:nrow(data)
-	molten <- melt(data, m=vars)
+  force(vars)  
+  scaled <- rescaler(data[, vars], type=scale)
+  data <- cbind(scaled, data[, setdiff(names(data), vars), drop=FALSE])
+  
+  data$ROWID <- 1:nrow(data)
+  molten <- melt(data, m=vars)
 
-	p <- ggplot(molten, aes(x=variable, y=value, group=ROWID), ...)
-	p + scale_x_discrete()
+  p <- ggplot(molten, aes_string(x="variable", y="value", group="ROWID"), ...)
+  p + scale_x_discrete()
 }
 
 # Fluctuation plot
@@ -69,30 +69,30 @@ ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq, n
 
   oldnames <- names(table)
   names(table) <- c("x","y", "result")
-	
-	table <- add.all.combinations(table, list("x","y"))	
+  
+  table <- add.all.combinations(table, list("x","y"))  
   table <- transform(table,
-		x = as.factor(x),
+    x = as.factor(x),
     y = as.factor(y),
-		freq = result
+    freq = result
  )
 
-	if (type =="size") {
-		table <- transform(table, 
-    	freq = sqrt(pmin(freq, ceiling) / ceiling),
-			border = ifelse(is.na(freq), "grey90", ifelse(freq > ceiling, "grey30", "grey50"))
-  	)
-		table[is.na(table$freq), "freq"] <- 1
-	}
+  if (type =="size") {
+    table <- transform(table, 
+      freq = sqrt(pmin(freq, ceiling) / ceiling),
+      border = ifelse(is.na(freq), "grey90", ifelse(freq > ceiling, "grey30", "grey50"))
+    )
+    table[is.na(table$freq), "freq"] <- 1
+  }
 
-	table <- subset(table, freq * ceiling >= floor)
+  table <- subset(table, freq * ceiling >= floor)
   
   if (type=="size") {
-    p <- ggplot(table, aes(x=x, y=y, height=freq, width=freq, fill=border)) + geom_tile(colour="white") + scale_fill_identity()
+    p <- ggplot(table, aes_string(x="x", y="y", height="freq", width="freq", fill="border")) + geom_tile(colour="white") + scale_fill_identity()
   } else {
-    p <- ggplot(table, aes(x=x, y=y, fill=freq)) + 
-			geom_tile(colour="grey50") +
-			scale_fill_gradient2(low="white", high="darkgreen")
+    p <- ggplot(table, aes_string(x="x", y="y", fill="freq")) + 
+      geom_tile(colour="grey50") +
+      scale_fill_gradient2(low="white", high="darkgreen")
   }
 
   p$xlabel <- oldnames[1]
@@ -122,25 +122,25 @@ ggfluctuation <- function(table, type="size", floor=0, ceiling=max(table$freq, n
 #X ggmissing(mmissing, avoid="dodge") + scale_y_sqrt()
 #X ggmissing(mmissing) + scale_y_log10(limits=c(1, NA))
 ggmissing <- function(data, avoid="stack", order=TRUE, missing.only = TRUE) {
-	missings <- mapply(function(var, name) cbind(as.data.frame(table(missing=factor(is.na(var), levels=c(TRUE, FALSE), labels=c("yes", "no")))), variable=name), 
-		data, names(data), SIMPLIFY=FALSE
-	)
-	df <- do.call("rbind", missings)
-	
-	prop <- df[df$missing == "yes", "Freq"] / (df[df$missing == "no", "Freq"] + df[df$missing == "yes", "Freq"])
-	df$prop <- rep(prop, each=2)
-	
-	
-	if (order) {
-		df$variable <- reorder_factor(df$variable, prop)
-	}
+  missings <- mapply(function(var, name) cbind(as.data.frame(table(missing=factor(is.na(var), levels=c(TRUE, FALSE), labels=c("yes", "no")))), variable=name), 
+    data, names(data), SIMPLIFY=FALSE
+  )
+  df <- do.call("rbind", missings)
+  
+  prop <- df[df$missing == "yes", "Freq"] / (df[df$missing == "no", "Freq"] + df[df$missing == "yes", "Freq"])
+  df$prop <- rep(prop, each=2)
+  
+  
+  if (order) {
+    df$variable <- reorder_factor(df$variable, prop)
+  }
 
-	if (missing.only) {
-		df <- df[df$prop > 0 & df$prop < 1, , drop=FALSE]
-		df$variable <- factor(df$variable)
-	}
-	
-	ggplot(df, aes(y=Freq, x=variable, fill=missing)) + geom_bar(position=avoid)
+  if (missing.only) {
+    df <- df[df$prop > 0 & df$prop < 1, , drop=FALSE]
+    df$variable <- factor(df$variable)
+  }
+  
+  ggplot(df, aes_string(y="Freq", x="variable", fill="missing")) + geom_bar(position=avoid)
 }
 
 # Structure plot
@@ -151,11 +151,11 @@ ggmissing <- function(data, avoid="stack", order=TRUE, missing.only = TRUE) {
 # @keyword hplot
 #X ggstructure(mtcars)
 ggstructure <- function(data, scale = "rank") {
-	ggpcp(data, scale=scale) + 
-		aes(y=ROWID, fill=value, x=variable) +
-		geom_tile() +
-		scale_y_continuous("row number", expand = c(0, 1)) +
-		scale_fill_gradient2(low="blue", mid="white", high="red", midpoint=0)
+  ggpcp(data, scale=scale) + 
+    aes_string(y="ROWID", fill="value", x="variable") +
+    geom_tile() +
+    scale_y_continuous("row number", expand = c(0, 1)) +
+    scale_fill_gradient2(low="blue", mid="white", high="red", midpoint=0)
 }
 
 # Order plot
@@ -165,11 +165,11 @@ ggstructure <- function(data, scale = "rank") {
 # @arguments type of scaling to use.  See \code{\link[reshape]{rescaler}} for options
 # @keyword hplot 
 ggorder <- function(data, scale="rank") {
-	ggpcp(data, scale="rank") +
-		aes(x=ROWID, group=variable, y=value) +
-		facet_grid(. ~ variable) +
-		geom_line() +
-		scale_x_continuous("row number")
+  ggpcp(data, scale="rank") +
+    aes_string(x="ROWID", group="variable", y="value") +
+    facet_grid(. ~ variable) +
+    geom_line() +
+    scale_x_continuous("row number")
 }
 
 # Distribution plot
@@ -177,22 +177,22 @@ ggorder <- function(data, scale="rank") {
 # 
 # @keyword internal  
 ggdist <- function(data, vars=names(data), facets = . ~ .) {
-	cat <- sapply(data[vars], is.factor)
-	facets <- deparse(substitute(facets))
-	
-	grid.newpage()
-	pushViewport(viewport(layout=grid.layout(ncol = ncol(data))))
-	
-	mapply(function(name, cat, i) {
-		p <- ggplot(data) + 
-			facet_grid(facets) +
-			aes(x=as.name(name), y=1) +
-			geom_bar()
+  cat <- sapply(data[vars], is.factor)
+  facets <- deparse(substitute(facets))
+  
+  grid.newpage()
+  pushViewport(viewport(layout=grid.layout(ncol = ncol(data))))
+  
+  mapply(function(name, cat, i) {
+    p <- ggplot(data) + 
+      facet_grid(facets) +
+      aes_string(x=name, y=1) +
+      geom_bar()
 
-		pushViewport(viewport(layout.pos.col=i))
-		grid.draw(ggplot_plot(p, pretty=FALSE))
-		popViewport()
-	}, names(data[vars]), cat, 1:ncol(data[vars]))
-	invisible()
-	
+    pushViewport(viewport(layout.pos.col=i))
+    grid.draw(ggplot_plot(p, pretty=FALSE))
+    popViewport()
+  }, names(data[vars]), cat, 1:ncol(data[vars]))
+  invisible()
+  
 }

@@ -10,21 +10,22 @@ ggplot <- function(data, ...) UseMethod("ggplot")
 # @seealso \url{http://had.co.nz/ggplot/ggplot.html}
 # @keyword hplot
 ggplot.default <- function(data = NULL, mapping=aes(), ...) {
-	if (!is.null(data) && !is.data.frame(data)) stop("Data needs to be a data.frame")
-	if (!missing(mapping) && !inherits(mapping, "uneval")) stop("Mapping should be created with aes or aes_string")
-	
-	p <- structure(list(
-		data = data, 
-		layers = list(),
-		scales = Scales$new(),
-		defaults = mapping,
-		title = NULL
-	), class="ggplot")
-	p$coordinates <- CoordCartesian$new()
-	p$facet <- FacetGrid$new()
-	p$scales$add_defaults(p$data, p$defaults)
+  if (!is.null(data) && !is.data.frame(data)) stop("Data needs to be a data.frame")
+  if (!missing(mapping) && !inherits(mapping, "uneval")) stop("Mapping should be created with aes or aes_string")
+  
+  p <- structure(list(
+    data = data, 
+    layers = list(),
+    scales = Scales$new(),
+    defaults = mapping,
+    title = NULL
+  ), class="ggplot")
+  p$coordinates <- CoordCartesian$new()
+  p$facet <- FacetGrid$new()
+  p$scales$add_defaults(p$data, p$defaults)
 
-	(.last_plot <<- p)
+  set_last_plot(p)
+  p
 }
 
 
@@ -38,19 +39,19 @@ ggplot.default <- function(data = NULL, mapping=aes(), ...) {
 # @keyword hplot
 # @keyword internal 
 print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, save=ggopt()$save, ...) {
-	if (save) {
-		try_require("decumar")
-		img(grid.draw(ggplot_plot(x, ...)), hash=digest(x))
-		return()
-	}
-	
-	if (newpage) grid.newpage()
-	if (is.null(vp)) {
-		grid.draw(ggplot_plot(x, ...)) 
-	} else {
-		if (is.character(vp)) seekViewport(vp) else pushViewport(vp)
-		grid.draw(ggplot_plot(x, ...)) 
-		upViewport()
-	}
+  if (save) {
+    try_require("decumar")
+    img(grid.draw(ggplot_plot(x, ...)), hash=digest.ggplot(x))
+    return()
+  }
+  
+  if (newpage) grid.newpage()
+  if (is.null(vp)) {
+    grid.draw(ggplot_plot(x, ...)) 
+  } else {
+    if (is.character(vp)) seekViewport(vp) else pushViewport(vp)
+    grid.draw(ggplot_plot(x, ...)) 
+    upViewport()
+  }
 }
 
