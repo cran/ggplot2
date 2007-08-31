@@ -5,10 +5,12 @@ StatDensity2d <- proto(Stat, {
 	default_geom <- function(.) GeomDensity2d
 	default_aes <- function(.) aes(group = ..piece..)
 
-	desc_outputs <- list(z = "Calculated density")
+	desc_outputs <- list(
+		level = "Computed density"
+	)
 	icon <- function(.) GeomDensity2d$icon()
-	calculate <- function(., data, scales, ...) {
 
+	calculate <- function(., data, scales, ...) {
 		df <- data.frame(data[, c("x", "y")])
 		df <- df[complete.cases(df), ]
 		dens <- do.call(MASS::kde2d, c(df, n=100, ...))
@@ -32,6 +34,8 @@ StatDensity2d <- proto(Stat, {
 		m + geom_density_2d() + scale_y_log10()
 		m + geom_density_2d() + coord_trans(y="log10")
 		
+		m + stat_density_2d(aes(fill = ..level..), geom="polygon")
+
 		qplot(rating, length, data=movies, geom=c("point","density2d"), ylim=c(1, 500))
 	}	
 	

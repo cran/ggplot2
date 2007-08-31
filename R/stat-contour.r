@@ -31,7 +31,7 @@ StatContour <- proto(Stat, {
 	
 	default_geom <- function(.) GeomPath
 	default_aes <- function(.) aes(group = ..piece..)
-	desc_output <- list(
+	desc_outputs <- list(
 		level = "z value of contour"
 	)
 	
@@ -61,9 +61,6 @@ StatContour <- proto(Stat, {
 		v + stat_contour(geom="polygon", aes(fill=..level..))
 		v + geom_tile(aes(fill=z)) + stat_contour()
 		
-		# Change coordinate system
-		v + stat_contour() + coord_polar()
-
 		# Use qplot instead
 		qplot(x, y, z, data=volcano3d, geom="contour")
 		qplot(x, y, z, data=volcano3d, stat="contour", geom="path")

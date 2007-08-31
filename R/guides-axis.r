@@ -85,10 +85,11 @@ ggaxis_labels <- function(at, labels, position) {
 	gp <- gpar(cex=0.9, lineheight=0.9)
 	
 	ggname("labels", switch(position,
+		top = ,
 		bottom = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
 			ggname("label", textGrob(labels[[i]], unit(at[i], "native"), unit(0.5, "npc"), just = c("centre","centre")))
 		})), vp=vp, gp=gp),
-
+		right = ,
 		left = gTree(children=do.call("gList", lapply(1:length(labels), function(i) {
 			ggname("label", textGrob(labels[[i]], unit(1, "npc"), unit(at[i], "native"), just = c("right","centre")))
 		})), vp=vp, gp=gp)

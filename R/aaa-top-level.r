@@ -101,6 +101,7 @@ TopLevel <- proto(expr = {
 			.$html_head(),
 			.$html_details(),
 			.$html_defaults(),
+			.$html_returns(),
 			.$html_seealso(),
 			.$html_examples(),
 			.$html_footer()
@@ -183,13 +184,13 @@ TopLevel <- proto(expr = {
 	}
 	
 	html_defaults_outputs <- function(.) {
-		if (!exists("desc_output", .)) return("")
+		if (!exists("desc_outputs", .)) return("")
 		
 		ps(
 			"<h2>New variables produced by the statistic</h2>\n",
-			"<p>To use these variables in an aesthetic mapping, you need to surrond them with .., like <code>aes(x = ..output..)</code>.</p>\n",
+			"<p>To use these variables in an aesthetic mapping, you need to surrond them with .., like <code>aes(x = ..output..)</code>. This tells ggplot that the variable isn't the original dataset, but has been created by the statistic.</p>\n",
 			"<ul>\n",
-			ps("<li><code>", names(.$desc_output), "</code>, ", .$desc_output, "</li>\n"),
+			ps("<li><code>", names(.$desc_outputs), "</code>, ", .$desc_outputs, "</li>\n"),
 			"</ul>\n"
 		)
 	}
@@ -231,7 +232,7 @@ TopLevel <- proto(expr = {
 		
 		ps(
 			"<h2>Parameters</h2>\n",
-			"<p>When an aesthetic is used an a parameter, like <code>", .$my_name(), "(", names(param)[1], " = 3)</code>, it will override mappings from data.</p>\n",
+			"<p>When an aesthetic is used as an a parameter, like <code>", .$my_name(), "(", names(param)[1], " = 3)</code>, it will override mappings from data.</p>\n",
 			"<ul>\n",
 			ps("<li><code>", names(param), "</code>, ", desc[names(param)], "</li>\n"),
 			"</ul>\n"
@@ -248,6 +249,15 @@ TopLevel <- proto(expr = {
 			"<ul>\n",
 			ps("<li>", html_auto_link(names(.$seealso)), ": ", .$seealso, "</li>\n"),
 			"</ul>\n"
+		)
+	}
+
+	# Returns ---------------------------
+
+	html_returns <- function(.) {
+		ps(
+			"<h2>Returns</h2>\n",
+			"<p>This function returns a <a href='layer.html'>layer</a> object.</p>"
 		)
 	}
 	

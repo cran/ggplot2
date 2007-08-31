@@ -1,5 +1,5 @@
 GeomVline <- proto(Geom, {
-	new <- function(., mapping=aes(), data=NULL, intercept=1, ...) {
+	new <- function(., mapping=aes(), data=NULL, intercept=0, ...) {
 		if (missing(data)) {
 			data <- data.frame(intercept = intercept)
 		}

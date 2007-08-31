@@ -86,7 +86,7 @@ Scale <- proto(TopLevel, expr={
 	# Map values from a data.frame.	 Returns data.frame
 	map_df <- function(., df) {
 		df <- data.frame(.$map(df[[.$input()]]))
-		names(df) <- .$output()
+		if (ncol(df) > 0) names(df) <- .$output()
 		df
 	}
 	
@@ -102,6 +102,12 @@ Scale <- proto(TopLevel, expr={
 	
 	guide_legend_geom <- function(.) GeomPoint
 	
+	html_returns <- function(.) {
+		ps(
+			"<h2>Returns</h2>\n",
+			"<p>This function returns a scales object.</p>"
+		)
+	}
 	# Guides
 	# ---------------------------------------------
 	
@@ -144,12 +150,16 @@ Scale <- proto(TopLevel, expr={
 	  legend.layout <- grid.layout(nkeys + 1, 4, widths = widths, heights = heights, just=c("left","top"))
 	  fg <- ggname(.$my_name(), frameGrob(layout = legend.layout))
 		#fg <- placeGrob(fg, rectGrob(gp=gpar(fill="NA", col="NA", name="legend-background")))
+		
+		numeric_labels <- all(sapply(labels, is.language)) || suppressWarnings(all(!is.na(sapply(labels, "as.numeric"))))
+    valign <- if(numeric_labels) "right" else "left"
+    vpos   <- if(numeric_labels) 1 else 0
 
 		fg <- placeGrob(fg, title, col=1:2, row=1)
 		for (i in 1:nkeys) {
 			df <- as.list(values[i,, drop=FALSE])
 			fg <- placeGrob(fg, ggname("key", grob(df)), col = 1, row = i+1)
-			fg <- placeGrob(fg, ggname("label", textGrob(labels[[i]], x = 0, y = 0.5, just = c("left", "centre"))), col = 3, row = i+1)
+			fg <- placeGrob(fg, ggname("label", textGrob(labels[[i]], x = vpos, y = 0.5, just = c(valign, "centre"))), col = 3, row = i+1)
 		}
 
 		fg

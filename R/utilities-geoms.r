@@ -22,6 +22,16 @@ aes <- function(...) {
 	names(aes) <- new_names
 	aes
 }
+
+# Generate aesthetic mappings from a string
+# Useful when writing function
+# 
+# @keyword internal
+aes_string <- function(...) {
+  structure(lapply(list(...), function(x) parse(text=x)[[1]]),
+class="uneval")
+}
+
 print.uneval <- function(x, ...) str(unclass(x))
 str.uneval <- function(object, ...) str(unclass(object), ...)
 

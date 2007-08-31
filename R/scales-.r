@@ -135,8 +135,6 @@ Scales <- proto(Scale, expr={
 			}
 		}
 		
-		if (!"y" %in% .$input()) .$add(ScaleContinuous$new(variable="y"))
-		
 	}
 	
 	pprint <- function(., newline=TRUE) {

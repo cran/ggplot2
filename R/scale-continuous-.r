@@ -3,9 +3,12 @@ ScaleContinuous <- proto(Scale, {
 	.range <- c()
 	.expand <- c(0.05, 0)
 	limits <- c(NA, NA)
+	.labels <- NULL
 
-	new <- function(., name=NULL, limits=c(NA,NA), breaks=NULL, variable, trans="identity", expand=c(0.05, 0)) {
-		proto(., name=name, .input=variable, .output=variable, limits=limits, .breaks = breaks, expand=expand)
+	new <- function(., name=NULL, limits=c(NA,NA), breaks=NULL, labels=NULL, variable, trans="identity", expand=c(0.05, 0)) {
+		if (is.null(breaks) && !is.null(labels)) stop("Labels can only be specified in conjunction with breaks")
+		
+		proto(., name=name, .input=variable, .output=variable, limits=limits, .breaks = breaks, .labels = labels, expand=expand)
 	}
 
 	domain <- function(.) {
@@ -60,6 +63,7 @@ ScaleContinuous <- proto(Scale, {
 	}
 	
 	labels <- function(.) {
+		if (!is.null(.$.labels)) return(.$.labels)
 		b <- .$breaks()
 
 		l <- .$.tr$label(b)
@@ -102,6 +106,11 @@ ScaleContinuous <- proto(Scale, {
 		#  * choose where the ticks appear
 		m + scale_x_continuous(breaks=1:10)
 		m + scale_x_continuous(breaks=c(1,3,7,9))
+
+		#  * manually label the ticks
+		m + scale_x_continuous(breaks=c(1,5,10), labels=c("one", "five", "ten"))
+		m + scale_x_continuous(breaks=c(1,5,10), labels=c("horrible", "ok", "awesome"))
+		m + scale_x_continuous(breaks=c(1,5,10), labels=expression(Alpha, Beta, Omega))
 		
 		# There are also a wide range of transformations you can use:
 		m + scale_y_log10()

@@ -86,9 +86,6 @@ GeomTile <- proto(Geom, {
 		# Change scale
 		p + geom_tile(aes(fill=z)) + scale_fill_gradient(low="green", high="red")
 
-		# Change coordinate system
-		p + geom_tile(aes(fill=z)) + coord_polar()
-
 		# Use qplot instead
 		qplot(x, y, data=pp(20), geom="tile", fill=z)
 		qplot(x, y, data=pp(100), geom="tile", fill=z)
@@ -106,31 +103,26 @@ GeomTile <- proto(Geom, {
 		cars + geom_point()
 		cars + stat_bin(aes(fill=..count..), geom="tile", binwidth=3)
 		cars + stat_bin(aes(fill=..density..), geom="tile", binwidth=3)
-		
-		# The following is a little bit of a hack, because the density
-		# function computes the densities separately for each group, and 
-		# doesn't predict on the same grid of x values, which means the 
-		# resolution of the data, is v. small, and we need to manually set
-		# the width to something reasonable
-		cars + stat_density(aes(fill=..density..), geom="tile", width=0.1)
-		cars + stat_density(aes(fill=..scaled..), geom="tile", width=0.1)
-		cars + stat_density(aes(size=..scaled..), geom="point", width=0.1)
+
+		cars + stat_density(aes(fill=..density..), geom="tile")
+		cars + stat_density(aes(fill=..count..), geom="tile")
 		
 		# Another example with with unequal tile sizes
-		x <- rep(c(2, 5, 7, 9, 12), 2)
-		y <- factor(rep(c(1,2), each=5))
-		z <- rep(1:5, each=2)
-		
 		x.cell.boundary <- c(0, 4, 6, 8, 10, 14)
-		w <- rep(diff(x.cell.boundary), 2)
-
-		qplot(x, y, fill=z, geom="tile")
-		qplot(x, y, fill=z, geom="tile", width=w)
-		qplot(x, y, fill=factor(z), geom="tile", width=w)
+		example <- data.frame(
+			x = rep(c(2, 5, 7, 9, 12), 2),
+			y = factor(rep(c(1,2), each=5)),
+			z = rep(1:5, each=2),
+			w = rep(diff(x.cell.boundary), 2)
+		)
+	
+		qplot(x, y, fill=z, data=example, geom="tile")
+		qplot(x, y, fill=z, data=example, geom="tile", width=w)
+		qplot(x, y, fill=factor(z), data=example, geom="tile", width=w)
 
 		# You can manually set the colour of the tiles using 
 		# scale_manual
 		col <- c("darkblue", "blue", "green", "orange", "red")
-		qplot(x, y, fill=col[z], geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col, grob="tile")
+		qplot(x, y, fill=col[z], data=example, geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col, grob="tile")
 	}
 })

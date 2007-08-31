@@ -48,9 +48,7 @@ CoordCartesian <- proto(Coord, expr={
 		draw_grid(plot, breaks)
 	}
 	
-	guide_foreground <- function(., plot) {
-		ggname("border", rectGrob(gp=gpar(col=plot$border.colour, lwd=2, fill=NA)))
-	}
+
 	
 	
 	draw_grid <- function(plot, breaks) {

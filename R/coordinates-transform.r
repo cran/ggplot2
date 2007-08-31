@@ -61,6 +61,7 @@ CoordTransform <- proto(CoordCartesian, expr={
 
 	objname <- "trans"
 	desc <- "Transformed cartesian coordinate system"
+	details <- ""
 	icon <- function(.) {
 		breaks <- cumsum(1 / 2^(1:5))
 		gTree(children=gList(

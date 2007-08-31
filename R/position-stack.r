@@ -58,7 +58,7 @@ PositionFill <- proto(PositionStack, {
 		ggplot(diamonds, aes(x=price)) + geom_bar(position="fill")
 		ggplot(diamonds, aes(x=price, fill=cut)) + geom_bar(position="fill")
 		ggplot(diamonds, aes(x=price, fill=clarity)) + geom_bar(position="fill")
-		ggplot(diamonds, aes(x=price, fill=colour)) + geom_bar(position="fill")
+		ggplot(diamonds, aes(x=price, fill=color)) + geom_bar(position="fill")
 	}
 
 

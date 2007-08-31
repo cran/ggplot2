@@ -2,6 +2,15 @@ GeomRibbon <- proto(GeomInterval, {
 	default_stat <- function(.) StatIdentity
 	default_aes <- function(.) aes(colour="grey60", fill="grey80", size=1, linetype=1)
 
+	adjust_scales_data <- function(., scales, data) {
+		if (!"y" %in% scales$input()) {
+			scales$add(ScaleContinuous$new(variable="y"))	
+		}
+		y <- scales$get_scales("y")
+		y$train(data$min)
+		y$train(data$max)
+	}
+
 	draw <- function(., data, scales, coordinates, ...) {
 		tb <- with(data,
 			coordinates$munch(data.frame(x=c(x, rev(x)), y=c(max, rev(min))))
@@ -53,6 +62,7 @@ GeomRibbon <- proto(GeomInterval, {
 		m <- ggplot(movies, aes(y=votes, x=year)) 
 		(m <- m + geom_point())
 		
+		# The default summary isn't that useful
 		m + stat_summary(geom="ribbon")
 		m + stat_summary(geom="ribbon", fun=stat_median_hilow)
 		
