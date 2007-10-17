@@ -17,7 +17,7 @@ StatQq <- proto(Stat, {
 			params <- list(...)
 			dist.params <- params[intersect(names(formals(distribution)), names(params))]
 			
-			qy <- do.call(distribution, c(list(quantiles), dist.params))
+			qy <- suppressWarnings(do.call(distribution, c(list(quantiles), dist.params)))
 		} else {
 			qy <- quantile(data$y, probs=quantiles, na.rm=TRUE)
 		}

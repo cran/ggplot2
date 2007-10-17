@@ -92,8 +92,10 @@ stat_median_hilow <- function(df, ...) wrap_hmisc(df$y, fun=smedian.hilow, ...)
 
 stat_range <- function(data, ...) summaryby(data, data$x, yrange)
 stat_mean <- function(data, ...) summaryby(data, data$x, ymean)
-stat_median <- function(data, ...) summaryby(data, data$x, ymean)
+stat_median <- function(data, ...) summaryby(data, data$x, ymedian)
+stat_max <- function(data, ...) summaryby(data, data$x, ymax)
 
 yrange <- function(df, ...) data.frame(min=min(df$y, na.rm=TRUE), max=max(df$y, na.rm=TRUE))
 ymean <- function(df, ...) data.frame(y=mean(df$y, na.rm=TRUE))
 ymedian <- function(df, ...) data.frame(y=median(df$y, na.rm=TRUE))
+ymax <- function(df, ...) data.frame(y=max(df$y, na.rm=TRUE))

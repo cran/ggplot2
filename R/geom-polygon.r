@@ -18,6 +18,7 @@ GeomPolygon <- proto(Geom, {
 	
 	default_stat <- function(.) StatIdentity
 	default_aes <- function(.) aes(colour="NA", fill="grey60", size=1, linetype=1)
+	required_aes <- c("x", "y")
 
 	seealso <- list(
 		geom_path = "an unfilled polygon",

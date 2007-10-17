@@ -24,7 +24,7 @@ GeomTile <- proto(Geom, {
 	}
 	
 	draw_legend <- function(., data, ...)  {
-		data <- aesdefaults(data, list(colour=NA, fill=NA), list(...))
+		data <- aesdefaults(data, list(colour=ggopt()$grid.fill, fill=NA), list(...))
 		if (all(is.na(data$fill))) data$fill <- data$colour
 
 		rectGrob(gp=gpar(col=alpha(data$colour, 1), fill=alpha(data$fill, 1)))
@@ -65,6 +65,7 @@ GeomTile <- proto(Geom, {
 
 	default_stat <- function(.) StatIdentity
 	default_aes <- function(.) aes(fill="grey50", colour=NA, size=1, width = resolution(x), height = resolution(y), size=1, linetype=1)
+	required_aes <- c("x", "y")
 	
 	examples <- function(.) {
 		# Generate data

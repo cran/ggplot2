@@ -7,7 +7,7 @@ Scale <- proto(TopLevel, expr={
 	class <- function(.) "scale"
 	
 	new <- function(., name="Unknown") {
-		proto(., name=name)
+		.$proto(name=name)
 	}
 	discrete <- function(.) FALSE
 	

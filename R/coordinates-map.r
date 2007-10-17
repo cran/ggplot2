@@ -1,8 +1,7 @@
 CoordMap <- proto(CoordCartesian, {
-	
 	new <- function(., projection="mercator", ...) {
 		try_require("mapproj")
-		proto(., projection=projection, params=list(...))
+		.$proto(projection=projection, params=list(...))
 	}
 	
 	muncher <- function(.) TRUE

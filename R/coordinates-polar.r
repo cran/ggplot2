@@ -4,7 +4,7 @@ CoordPolar <- proto(Coord, {
 		theta <- if (theta == "x") "x" else "y"
 		r <- if (theta == "x") "y" else "x"
 
-		proto(., theta = theta, r = r)
+		.$proto(theta = theta, r = r)
 	}
 
 	theta_scale <- function(.) .$.scales$get_scales(.$theta)
@@ -89,9 +89,7 @@ CoordPolar <- proto(Coord, {
 		# Still very experimental, so a bit on the buggy side, but I'm
 		# working on it.  Also need to deal properly with cyclical
 		# variables
-		ggopt(aspect.ratio = 1)
-		mtcars$cyl <- factor(mtcars$cyl)
-		
+		ggopt(aspect.ratio = 1)		
 		
 		# NOTE: Use these plots with caution - polar coordinates has
 		# major perceptual problems.  The main point of these examples is 
@@ -105,7 +103,7 @@ CoordPolar <- proto(Coord, {
 		cxc + coord_polar(theta = "y")
 		
 		# A pie chart = stacked bar chart + polar coordinates
-		pie <- ggplot(mtcars, aes(x=factor(1), fill=cyl)) + geom_bar(width=1)
+		pie <- ggplot(mtcars, aes(x=factor(1), fill=factor(cyl))) + geom_bar(width=1)
 		pie + coord_polar(theta="y")
 		# A new type of plot?
 		pie + coord_polar()
@@ -121,8 +119,6 @@ CoordPolar <- proto(Coord, {
 		#Doughnut plot
 		doh + geom_bar(width=0.9, position="fill") + coord_polar(theta="y")
 		ggopt(aspect.ratio = NULL)
-		
-		rm(mtcars)
 	}
 
 })

@@ -9,7 +9,9 @@ Scales <- proto(Scale, expr={
 	add <- function(., scale) {
 		old <- .$find(scale$output())
 
-		if (length(old) > 0 && sum(old) == 1 && is.null(scale$name)) scale$name <- .$.scales[old][[1]]$name
+		if (length(old) > 0 && sum(old) == 1 && is.null(scale$name)) {
+			scale$name <- .$.scales[old][[1]]$name
+		}
 		
 		.$.scales[old] <- NULL
 		.$.scales <- append(.$.scales, scale)
@@ -29,14 +31,14 @@ Scales <- proto(Scale, expr={
 	get_scales <- function(., output, scales=FALSE) {
 		scale <- .$.scales[.$find(output)]
 		if (scales || length(scale) > 1) {
-			proto(., .scales = scale)
+			.$proto(.scales = scale)
 		} else {
 			scale[[1]]
 		}
 	}
 	
 	minus <- function(., that) {
-		new <- proto(.)
+		new <- .$proto()
 		keep <- !sapply(new$.scales, function(this) any(sapply(that$.scales, identical, this)))
 		new$.scales <- new$.scales[keep]
 		new
@@ -90,13 +92,15 @@ Scales <- proto(Scale, expr={
 	# Add default scales.
 	# Add default scales to a plot.
 	# 
-	# Called everytime a geom is added to the plot, so that default
+	# Called everytime a layer is added to the plot, so that default
 	# scales are always available for modification.	 The type of a scale is
-	# fixed by the first use in a geom.
+	# fixed by the first use in a layer.
 	add_defaults <- function(., data, aesthetics) {
-		if (is.null(data)) return() # Layer has no data, which means use default plot data
+		if (is.null(data)) return()
 		
 		new_aesthetics <- setdiff(names(aesthetics), .$input())
+		if(is.null(new_aesthetics)) return()
+
 		names <- as.vector(sapply(aesthetics[new_aesthetics], deparse))
 
 		datacols <- tryapply(aesthetics[new_aesthetics], eval, envir=data, enclos=parent.frame())

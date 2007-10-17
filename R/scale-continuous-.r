@@ -8,7 +8,7 @@ ScaleContinuous <- proto(Scale, {
 	new <- function(., name=NULL, limits=c(NA,NA), breaks=NULL, labels=NULL, variable, trans="identity", expand=c(0.05, 0)) {
 		if (is.null(breaks) && !is.null(labels)) stop("Labels can only be specified in conjunction with breaks")
 		
-		proto(., name=name, .input=variable, .output=variable, limits=limits, .breaks = breaks, .labels = labels, expand=expand)
+		.$proto(name=name, .input=variable, .output=variable, limits=limits, .breaks = breaks, .labels = labels, expand=expand)
 	}
 
 	domain <- function(.) {
@@ -31,7 +31,7 @@ ScaleContinuous <- proto(Scale, {
 			warning("Non-numeric variable supplied to continuous scale ", .$name, ".", call.=FALSE)
 		if (all(is.na(x))) return()
 			
-		.$.domain <- range(range(x, na.rm=TRUE), .$.domain, na.rm=TRUE, finite=TRUE)
+		.$.domain <- range(range(x, na.rm=TRUE, finite=TRUE), .$.domain, na.rm=TRUE, finite=TRUE)
 	}
 
 	# Scale range
@@ -84,7 +84,7 @@ ScaleContinuous <- proto(Scale, {
 	}
 	
 	objname <- "continuous"
-	common <- c("x", "y", "z")
+	common <- c("x", "y", "z", "xend", "yend")
 	desc <- "Continuous position scale"
 	seealso <- list(
 		"scale_discrete" = "Discrete position scales"

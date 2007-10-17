@@ -1,7 +1,7 @@
 CoordCartesian <- proto(Coord, expr={	
 	
 	new <- function(.) {
-		proto(.)
+		.$proto()
 	}
 	
 	x <- function(.) .$.scales$get_scales("x")
@@ -47,9 +47,6 @@ CoordCartesian <- proto(Coord, expr={
 		
 		draw_grid(plot, breaks)
 	}
-	
-
-	
 	
 	draw_grid <- function(plot, breaks) {
 		gp <- gpar(col=plot$grid.colour)

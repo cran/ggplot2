@@ -13,7 +13,8 @@
 		p <- switch(object$class(),
 			layer  = {
 				p$layers <- append(p$layers, object)
-				p$scales$add_defaults(object$data, object$aesthetics)
+				data <- if(is.null(object$data)) p$data else object$data
+				p$scales$add_defaults(data, object$aesthetics)
 				p
 			},
 			geom = p + layer(geom = object),

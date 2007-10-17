@@ -1,14 +1,14 @@
 CoordEqual <- proto(CoordCartesian, {
 
 	new <- function(., ratio=1) {
-		proto(., ratio=ratio)
+		.$proto(ratio=ratio)
 	}
 
 	frange <- function(.) {
 		xlim <- .$x()$frange()
 		ylim <- .$y()$frange()
 		
-		widest <- max(diff(xlim), diff(xlim))
+		widest <- max(diff(xlim), diff(ylim))
 		
 	  xlim <- mean(xlim) + c(-1, 1) * widest * 0.5
 	  ylim <- mean(ylim) + .$ratio * c(-1, 1) * widest * 0.5

@@ -23,7 +23,7 @@ CoordTransform <- proto(CoordCartesian, expr={
 		if (is.character(xtrans)) xtrans <- Trans$find(xtrans)
 		if (is.character(ytrans)) ytrans <- Trans$find(ytrans)
 	
-		proto(., xtr=xtrans, ytr=ytrans)
+		.$proto(xtr=xtrans, ytr=ytrans)
 	}
 
 	frange <- function(.) {

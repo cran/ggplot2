@@ -4,7 +4,7 @@ ScaleShape <- proto(ScaleDiscrete, expr={
 	solid <- TRUE
 
 	new <- function(., name=NULL, solid=TRUE) {
-		proto(., name=name, solid=solid)
+		.$proto(name=name, solid=solid)
 	}
 	
 	breaks <- function(.) {

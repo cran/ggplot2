@@ -9,7 +9,7 @@ GeomPath <- proto(Geom, {
 		start <- unlist(tapply(1:n, munched$group, function(x) x[-length(x)]))
 		end <- unlist(tapply(1:n, munched$group, function(x) x[-1]))
 		
-		if (n == 1) return()
+		if (length(start) + length(end) < 2) return()
 		with(munched, 
 			segmentsGrob(x[start], y[start], x[end], y[end], default.units="native",
 			gp=gpar(col=colour[start], lwd=size[start], lty=linetype[start]))
@@ -29,6 +29,7 @@ GeomPath <- proto(Geom, {
 	desc <- "Connect observations, in original order"
 
 	default_stat <- function(.) StatIdentity
+	required_aes <- c("x", "y")
 	default_aes <- function(.) aes(colour="black", size=1, linetype=1)
 	icon <- function(.) linesGrob(c(0.2, 0.4, 0.8, 0.6, 0.5), c(0.2, 0.7, 0.4, 0.1, 0.5))
 	

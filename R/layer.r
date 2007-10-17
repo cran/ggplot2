@@ -1,20 +1,31 @@
-# Create a new layer
-# Layer objects store the layer of an object.
-# 
-# They have the following attributes:
-# 
-#  * data
-#  * geom + parameters
-#  * statistic + parameters
-#  * position + parameters
-#  * aesthetic mapping
-# 
-# Can think about grob creation as a series of data frame transformations.
-
+  # Create a new layer
+  # Layer objects store the layer of an object.
+  # 
+  # They have the following attributes:
+  # 
+  #  * data
+  #  * geom + parameters
+  #  * statistic + parameters
+  #  * position + parameters
+  #  * aesthetic mapping
+  # 
+  # Can think about grob creation as a series of data frame transformations.
 Layer <- proto(expr = {	
-	new <- function(., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ...) {
+	geom <- NULL
+	geom_params <- NULL
+	stat <- NULL
+	stat_params <- NULL
+	data <- NULL
+	mapping <- NULL
+	position <- NULL
+	params <- NULL
+	
+	new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ...) {
 		
 		if (is.null(geom) && is.null(stat)) stop("Need at least one of stat and geom")
+		
+		if (!is.null(data) && !is.data.frame(data)) stop("Data needs to be a data.frame")
+		if (!is.null(mapping) && !inherits(mapping, "uneval")) stop("Mapping should be a list of unevaluated mappings created by aes or aes_string")
 		
 		if (is.character(geom)) geom <- Geom$find(geom)
 		if (is.character(stat)) stat <- Stat$find(stat)
@@ -47,11 +58,17 @@ Layer <- proto(expr = {
 	use_defaults <- function(., data) {
 		df <- aesdefaults(data, .$geom$default_aes(), compact(.$aesthetics))
 		gp <- intersect(names(.$geom$parameters()), names(.$geom_params))
+		if (length(.$geom_params[gp])) 
+			gp <- gp[sapply(.$geom_params[gp], is.atomic)]
 		df[gp] <- .$geom_params[gp]
 		df
 	}
 	
 	pprint <- function(.) {
+		if (is.null(.$geom)) {
+			cat("Empty layer\n")
+			return(invisible());
+		}
 		.$geom$print(newline=FALSE)
 		cat(" +", clist(.$geom_params), "\n")
 		.$stat$print(newline=FALSE)
@@ -138,6 +155,8 @@ Layer <- proto(expr = {
 	make_grob <- function(., data, scales, cs) {
 		if (is.null(data) || nrow(data) == 0) return()
 		data <- .$use_defaults(data)
+		
+		check_required_aesthetics(.$geom$required_aes, c(names(data), names(.$geom_params)), paste("geom_", .$geom$objname, sep=""))
 		
 		do.call(.$geom$draw_groups, c(
 			data = list(as.name("data")), 

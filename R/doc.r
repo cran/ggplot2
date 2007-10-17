@@ -67,6 +67,7 @@ html_index_create <- function(path="web/") {
 # @arguments path to create files in
 # @keyword internal
 all_html_pages_create <- function(path="web/") {
+	options(warn = 1)
 	system("rm web/graphics/*")
 	html_index_create(path)
 	Geom$all_html_pages_create()
