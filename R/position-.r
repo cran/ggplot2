@@ -6,7 +6,7 @@ Position <- proto(TopLevel, expr = {
 	adjust <- function(., data, scales, ...) data
 	class <- function(.) "position"
 	
-	new <- function(.) proto(.)
+	new <- function(.) .$proto()
 
 	parameters <- function(.) {
 		params <- formals(get("new", .))

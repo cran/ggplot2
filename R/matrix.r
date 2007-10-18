@@ -18,12 +18,13 @@ plotmatrix <- function(data, mapping=aes()) {
     ycol <- grid[i, "y"]
 
     data.frame(
-      xvar = names(data)[xcol], yvar=names(data)[ycol],
+      xvar = names(data)[xcol], 
+      yvar = names(data)[ycol],
       x = data[, xcol], y = data[, ycol], data
     )
   }))
-  all$xvar <- factor(all$xvar, levels=unique(all$xvar))
-  all$yvar <- factor(all$yvar, levels=unique(all$xvar))
+  all$xvar <- factor(all$xvar, levels=names(data))
+  all$yvar <- factor(all$yvar, levels=names(data))
 
   # densities <- do.call("rbind", lapply(1:ncol(data), function(i) {
   #   data.frame(
@@ -32,6 +33,7 @@ plotmatrix <- function(data, mapping=aes()) {
   #   )
   # }))
 	mapping <- defaults(mapping, aes(x=x, y=y))
+	class(mapping) <- "uneval"
 
 	ggplot(all, mapping) + facet_grid(xvar ~ yvar) +
 		geom_point() +

@@ -32,7 +32,8 @@ GeomErrorbar <- proto(GeomInterval, {
 			size = rep(size, each = 6),
 			linetype = rep(linetype, each = 6),
 			stringsAsFactors = FALSE, 
-			row.names = 1:(nrow(data) * 6)
+			row.names = 1:(nrow(data) * 6),
+			group = rep(1:(nrow(data)), each=6)
 		)), scales, coordinates, ...)
 	}
 	

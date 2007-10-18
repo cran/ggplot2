@@ -5,9 +5,14 @@ Geom <- proto(TopLevel, expr={
 		params <- formals(get("draw", .))
 		params <- params[setdiff(names(params), c(".","data","scales", "coordinates", "..."))]
 		
-		c(params, .$default_aes()[setdiff(names(.$default_aes()), names(params))])
+		required <- rep(NA, length(.$required_aes))
+		names(required) <- .$required_aes
+		aesthetics <- c(.$default_aes(), required)
+		
+		c(params, aesthetics[setdiff(names(aesthetics), names(params))])
 	}
 	
+	required_aes <- c()
 	default_aes <- function(.) {}
 	default_pos <- function(.) PositionIdentity
 
@@ -24,7 +29,7 @@ Geom <- proto(TopLevel, expr={
 	
 	adjust_scales_data <- function(., scales, data) data
 	
-	new <- function(., mapping=aes(), data=NULL, stat=NULL, position=NULL, ...){
+	new <- function(., mapping=NULL, data=NULL, stat=NULL, position=NULL, ...){
 		do.call("layer", list(mapping=mapping, data=data, stat=stat, geom=., position=position, ...))
 	}
 	

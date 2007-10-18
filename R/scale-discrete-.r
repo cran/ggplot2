@@ -13,7 +13,7 @@ ScaleDiscrete <- proto(Scale, expr={
 	discrete <- function(.) TRUE
 
 	new <- function(., name=NULL, variable=.$.input) {
-		proto(., name=name, .input=variable, .output=variable)
+		.$proto(name=name, .input=variable, .output=variable)
 	}
 
 	# Mapping
@@ -35,7 +35,13 @@ ScaleDiscrete <- proto(Scale, expr={
 	}
 	
 	.frange <- NULL
-	frange <- function(.) if (is.null(.$.frange)) c(1, length(.$domain())) else .$.frange
+	frange <- function(.) {
+		if (is.null(.$.frange) || all(is.na(.$.frange))) {
+			c(1, length(.$domain())) 
+		} else {
+			.$.frange
+		}
+	}
 
 	# Guides
 	# -------------------

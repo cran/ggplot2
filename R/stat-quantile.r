@@ -23,9 +23,9 @@ StatQuantile <- proto(Stat, {
 
 		data <- as.data.frame(data)
 		data <- data[complete.cases(data[,c("x","y")]),]
-		model <- rq(formula, data=data, tau=quantiles, weight=weight) 
+		model <- rq(formula, data=data, tau=quantiles, weight=weight)
 
-		yhats <- predict(model, data.frame(x=xseq))
+		yhats <- predict(model, data.frame(x=xseq), type="stepfun")
 		yhats <- t(sapply(yhats, function(f) f(quantiles)))
 		data.frame(
 		  y = as.vector(yhats), x = xseq, quantile = rep(quantiles, each=length(xseq))

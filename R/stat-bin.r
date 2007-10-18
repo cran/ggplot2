@@ -2,16 +2,14 @@ bin <- function(x, weights=NULL, binwidth=NULL, breaks=NULL, range=NULL, width=0
 	if (is.null(weights))  weights <- rep(1, length(x))
 	weights[is.na(weights)] <- 0
 
-	if (is.null(range))    range <- range(x)
-	if (is.null(binwidth)) binwidth <- max(diff(range) / 30, resolution(x))
-	if (is.null(breaks))   breaks <- fullseq(range, binwidth)
-	
-	if (binwidth < resolution(x)) warning("Binwidth is smaller than the resolution of the data")
+	if (is.null(range))    range <- range(x, na.rm = TRUE, finite=TRUE)
+	if (is.null(binwidth)) binwidth <- diff(range) / 30
 
 	if (diff(range) == 0) {
 		width <- width
 		bins <- x
 	} else if (is.numeric(x)) {
+		if (is.null(breaks)) breaks <- fullseq(range, binwidth)
 		bins <- cut(x, sort(breaks), include.lowest=TRUE)
 		left <- breaks[-length(breaks)]
 		right <- breaks[-1]
@@ -22,6 +20,8 @@ bin <- function(x, weights=NULL, binwidth=NULL, breaks=NULL, range=NULL, width=0
 		x <- factor(unique(x))
 		width <- width
 	}
+
+	# if (binwidth < resolution(x)) warning("Binwidth is smaller than the resolution of the data")
 
 	results <- data.frame(
 		count = as.numeric(tapply(weights, bins, sum, na.rm=TRUE)),
@@ -49,13 +49,21 @@ fullseq <- function(range, size) {
 }
 
 StatBin <- proto(Stat, {
+	informed <- FALSE
+	
 	calculate_groups <- function(., data, ...) {
+		.$informed <- FALSE
 		.super$calculate_groups(., data, ...)
 	}
 	
 	calculate <- function(., data, scales, binwidth=NULL, breaks=NULL, width=0.9, ...) {
 		range <- scales$get_scales("x")$frange()
 
+		if (is.null(binwidth) && is.numeric(data$x) && !.$informed) {
+			message("stat_bin: bin width unspecified, using 30 bins as default.")
+			.$informed <- TRUE
+		}
+		
 		bin(data$x, data$weight, binwidth=binwidth, breaks=breaks, range=range, width=width)
 	}
 

@@ -10,7 +10,15 @@ match.fun.null <- function(x) {
   f
 }
 
+# Check required aesthetics are presented
+#
+# @keyword internal
+check_required_aesthetics <- function(required, present, name) {
+	missing_aes <- setdiff(required, present)
+	if (length(missing_aes) == 0) return()
 
+	stop(name, " requires the following missing aesthetics: ", paste(missing_aes, collapse=", "), call. = FALSE)
+}
 # Apply with built in try
 # 
 # @keyword internal

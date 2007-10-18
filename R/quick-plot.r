@@ -45,15 +45,20 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
 	argnames <- names(as.list(match.call(expand.dots=FALSE)[-1]))
 	arguments <- as.list(match.call()[-1])
 	aesthetics <- compact(arguments[.all_aesthetics])
+	class(aesthetics) <- "uneval"
 	
 	# Create data if not explicitly specified
 	if (missing(data)) {
-		data <- as.data.frame(tryapply(aesthetics, eval, parent.frame(n=2)))
+		data <- as.data.frame(lapply(aesthetics, eval, parent.frame(n=2)))
 
 		facetvars <- all.vars(facets)
 		facetvars <- facetvars[facetvars != "."]
 		facetsdf <- as.data.frame(sapply(facetvars, get))
 		if (nrow(facetsdf)) data <- cbind(data, facetsdf)
+	} else {
+		if (!is.data.frame(data)) stop("data is not a data.frame")
+		if (ncol(data) == 0) stop("data has no columns")
+		if (nrow(data) == 0) stop("data has no rows")
 	}
 
 	p <- ggplot(data, aesthetics) + facet_grid(facets=deparse(facets), margins=margins)

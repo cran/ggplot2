@@ -3,10 +3,12 @@ PositionJitter <- proto(Position, {
 	xjitter <- NULL
 	yjitter <- NULL
 	new <- function(., xjitter=NULL, yjitter=NULL) {
-		proto(., xjitter=xjitter, yjitter=yjitter)
+		.$proto(xjitter=xjitter, yjitter=yjitter)
 	}
 	
 	adjust <- function(., data, scales) {
+		check_required_aesthetics(c("x", "y"), names(data), "position_jitter")
+		
 		xrange <- diff(scales$get_scales("x")$frange())
 		yrange <- diff(scales$get_scales("y")$frange())
 		

@@ -17,7 +17,8 @@ ggplot_plot <- function(plot, pretty=TRUE) {
 
 	plot <- plot_clone(plot)
 	layers <- plot$layers
-	scales <- plot$scales
+  scales <- plot$scales
+	
 	facet <- plot$facet
 
 	cs <- plot$coordinates
@@ -43,13 +44,19 @@ ggplot_plot <- function(plot, pretty=TRUE) {
 	dlapply(function(d, p) p$scales_train(d, scales, adjust=TRUE))
 	data <- dlapply(function(d, p) p$scales_map(d, scales))
 
+  # mappings <- unique(c(names(plot$defaults), unlist(lapply(layers, function(x) names(get("aesthetics", x))))))
+	missing_scales <- setdiff(c("x", "y"), scales$output())
+	if (length(missing_scales) > 0) {
+	  stop("ggplot: Some aesthetics (", paste(missing_scales, collapse =", "), ") are missing scales, you will need to add them by hand.", call.=FALSE)
+	}
+
 	# Adjust position after scaling
 	data <- dlapply(function(d, p) p$adjust_position(d, scales, "after"))
 
 	# Produce grobs
 	cs$train(scales)
 	grobs <- dlapply(function(d, p) p$make_grobs(d, scales, cs))
-	scales <- scales$minus(plot$scales$get_scales(c("x", "y", "z")))
+	scales <- scales$minus(plot$scales$get_scales(c("x", "y", "z", "xend", "yend")))
 	
 	
 	guides <- guides_basic(plot, scales, cs)

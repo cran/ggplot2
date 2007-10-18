@@ -17,6 +17,7 @@ GeomSmooth <- proto(GeomInterval, {
 	
 	
 	default_stat <- function(.) StatSmooth
+	required_aes <- c("x", "y")
 	default_aes <- function(.) aes(colour="grey50", fill=alpha("black", 0.2), size=2, linetype=1, weight=1)
 
 	examples <- function(.) {

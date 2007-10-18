@@ -7,7 +7,7 @@ ScaleColour <- proto(ScaleDiscrete, expr={
 
 ScaleHue <- proto(ScaleColour, expr={
 	new <- function(., name=NULL, h=c(0,360), l=65, c=100, alpha=1, variable) {
-		proto(., name=name, h=h, l=l, c=c, alpha=alpha, .input=variable, .output=variable)
+		.$proto(name=name, h=h, l=l, c=c, alpha=alpha, .input=variable, .output=variable)
 	}
 	
 	breaks <- function(.) {
@@ -68,7 +68,7 @@ ScaleBrewer <- proto(ScaleColour, expr={
 	doc <- TRUE
 
 	new <- function(., name=NULL, palette=1, type="qual", alpha=1, variable) {
-		proto(., name=name, palette=palette, type=type, .input=variable, .output=variable, .alpha=alpha)
+		.$proto(name=name, palette=palette, type=type, .input=variable, .output=variable, .alpha=alpha)
 	}
 
 	breaks <- function(.) {

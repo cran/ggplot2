@@ -11,7 +11,8 @@ GeomText <- proto(Geom, {
 	desc <- "Textual annotations"
 	
 	default_stat <- function(.) StatIdentity
-	default_aes <- function(.) aes(label="", colour="black", size=1, angle=0, hjust=0.5, vjust=0.5)
+	required_aes <- c("x", "y", "label")
+	default_aes <- function(.) aes(colour="black", size=1, angle=0, hjust=0.5, vjust=0.5)
 	
 	examples <- function(.) {
 		p <- ggplot(mtcars, aes(x=wt, y=mpg, label=rownames(mtcars)))

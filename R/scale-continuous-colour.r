@@ -2,7 +2,7 @@ ScaleGradient <- proto(ScaleContinuous, expr={
 
 	new <- function(., name=NULL, low=muted("darkblue"), high="yellow", space="rgb", limits=c(NA,NA), trans="identity", alpha = 1, ..., variable) {
 		if (is.character(trans)) trans <- Trans$find(trans)
-		proto(., name=name, low=low, high=high, space=space, .input=variable, .output=variable, .tr = trans, limits=limits, alpha = alpha, ...)
+		.$proto(name=name, low=low, high=high, space=space, .input=variable, .output=variable, .tr = trans, limits=limits, alpha = alpha, ...)
 	}
 	
 	map <- function(., x) {
@@ -92,7 +92,7 @@ ScaleGradient <- proto(ScaleContinuous, expr={
 ScaleGradient2 <- proto(ScaleContinuous, expr={	
 	new <- function(., name=NULL, low=muted("red"), mid="white", high=muted("blue"), midpoint=0, space="rgb", limits=c(NA,NA), trans="identity", alpha=1, ..., variable) {
 		if (is.character(trans)) trans <- Trans$find(trans)
-		proto(., name=name, low=low, mid=mid, high=high, midpoint=midpoint, space=space, ..., .input=variable, .output=variable, .tr=trans, limits=limits, alpha=alpha)
+		.$proto(name=name, low=low, mid=mid, high=high, midpoint=midpoint, space=space, ..., .input=variable, .output=variable, .tr=trans, limits=limits, alpha=alpha)
 	}
 	
 	map <- function(., x) {

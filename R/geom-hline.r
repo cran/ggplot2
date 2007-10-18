@@ -3,7 +3,8 @@ GeomHline <- proto(Geom, {
 		if (missing(data)) {
 			data <- data.frame(intercept = intercept)
 		}
-		mapping <- defaults(mapping, aes(intercept=intercept, x=NULL, y=NULL))
+		mapping <- defaults(mapping, aes(intercept=intercept, x=NULL, y=NULL, group=1))
+		class(mapping) <- "uneval"
 		layer(mapping=mapping, data=data, geom = ., geom_params = list(...))
 	}
 

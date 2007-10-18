@@ -1,5 +1,5 @@
 GeomBoxplot <- proto(GeomInterval, {
-	draw <- function(., data, ..., outlier.colour = "red", outlier.shape = 19, outlier.size = 1) {
+	draw <- function(., data, ..., outlier.colour = "black", outlier.shape = 19, outlier.size = 1) {
 		defaults <- with(data, data.frame(x=x, colour=colour, size=size, linetype=1, group=1, xend=x,  width=width, fill=fill, stringsAsFactors=FALSE))
 		defaults2 <- defaults[c(1,1), ]
 		

@@ -1,3 +1,41 @@
+ggplot 0.5.6
+----------------------------------------
+
+Improved error messages and other notifications:
+  * all geoms and position adjustments should now give an informative error message when required aesthetics are missing
+  * better error messages if data not a data frame, or mapping not created by aes or aes_string
+  * better errors for qplot when variables missing or data invalid
+  * better error if somehow you are missing necessary scales
+  * stat_bin informs you of the default choice of binwidth
+  * stat_smooth gives helpful error messages for common problems
+  * printing a geom now displays the data set that it uses (if not the default)
+
+Other improvements:
+  * colour and fill legends now surround by background plot colour
+  * can now draw arrow heads with geom_segment, and have added an example demonstrating drawing a vector field
+  * density plots should always include 0 on y axis
+  * default boxplot outlier changed colour to black
+  * stat_smooth supports categorical variables a little better
+  * implemented hash methods for all ggplot objects.  This is the first step in making it easier for me to compare all examples between versions for quality control purposes
+
+New data:
+  * seals, contributed by David Brillinger and Charlotte Wickham, used for vector field example
+
+Bug fixes:
+  * geoms hline, vline and abline now all work correctly when a grouping variable is used
+  * block histograms (where individuals are identifiable) now work correctly  
+  * all ggplot objects should now print properly from the command line
+  * fixed bug in geom_path when only 1 point
+  * segments geom now works correctly for more coordinate systems
+  * order variables in scatterplot matrix by order of variables in data.frame
+  * geom_density deals with missing values correctly when displaying scaled densities
+  * fixed bug in calculating categorical ranges
+  * fixed bug in drawing error bars
+
+Subtractions
+  * now relies on R 2.6
+  * removed grid.gedit and grid.gremove, and code replaced by grid.ls
+
 ggplot 0.5.5
 ----------------------------------------
 

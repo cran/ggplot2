@@ -1,7 +1,8 @@
+
 ScaleIdentity <- proto(ScaleDiscrete, {	
 	common <- c("colour","fill","size","shape","linetype")
 	new <- function(., name=NULL, breaks=NULL, labels=NULL, grob="point", variable="x") {
-		proto(., name=name, .breaks=breaks, .labels=labels, .grob=grob, .input=variable, .output=variable)
+		.$proto(name=name, .breaks=breaks, .labels=labels, .grob=grob, .input=variable, .output=variable)
 	}
 
 	guides.manual <- function(scale, ...) {

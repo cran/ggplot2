@@ -1,5 +1,7 @@
 StatDensity <- proto(Stat, {
 	calculate <- function(., data, scales, adjust=1, kernel="gaussian", trim=FALSE, ...) {
+		data <- data[!is.na(data$x), ]
+		
 		n <- nrow(data)
 		if (is.null(data$weight)) data$weight <- rep(1, n) / n
 
@@ -9,11 +11,10 @@ StatDensity <- proto(Stat, {
 		dens <- density(data$x, adjust=adjust, kernel=kernel, weight=data$weight, from=range[1], to=range[2])
 		densdf <- as.data.frame(dens[c("x","y")])
 
-	  densdf$scaled <- densdf$y / max(densdf$y)
-	  if (trim) densdf <- subset(densdf, x > min(data$x) & x < max(data$x))
+	  densdf$scaled <- densdf$y / max(densdf$y, na.rm = TRUE)
+	  if (trim) densdf <- subset(densdf, x > min(data$x, na.rm = TRUE) & x < max(data$x, na.rm = TRUE))
 	
 		densdf$count <- densdf$y * n
-
 		rename(densdf, c(y = "density"))
 	}
 

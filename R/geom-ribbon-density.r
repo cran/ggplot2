@@ -10,10 +10,10 @@ GeomDensity <- proto(GeomArea, {
 	default_pos <- function(.) PositionIdentity
 
 	adjust_scales_data <- function(., scales, data) {
+		y <- scales$get_scales("y")
+		y$train(0)
 		if (!is.null(data$min)) {
-			y <- scales$get_scales("y")
-			y$train(data$min)
-			y$train(data$max)			
+			y$train(data$max)
 		}
 		data
 	}

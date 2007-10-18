@@ -74,6 +74,7 @@ GeomRibbon <- proto(GeomInterval, {
 GeomArea <- proto(GeomRibbon,{
 	default_aes <- function(.) aes(colour="grey60", fill="grey80", min=0, max=y, size=1, linetype=1)
 	default_pos <- function(.) PositionStack
+	required_aes <- c("x", "y", "min", "max")
 
 	# Documetation -----------------------------------------------
 	objname <- "area"
