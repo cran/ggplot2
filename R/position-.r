@@ -25,16 +25,6 @@ Position <- proto(TopLevel, expr = {
     )
   }
   
-  call <- function(.) {
-    ps(
-      .$my_name(), "(",
-      ps(
-        plist(.$parameters())
-      ), 
-      ")", collapse="\n<br />"
-    )
-  }
-  
   parameters <- function(.) {
     params <- formals(get("new", .))
     params[setdiff(names(params), c(".","variable"))]

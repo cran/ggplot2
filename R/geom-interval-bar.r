@@ -2,9 +2,10 @@ GeomBar <- proto(GeomInterval, {
   
   default_stat <- function(.) StatBin
   default_pos <- function(.) PositionStack
-  default_aes <- function(.) aes(colour=NA, fill="grey60", min=0, width=resolution(x) * 0.9, size=1, linetype=1, max=y)
+  default_aes <- function(.) aes(colour=NA, fill="grey60", min=0, size=1, linetype=1, max=y)
  
-  draw <- function(., data, scales, coordinates, ...) {
+  draw <- function(., data, scales, coordinates, width = NULL, ...) {
+    width <- nulldefault(width, resolution(data$x) * 0.9)
     if (coordinates$muncher()) {
       data <- transform(data, top=max, bottom=min, left=x - width/2, right=x + width/2)
       ggname("bar",gTree(children=do.call("gList", lapply(1:nrow(data), function(i) {
@@ -21,7 +22,7 @@ GeomBar <- proto(GeomInterval, {
     } else {
     with(data, 
       ggname(.$my_name(), rectGrob(x, max, width=width, height=max-min, default.units="native", just=c("centre", "top"), 
-      gp=gpar(col=colour, fill=fill, lwd=size, lty=linetype))
+      gp=gpar(col=colour, fill=fill, lwd=size * .pt, lty=linetype, lineend="butt"))
     ))
     }
     
@@ -30,6 +31,8 @@ GeomBar <- proto(GeomInterval, {
   # Documetation -----------------------------------------------
   objname <- "bar"
   desc <- "Bars, rectangles with bases on y-axis"
+  guide_geom <- function(.) "tile"
+  
   icon <- function(.) {
     rectGrob(c(0.3, 0.7), c(0.4, 0.8), height=c(0.4, 0.8), width=0.3, vjust=1, gp=gpar(fill="grey60", col=NA))
   }
@@ -45,16 +48,15 @@ GeomBar <- proto(GeomInterval, {
   
   examples <- function(.) {
     # Generate data
-    mtcars$cyl <- factor(mtcars$cyl)
-    c <- ggplot(mtcars, aes(x=cyl))
+    c <- ggplot(mtcars, aes(x=factor(cyl)))
     
     c + geom_bar()
     c + geom_bar() + coord_flip()
     c + geom_bar(fill="white", colour="darkgreen")
     
     # Use qplot
-    qplot(cyl, data=mtcars, geom="bar")
-    qplot(cyl, data=mtcars, geom="bar", fill=cyl)
+    qplot(factor(cyl), data=mtcars, geom="bar")
+    qplot(factor(cyl), data=mtcars, geom="bar", fill=factor(cyl))
     
     # Dodged bar charts    
     ggplot(diamonds, aes(x=price, fill=cut)) + geom_bar(position="dodge")

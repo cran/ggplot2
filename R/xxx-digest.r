@@ -46,7 +46,7 @@ bolus.ggplot <- function(x, ...) {
     facet = facet$hash(),
     coord = coordinates$hash(),
     title = title,
-    options = x[intersect(names(ggplot), names(ggopt()))]
+    options = x[intersect(names(x), names(ggopt()))]
   ))
 }
 
@@ -57,19 +57,22 @@ digest.ggplot <- function(x, ...) {
 }
 
 TopLevel$settings <- function(.) {
-  mget(ls(.), .)
+  mget(setdiff(ls(., all.names=TRUE), c(".that", ".super")), .)
 }
 
 Layer$hash <- TopLevel$hash <- function(., ...) {
   digest(.$bolus(), ...)
 }
 Scales$hash <- function(.) {
-  sc <- sapply(.$.scales, function(x) x$hash())
-  sc[order(sc)]
+  scales <- sapply(.$.scales, function(x) x$hash())
+  if (is.character(scales)) scales <- sort(scales)
+  scales
 }
 
 Scales$bolus <- function(.) {
-  lapply(.$.scales, function(x) x$bolus())
+  sc <- lapply(.$.scales, function(x) x$bolus())
+  names(sc) <- sapply(sc, "[[", "input")
+  sc[order(names(sc))]
 }
 TopLevel$bolus <- function(.) {
   list(
@@ -86,13 +89,21 @@ Scale$bolus <- function(.) {
   )
 }
 Layer$bolus <- function(.) {
+  params <- c(.$geom_params, .$stat_params)
+  params <- params[!duplicated(params)]
+  if (!is.null(params) && length(params) > 1) params <- params[order(names(params))]
+  
+  mapping <- .$aesthetics
+  if (!is.null(mapping)) mapping <- mapping[order(names(mapping))]
+  
   list(
     geom = .$geom$objname,
     stat = .$stat$objname,
     pos  = .$position$objname,
+    pos_parms  = .$position$settings(),
     data = .$data,
-    mapping = .$aesthetics,
-    params = unique(c(.$geom_params, .$stat_params))
+    mapping = mapping,
+    params = params
   )
 }
 

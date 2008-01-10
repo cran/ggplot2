@@ -2,7 +2,7 @@ GeomTile <- proto(Geom, {
   draw_groups <- function(., ...) .$draw(...)
   draw <- function(., data,  scales, coordinates, ...) {
     if (nrow(data) == 1) return(NULL)
-    data$colour[is.na(data$colour)] <- data$fill[is.na(data$colour)]
+    # data$colour[is.na(data$colour)] <- data$fill[is.na(data$colour)]
 
     if (coordinates$muncher()) {
       data <- transform(data, top=y + height/2, bottom= y - height/2, left=x - width/2, right=x + width/2)
@@ -25,13 +25,9 @@ GeomTile <- proto(Geom, {
   }
   
   draw_legend <- function(., data, ...)  {
-    data <- aesdefaults(data, list(colour=ggopt()$grid.fill, fill=NA), list(...))
-    if (all(is.na(data$fill))) {
-      data$fill <- data$colour
-      data$colour <- "grey50"
-    }
+    data <- aesdefaults(data, .$default_aes(), list(...))
 
-    rectGrob(gp=gpar(col=alpha(data$colour, 1), fill=alpha(data$fill, 1)))
+    rectGrob(gp=gpar(col=NA, fill=data$fill))
   }
   
   adjust_scales_data <- function(., scales, data) {
@@ -70,6 +66,8 @@ GeomTile <- proto(Geom, {
   default_stat <- function(.) StatIdentity
   default_aes <- function(.) aes(fill="grey50", colour=NA, size=1, width = resolution(x), height = resolution(y), size=1, linetype=1)
   required_aes <- c("x", "y")
+  guide_geom <- function(.) "tile"
+  
   
   examples <- function(.) {
     # Generate data
@@ -106,11 +104,11 @@ GeomTile <- proto(Geom, {
     # inspired by the image-density plots of Ken Knoblauch
     cars <- ggplot(mtcars, aes(y=factor(cyl), x=mpg))
     cars + geom_point()
-    cars + stat_bin(aes(fill=..count..), geom="tile", binwidth=3)
-    cars + stat_bin(aes(fill=..density..), geom="tile", binwidth=3)
+    cars + stat_bin(aes(fill=..count..), geom="tile", binwidth=3, position="identity")
+    cars + stat_bin(aes(fill=..density..), geom="tile", binwidth=3, position="identity")
 
-    cars + stat_density(aes(fill=..density..), geom="tile")
-    cars + stat_density(aes(fill=..count..), geom="tile")
+    cars + stat_density(aes(fill=..density..), geom="tile", position="identity")
+    cars + stat_density(aes(fill=..count..), geom="tile", position="identity")
     
     # Another example with with unequal tile sizes
     x.cell.boundary <- c(0, 4, 6, 8, 10, 14)
@@ -128,6 +126,6 @@ GeomTile <- proto(Geom, {
     # You can manually set the colour of the tiles using 
     # scale_manual
     col <- c("darkblue", "blue", "green", "orange", "red")
-    qplot(x, y, fill=col[z], data=example, geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col, grob="tile")
+    qplot(x, y, fill=col[z], data=example, geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col, guide="tile")
   }
 })

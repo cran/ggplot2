@@ -1,46 +1,64 @@
-bin <- function(x, weights=NULL, binwidth=NULL, breaks=NULL, range=NULL, width=0.9) {
-  if (is.null(weights))  weights <- rep(1, length(x))
-  weights[is.na(weights)] <- 0
+# Bin data
+# This function powers \code{\link{stat_bin}}
+#
+# @keyword internal
+bin <- function(x, weight=NULL, binwidth=NULL, origin=NULL, breaks=NULL, range=NULL, width=0.9) {
+  if (is.null(weight))  weight <- rep(1, length(x))
+  weight[is.na(weight)] <- 0
 
   if (is.null(range))    range <- range(x, na.rm = TRUE, finite=TRUE)
   if (is.null(binwidth)) binwidth <- diff(range) / 30
 
-  if (diff(range) == 0) {
+  if (is.factor(x)) {
+    bins <- factor(x)
+    x <- factor(unique(x))
+    width <- width    
+  } else if (diff(range) == 0) {
     width <- width
     bins <- x
-  } else if (is.numeric(x)) {
-    if (is.null(breaks)) breaks <- fullseq(range, binwidth)
+  } else { # if (is.numeric(x)) 
+    if (is.null(breaks)) {
+      if (is.null(origin)) {
+        breaks <- fullseq(range, binwidth)        
+      } else {
+        breaks <- seq(origin, max(range) + binwidth, binwidth)
+      }
+    }
     bins <- cut(x, sort(breaks), include.lowest=TRUE)
     left <- breaks[-length(breaks)]
     right <- breaks[-1]
     x <- (left + right)/2
     width <- diff(breaks)
-  } else {
-    bins <- factor(x)
-    x <- factor(unique(x))
-    width <- width
   }
 
   # if (binwidth < resolution(x)) warning("Binwidth is smaller than the resolution of the data")
 
   results <- data.frame(
-    count = as.numeric(tapply(weights, bins, sum, na.rm=TRUE)),
+    count = as.numeric(tapply(weight, bins, sum, na.rm=TRUE)),
     x = x,
     width = width
   )
   results <- transform(results,
     density = count / width / sum(count, na.rm=TRUE)
   )
-  results <- subset(results, count > 0)
-  
+
+  # Need to leave zeros in for non-bar representations
+  # results <- subset(results, count > 0)
   transform(results,
     ncount = count / max(count, na.rm=TRUE),
-    ndensity = density / max(density, na.rm=TRUE),
-    group = 1
+    ndensity = density / max(density, na.rm=TRUE)
   )
+  
   
 }
 
+# Generate sequence of fixed size intervals covering range
+# All locations are multiples of size
+# 
+# @arguments range
+# @arguments interval size
+# @keyword internal
+# @seealso \code{\link{reshape}{round_any}}
 fullseq <- function(range, size) {
   seq(
     round_any(range[1], size, floor), 
@@ -57,15 +75,15 @@ StatBin <- proto(Stat, {
     .super$calculate_groups(., data, ...)
   }
   
-  calculate <- function(., data, scales, binwidth=NULL, breaks=NULL, width=0.9, ...) {
+  calculate <- function(., data, scales, binwidth=NULL, origin=NULL, breaks=NULL, width=0.9, ...) {
     range <- scales$get_scales("x")$frange()
 
-    if (is.null(binwidth) && is.numeric(data$x) && !.$informed) {
-      message("stat_bin: bin width unspecified, using 30 bins as default.")
+    if (is.null(breaks) && is.null(binwidth) && is.numeric(data$x) && !.$informed) {
+      message("stat_bin: breaks/binwidth unspecified, using 30 bins as default.")
       .$informed <- TRUE
     }
     
-    bin(data$x, data$weight, binwidth=binwidth, breaks=breaks, range=range, width=width)
+    bin(data$x, data$weight, binwidth=binwidth, origin=origin, breaks=breaks, range=range, width=width)
   }
 
   objname <- "bin" 
@@ -82,6 +100,7 @@ StatBin <- proto(Stat, {
     ncount = "count, scaled to maximum of 1",
     ndensity = "density, scaled to maximum of 1"
   )
+  details <- "<p>Missing values are currently silently dropped.</p>"
   
   default_aes <- function(.) aes(y = ..count..)
   required_aes <- c("x")

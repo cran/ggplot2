@@ -2,18 +2,20 @@ ScaleDiscrete <- proto(Scale, expr={
   .domain <- c()
   max_levels <- function(.) Inf
   .expand <- c(0, 0.75)
+  .labels <- NULL
 
   train <- function(., x) {
     if (is.numeric(x)) {
-      warning("Numeric variable supplied to discrete scale ", .$name, ".", call.=FALSE) 
+      warning("Continuous variable (", .$name , ") supplied to ", .$my_name(), ", when a discrete variable was expected.", call.=FALSE) 
       .$.frange <- range(c(.$.frange, x), na.rm=TRUE)
+    } else {
+      .$.domain <- union(.$.domain, levels(x))      
     }
-    .$.domain <- union(.$.domain, levels(x))
   }
   discrete <- function(.) TRUE
 
-  new <- function(., name=NULL, variable=.$.input, expand = c(0, 0.75)) {
-    .$proto(name=name, .input=variable, .output=variable, .expand = expand)
+  new <- function(., name=NULL, variable=.$.input, expand = c(0, 0.75), labels = NULL) {
+    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = labels)
   }
 
   # Mapping
@@ -50,7 +52,7 @@ ScaleDiscrete <- proto(Scale, expr={
 
   breaks <- function(.) 1:length(.$domain())
   rbreaks <- function(.) .$breaks()
-  labels <- function(.) as.list(.$domain())
+  labels <- function(.) nulldefault(.$.labels, as.list(.$domain()))
   
   # Documentation
   objname <- "discrete"
@@ -60,20 +62,18 @@ ScaleDiscrete <- proto(Scale, expr={
   examples <- function(.) {
     # The discrete position scale is added automatically whenever you
     # have a discrete position and the only thing you can do with it
-    # is change the axis label
+    # is change the labels
     
     (d <- qplot(cut, clarity, data=diamonds, geom="jitter"))
     
     d + scale_x_discrete("Cut")
+    d + scale_x_discrete("Cut", labels=c("F","G","VG","P","I"))
     d + scale_y_discrete("Clarity")
     d + scale_x_discrete("Cut") + scale_y_discrete("Clarity")
     
-    # To adjust the order and labelling, modify the underlying factor
-    
+    # To adjust the order you must modify the underlying factor
+    # see ?reorder for one approach to this    
   }
   
 
 })
-
-
-

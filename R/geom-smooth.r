@@ -15,13 +15,46 @@ GeomSmooth <- proto(GeomInterval, {
     ))
   }
   
+  adjust_scales_data <- function(., scales, data) data
+  guide_geom <- function(.) "smooth"
   
   default_stat <- function(.) StatSmooth
   required_aes <- c("x", "y")
-  default_aes <- function(.) aes(colour="grey50", fill=alpha("black", 0.2), size=2, linetype=1, weight=1)
+  default_aes <- function(.) aes(colour="grey50", fill=alpha("black", 0.2), size=0.5, linetype=1, weight=1)
 
+
+  draw_legend <- function(., data, ...) {
+    data <- aesdefaults(data, .$default_aes(), list(...))
+    gTree(children = gList(
+      GeomTile$draw_legend(data, ...),
+      GeomPath$draw_legend(data, ...)
+    ))
+  }
   examples <- function(.) {
-    # See stat_smooth for examples
+    # See stat_smooth for examples of using built in model fitting
+    # if you need some more flexible, this example shows you how to
+    # plot the fits from any model of your choosing
+    
+    library(ggplot2)
+    qplot(wt, mpg, data=mtcars, colour=factor(cyl))
+
+    model <- lm(mpg ~ wt + factor(cyl), data=mtcars)
+    grid <- with(mtcars, expand.grid(
+      wt = seq(min(wt), max(wt), length = 20),
+      cyl = levels(factor(cyl))
+    ))
+
+    grid$mpg <- predict(model, newdata=grid)
+
+    qplot(wt, mpg, data=mtcars, colour=factor(cyl)) + geom_line(data=grid)
+
+    # or with standard errors
+
+    err <- predict(model, newdata=grid, se = TRUE)
+    grid$ucl <- err$fit + 1.96 * err$se.fit
+    grid$lcl <- err$fit - 1.96 * err$se.fit
+
+    qplot(wt, mpg, data=mtcars, colour=factor(cyl)) + geom_smooth(aes(min=lcl, max=ucl), data=grid, stat="identity") 
   }
 
 })

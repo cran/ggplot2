@@ -3,9 +3,6 @@ GeomPath <- proto(Geom, {
 
   draw <- function(., data, scales, coordinates, ...) {
     if (nrow(data) < 2) return()
-    
-    if (is.null(data$order)) data$order <- data$group
-    data <- data[order(data$order), ]
 
     munched <- coordinates$munch(data)
 
@@ -18,8 +15,7 @@ GeomPath <- proto(Geom, {
     n <- nrow(munched)
     group_diff <- munched$group[-1] != munched$group[-n]
     start <- c(TRUE, group_diff)
-    end <-   c(group_diff, TRUE)
-    
+    end <-   c(group_diff, TRUE)  
     
     solid_lines <- all(sapply(g, function(df) identical(unique(df$linetype), 1)))
     constant <- all(sapply(g, function(df) nrow(unique(df[, c("colour","size","linetype")])) == 1))
@@ -31,13 +27,13 @@ GeomPath <- proto(Geom, {
     if (solid_lines) {
       with(munched, 
         segmentsGrob(x[!end], y[!end], x[!start], y[!start], default.units="native",
-        gp=gpar(col=colour[!end], lwd=size[!end], lty=linetype[!end]))
+        gp=gpar(col=colour[!end], lwd=size[!end] * .pt, lty=linetype[!end]))
       )
     } else {
       with(munched, 
         polylineGrob(
           x, y, id = as.integer(factor(group)), default.units="native",
-          gp = gpar(col=colour[start], lwd=size[start], lty=linetype[start])
+          gp = gpar(col=colour[start], lwd=size[start] * .pt, lty=linetype[start])
         )
       )
     }
@@ -48,7 +44,7 @@ GeomPath <- proto(Geom, {
 
     with(data, 
       ggname(.$my_name(), segmentsGrob(0, 0.5, 1, 0.5, default.units="npc",
-      gp=gpar(col=colour, lwd=size, lty=linetype)))
+      gp=gpar(col=colour, lwd=size * .pt, lty=linetype, lineend="butt")))
     )
   }
   
@@ -57,8 +53,9 @@ GeomPath <- proto(Geom, {
 
   default_stat <- function(.) StatIdentity
   required_aes <- c("x", "y")
-  default_aes <- function(.) aes(colour="black", size=1, linetype=1)
+  default_aes <- function(.) aes(colour="black", size=0.5, linetype=1)
   icon <- function(.) linesGrob(c(0.2, 0.4, 0.8, 0.6, 0.5), c(0.2, 0.7, 0.4, 0.1, 0.5))
+  guide_geom <- function(.) "path"
   
   seealso <- list(
     geom_line = "Functional (ordered) lines", 

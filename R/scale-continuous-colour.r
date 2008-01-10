@@ -1,4 +1,5 @@
 ScaleGradient <- proto(ScaleContinuous, expr={
+  aliases <- c("scale_colour_continuous", "scale_fill_continuous")
 
   new <- function(., name=NULL, low=muted("darkblue"), high="yellow", space="rgb", limits=c(NA,NA), trans="identity", alpha = 1, ..., variable) {
     if (is.character(trans)) trans <- Trans$find(trans)
@@ -18,7 +19,8 @@ ScaleGradient <- proto(ScaleContinuous, expr={
   }
   
   rbreaks <- function(.) .$map(.$breaks())
-  guide_legend_geom <- function(.) GeomTile
+  labels <- function(.) format(.$breaks())
+  
   common <- c("colour", "fill")
 
   # Documetation -----------------------------------------------
@@ -110,9 +112,6 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
     nice_ramp(ramp, x, .$alpha)
   }
   
-  rbreaks <- function(.) .$map(.$breaks())
-  guide_legend_geom <- function(.) GeomTile
-  
   objname <-"gradient2"
   common <- c("colour", "fill")
   desc <- "Smooth colour gradient, with midpoint"
@@ -180,4 +179,3 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
   }
   
 })
-ScaleColourContinuous <- proto(ScaleGradient, objname="continuous", doc=FALSE, examples=function(.) {})

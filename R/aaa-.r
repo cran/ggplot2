@@ -1,5 +1,6 @@
 require("proto")
 require("grid")
+require("reshape")
 
 # INCLUDES <- "web/graphics"
 # FILETYPE <- "html"
@@ -24,44 +25,16 @@ TopLevel <- proto(expr = {
     get(paste(firstUpper(.$class()), firstUpper(name), sep=""))
   }
   
-  accessors <- function(.) create_accessors(.$find_all(), .$class())
-  accessors_print <- function(.) invisible(lapply(.$accessors(), cat))
-
-  examples <- function(.) {
-    # Coming soon
-  }
-
-  examples_text <- function(.) {
-    source <- attr(get("examples", .), "source")
-    source <- source[-c(1, length(source))]
-    
-    unlist(lapply(source, function(x) gsub("^\t\t", "", x)))
-  }
-
-  examples_run <- function(.) {
-    ggopt(auto.print=TRUE)
-
-    tryCatch(
-      .$examples(),
-      finally = invisible(ggopt(auto.print=FALSE))
-    )
-  }
-
-  all_examples_run <- function(.) {
-    old_opt <- options(warn = 1)
-    on.exit(options(old_opt))
-    
-    tryapply(.$find_all(), function(x) {
-      cat("Running examples for", x$my_name(), "\n")
-      x$examples_run()
-    })
-    invisible()
-  }
-  
   my_name <- function(., prefix=TRUE) {
     if (!prefix) return(.$objname)
     paste(.$class(), .$objname, sep="_")
   }
+  my_names <- function(.) .$my_name()
+  
+  myName <- function(.) {
+    ps(firstUpper(.$class()), ps(firstUpper(strsplit(.$objname, "_")[[1]])))
+  }
+
   
   doc <- TRUE
   
@@ -138,7 +111,7 @@ TopLevel <- proto(expr = {
     ps(
       # "<p class='hierarchy'>", .$html_parent_link(), "</p>\n",
       "<h1>", .$html_img(), .$my_name(), "</h1>\n",
-      "<p class='call'>", .$call(), "</p>\n"
+      "<p class='call'>", ps(.$call(), collapse="<br />\n"), "</p>\n"
     )
   }
   
@@ -196,12 +169,13 @@ TopLevel <- proto(expr = {
         "<p>", names(aes), ": <code>", aes, "</code> <span class='linklist'>", scale_links, "</span></p>", 
         "</li>\n"
       ),
-      "</ul>\n"
+      "</ul>\n",
+      "<p>Layers are divided into groups by the <strong>group</strong> aesthetic.  By default this is set to the interaction of all categorical variables present in the plot</p>\n"
     )
   }
   
   html_feedback <- function(.) {
-    ps("<p class='feedback'>What do you think of the documentation?  <a href='http://hadley.wufoo.com/forms/documentation-feedback/default/field0/", .$my_name(), "'>Please let me know by filling out this short online survey</a>.</p>")
+    ps("<p class='feedback'>What do you think of the documentation?  <a href='http://hadley.wufoo.com/forms/documentation-feedback/def/field0=", .$my_name(), "'>Please let me know by filling out this short online survey</a>.</p>")
   }
   
   html_outputs <- function(.) {
@@ -344,28 +318,7 @@ TopLevel <- proto(expr = {
       "\n"
     ), .$my_name())
   }
-  
-  
-  call <- function(.) {
-    ps(
-      .$my_name(), "(",
-      ps(
-        "mapping&nbsp;=&nbsp;aes(...)", 
-        "data&nbsp;=&nbsp;NULL",
-        if(exists("default_stat", .))
-          ps("stat&nbsp;=&nbsp;'", .$default_stat()$html_abbrev_link_self(), "'"),
-        if(exists("default_geom", .))
-          ps("geom&nbsp;=&nbsp;'", .$default_geom()$html_abbrev_link_self(), "'"),
-        if(exists("default_pos", .))
-          ps("position&nbsp;=&nbsp;'", .$default_pos()$html_abbrev_link_self(), "'"),
-        plist(.$params()), 
-        "...",
-        sep = ", "
-      ), 
-      ")"
-    )
-  }
-  
+
 })
 
 print.proto <- function(x, ...) x$pprint(...)
@@ -373,3 +326,5 @@ pprint <- function(x, ...) print(as.list(x), ...)
 # name.proto <- function (...) {
 #        proto(print.proto = print.default, f = proto::name.proto)$f(...)
 # }
+
+
