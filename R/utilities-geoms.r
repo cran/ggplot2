@@ -5,28 +5,40 @@
 # Generate aesthetic mappings
 # Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
 # 
-# This function also performs partial name matching, converts color to colour,
-# and old style R names to new ggplot names (eg. pch to shape, cex to size)
+# aes creates a list of unevaluated expressions.  This function also performs
+# partial name matching, converts color to colour, and old style R names to
+# new ggplot names (eg. pch to shape, cex to size)
 # 
 # @arguments List of name value pairs
 # @keyword internal
+# @seealso \code{\link{aes_string}}
+#X aes(x = mpg, y = wt)
+#X aes(x = mpg ^ 2, y = wt / cyl)
 aes <- function(...) {
-	aes <- structure(as.list(match.call()[-1]), class="uneval")
-	aes <- rename(aes, c("color" = "colour", "pch"="shape","cex"="size", "lty"="linetype", "srt"="angle"))
-	
-	new_names <- lapply(names(aes), function(x) {
-		m <- charmatch(x, .all_aesthetics)
-		if (is.na(m) || m == 0) x else .all_aesthetics[m]
-	})
-	
-	names(aes) <- new_names
-	aes
+  aes <- structure(as.list(match.call()[-1]), class="uneval")
+  aes <- rename(aes, c("color" = "colour", "pch"="shape","cex"="size", "lty"="linetype", "srt"="angle"))
+  
+  new_names <- lapply(names(aes), function(x) {
+    m <- charmatch(x, .all_aesthetics)
+    if (is.na(m) || m == 0) x else .all_aesthetics[m]
+  })
+  
+  names(aes) <- new_names
+  aes
 }
 
 # Generate aesthetic mappings from a string
-# Useful when writing function
+# Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms.  Compared to aes this function operates on strings rather than expressions.
 # 
+# \code{aes_string} is particularly useful when writing functions that create 
+# plots because you can use strings to define the aesthetic mappings, rather
+# than having to mess around with expressions.
+#
+# @arguments List of name value pairs
 # @keyword internal
+# @seealso \code{\link{aes}}
+#X aes_string(x = "mpg", y = "wt")
+#X aes(x = mpg, y = wt)
 aes_string <- function(...) {
   structure(lapply(list(...), function(x) parse(text=x)[[1]]),
 class="uneval")
@@ -44,13 +56,13 @@ str.uneval <- function(object, ...) str(unclass(object), ...)
 # @value a data.frame, with all factors converted to character strings
 # @keyword internal 
 aesdefaults <- function(data, y., params.) {
-	updated <- updatelist(y., params.)
-	
-	df <- as.data.frame(tryapply(defaults(data, updated), function(x) eval(x, data, parent.frame())))
-	
-	factors <- sapply(df, is.factor)
-	df[factors] <- lapply(df[factors], as.character)
-	df
+  updated <- updatelist(y., params.)
+  
+  df <- as.data.frame(tryapply(defaults(data, updated), function(x) eval(x, data, parent.frame())))
+  
+  factors <- sapply(df, is.factor)
+  df[factors] <- lapply(df[factors], as.character)
+  df
 }
 
 # Resolution
@@ -61,8 +73,8 @@ aesdefaults <- function(data, y., params.) {
 # @keyword hplot
 # @keyword internal 
 resolution <- function(x) {
-	un <- unique(as.numeric(x))
-	
-	if (length(un) == 1) return(1)
-	min(diff(sort(un)))
+  un <- unique(as.numeric(x))
+  
+  if (length(un) == 1) return(1)
+  min(diff(sort(un)))
 }

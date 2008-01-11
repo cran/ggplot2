@@ -1,6 +1,6 @@
 ggname <- function(prefix, grob) {
-	grob$name <- grobName(grob, prefix)
-	grob
+  grob$name <- grobName(grob, prefix)
+  grob
 }
 
 dev.save <- function(file, width=6, height= 4) {
