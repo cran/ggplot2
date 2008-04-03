@@ -19,8 +19,9 @@ Layer <- proto(expr = {
   mapping <- NULL
   position <- NULL
   params <- NULL
+  ignore.extra <- FALSE
   
-  new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ...) {
+  new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ..., ignore.extra = FALSE) {
     
     if (is.null(geom) && is.null(stat)) stop("Need at least one of stat and geom")
     
@@ -29,11 +30,11 @@ Layer <- proto(expr = {
     
     if (is.character(geom)) geom <- Geom$find(geom)
     if (is.character(stat)) stat <- Stat$find(stat)
-    if (is.character(position)) position <- Position$find(position)
+    if (is.character(position)) position <- Position$find(position)$new()
     
     if (is.null(geom)) geom <- stat$default_geom()
     if (is.null(stat)) stat <- geom$default_stat()
-    if (is.null(position)) position <- geom$default_pos()
+    if (is.null(position)) position <- geom$default_pos()$new()
 
     match.params <- function(possible, params) {
       if ("..." %in% names(possible)) {
@@ -41,23 +42,31 @@ Layer <- proto(expr = {
       } else {
         params[match(names(possible), names(params), nomatch=0)]
       }
-      
     }
     
     if (is.null(geom_params) && is.null(stat_params)) {
       params <- c(params, list(...))
       geom_params <- match.params(geom$parameters(), params)
       stat_params <- match.params(stat$parameters(), params)
+      stat_params <- stat_params[setdiff(names(stat_params), names(geom_params))]
     }
     
-    proto(., geom=geom, geom_params=geom_params, stat=stat, stat_params=stat_params, data=data, aesthetics=mapping, position=position)
+    proto(., 
+      geom=geom, geom_params=geom_params, 
+      stat=stat, stat_params=stat_params, 
+      data=data, aesthetics=mapping, 
+      position=position,
+      ignore.extra = ignore.extra
+    )
   }
   
-  clone <- function(.) as.proto(.$as.list())
+  clone <- function(.) as.proto(.$as.list(all.names=TRUE))
   
   use_defaults <- function(., data) {
     df <- aesdefaults(data, .$geom$default_aes(), compact(.$aesthetics))
-    gp <- intersect(names(.$geom$parameters()), names(.$geom_params))
+    
+    # Override mappings with parameters
+    gp <- intersect(c(names(df), .$geom$required_aes), names(.$geom_params))
     if (length(.$geom_params[gp])) 
       gp <- gp[sapply(.$geom_params[gp], is.atomic)]
     df[gp] <- .$geom_params[gp]
@@ -97,7 +106,7 @@ Layer <- proto(expr = {
     aesthetics <- aesthetics[setdiff(names(aesthetics), names(.$geom_params))]
     plot$scales$add_defaults(plot$data, aesthetics)
     
-    calc_aesthetics(plot, data, aesthetics)
+    calc_aesthetics(plot, data, aesthetics, .$ignore.extra)
   }
 
   calc_statistics <- function(., data, scales) {
@@ -125,7 +134,7 @@ Layer <- proto(expr = {
   }
   
   map_statistic <- function(., data, plot) {
-    if (is.null(data) || nrow(data) == 0) return()
+    if (is.null(data) || length(data) == 0 || nrow(data) == 0) return()
     aesthetics <- defaults(.$aesthetics, defaults(plot$defaults, .$stat$default_aes()))
     
     match <- "\\.\\.([a-zA-z._]+)\\.\\."
@@ -162,6 +171,9 @@ Layer <- proto(expr = {
     
     check_required_aesthetics(.$geom$required_aes, c(names(data), names(.$geom_params)), paste("geom_", .$geom$objname, sep=""))
     
+    if (is.null(data$order)) data$order <- data$group
+    data <- data[order(data$order), ]
+    
     do.call(.$geom$draw_groups, c(
       data = list(as.name("data")), 
       scales = list(as.name("scales")), 
@@ -194,12 +206,14 @@ Layer <- proto(expr = {
   }  
 })
 
+# Apply function to plot data components
+# Convenience apply function for facets data structure
+# 
+# @keyword internal
 gg_apply <- function(gg, f, ...) {
-  # lapply(gg, function(dm) {
-    apply(gg, c(1,2), function(data) {
-      f(data[[1]], ...)
-    })
-  # })
+  apply(gg, c(1,2), function(data) {
+    f(data[[1]], ...)
+  })
 }
 layer <- Layer$new
 
@@ -222,25 +236,34 @@ layer <- Layer$new
 # @arguments extra arguments supplied by user that should be used first
 # @keyword hplot
 # @keyword internal
-calc_aesthetics <- function(plot, data = plot$data, aesthetics) {
+calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = FALSE) {
   if (is.null(data)) data <- plot$data
   if (!is.data.frame(data)) stop("data is not a data.frame")
   
-  eval.each <- function(dots) lapply(dots, function(x) eval(x, data, parent.frame()))
+  
+  err <- if (ignore.extra) tryNULL else force
+  eval.each <- function(dots) compact(lapply(dots, function(x.) err(eval(x., data, parent.frame()))))
   # Conditioning variables needed for facets
   cond <- plot$facet$conditionals()
   
-  # Remove aesthetics mapped to variables created by statistics
-  match <- "\\.\\.([a-zA-z._]+)\\.\\."
-  stats <- rep(F, length(aesthetics))
-  stats[grep(match, sapply(aesthetics, as.character))] <- TRUE
-  aesthetics <- aesthetics[!stats]
+  aesthetics <- drop_calculated_aes(aesthetics)
+  evaled <- eval.each(aesthetics)
+  evaled <- evaled[sapply(evaled, is.atomic)]
   
-  
-  df <- data.frame(eval.each(aesthetics))
+  df <- data.frame(evaled)
   df <- cbind(df, data[,intersect(names(data), cond), drop=FALSE])
   
   if (is.null(plot$data)) return(df)
   expand.grid.df(df, unique(plot$data[, setdiff(cond, names(df)), drop=FALSE]), unique=FALSE)
 }
 
+# Drop calculated aesthetics
+# Remove aesthetics mapped to variables created by statistics
+# 
+# @keyword internal
+drop_calculated_aes <- function(aesthetics) {
+  match <- "\\.\\.([a-zA-z._]+)\\.\\."
+  stats <- rep(F, length(aesthetics))
+  stats[grep(match, sapply(aesthetics, as.character))] <- TRUE
+  aesthetics[!stats]
+}

@@ -1,10 +1,10 @@
-# Statistics must be location scale
 Stat <- proto(TopLevel, expr={
   objname <- "" 
   desc <- ""
   
   default_geom <- function(.) Geom
   default_aes <- function(.) aes()
+  default_pos <- function(.) .$default_geom()$default_pos()
   required_aes <- c()
   
   aesthetics <- list()
@@ -20,6 +20,7 @@ Stat <- proto(TopLevel, expr={
     stats <- lapply(groups, function(group) .$calculate(group, scales, ...))
     
     stats <- mapply(function(new, old) {
+      if (is.null(new)) return(NULL)
       unique <- uniquecols(old)
       missing <- !(names(unique) %in% names(new))
       cbind(

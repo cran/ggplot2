@@ -1,5 +1,5 @@
 GeomBoxplot <- proto(GeomInterval, {
-  draw <- function(., data, ..., outlier.colour = "black", outlier.shape = 19, outlier.size = 1) {
+  draw <- function(., data, ..., outlier.colour = "black", outlier.shape = 19, outlier.size = 1) {    
     defaults <- with(data, data.frame(x=x, colour=colour, size=size, linetype=1, group=1, xend=x,  width=width, fill=fill, stringsAsFactors=FALSE))
     defaults2 <- defaults[c(1,1), ]
     
@@ -15,6 +15,18 @@ GeomBoxplot <- proto(GeomInterval, {
 
   objname <- "boxplot"
   desc <- "Box and whiskers plot"
+  guide_geom <- function(.) "boxplot"
+  
+  draw_legend <- function(., data, ...)  {
+    data <- aesdefaults(data, .$default_aes(), list(...))
+    gp <- with(data, gpar(col=colour, fill=fill, lwd=size * .pt))
+
+    gTree(gp = gp, children = gList(
+      linesGrob(0.5, c(0.1, 0.9)),
+      rectGrob(height=0.5, width=0.75),
+      linesGrob(c(0.125, 0.875), 0.5)
+    ))
+  }
   icon <- function(.) {
     gTree(children=gList(
       segmentsGrob(c(0.3, 0.7), c(0.1, 0.2), c(0.3, 0.7), c(0.7, 0.95)),
@@ -25,7 +37,7 @@ GeomBoxplot <- proto(GeomInterval, {
   
   default_stat <- function(.) StatBoxplot
   default_pos <- function(.) PositionDodge
-  default_aes <- function(.) aes(weight=1, colour="grey50", fill="white", size=1, width=0.75)
+  default_aes <- function(.) aes(weight=1, colour="grey50", fill="white", size=0.5)
   seealso <- list(
     stat_quantile = "View quantiles conditioned on a continuous variable",
     geom_jitter = "Another way to look at conditional distributions"
@@ -49,7 +61,7 @@ GeomBoxplot <- proto(GeomInterval, {
     # Add aesthetic mappings
     p + geom_boxplot(aes(fill=cyl))
     p + geom_boxplot(aes(fill=factor(cyl)))
-    p + geom_boxplot(aes(colour=cyl), size=2)
+    p + geom_boxplot(aes(colour=cyl), size=1)
     
     # Dodged boxplots
     # - automatically split when an aesthetic variable is a factor
@@ -58,16 +70,20 @@ GeomBoxplot <- proto(GeomInterval, {
     p + geom_boxplot(aes(size=factor(gear)))
     
     # Set aesthetics to fixed value
-    p + geom_boxplot(fill="black", colour="white", size=2)
+    p + geom_boxplot(fill="black", colour="white", size=1)
 
     # Scales vs. Coordinate transforms
-    movies$ratingr <- factor(round_any(movies$rating,0.5))
-    m <- ggplot(movies, aes(y=votes, x=ratingr))
+    m <- ggplot(movies, aes(y=votes, x=rating, group=round_any(rating,0.5)))
     m + geom_point()
     m + geom_boxplot()
     m + geom_boxplot() + scale_y_log10()
     m + geom_boxplot() + coord_trans(y="log10")
     m + geom_boxplot() + scale_y_log10() + coord_trans(y="log10")
+    
+    # Boxplots with continuous x
+    qplot(year, budget, data=movies, geom="boxplot")
+    qplot(year, budget, data=movies, geom="boxplot", group=year)
+    qplot(year, budget, data=movies, geom="boxplot", group=round_any(year, 10, floor))
     
     # Use qplot instead
     qplot(factor(cyl), mpg, data=mtcars, geom="boxplot")

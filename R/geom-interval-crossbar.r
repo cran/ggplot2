@@ -1,6 +1,9 @@
 GeomCrossbar <- proto(GeomInterval, {
   objname <- "crossbar"
   desc <- "Hollow bar with middle indicated by horizontal line"
+  desc_params <- list(
+    "fatten" = "a multiplicate factor to fatten middle bar by"
+  )
 
   icon <- function(.) {
     gTree(children=gList(
@@ -19,12 +22,13 @@ GeomCrossbar <- proto(GeomInterval, {
 
   default_stat <- function(.) StatIdentity
   default_pos <- function(.) PositionIdentity
-  default_aes = function(.) aes(colour="black", fill="NA", width=resolution(x) * 0.9, size=1, linetype=1, min=y, max=y)
+  default_aes = function(.) aes(colour="black", fill="NA", width=resolution(x) * 0.9, size=0.5, linetype=1, min=y, max=y)
+  guide_geom <- function(.) "path"
   
-  draw <- function(., data, scales, coordinates, ...) {
+  draw <- function(., data, scales, coordinates, fatten = 2, ...) {
     ggname(.$my_name(), gTree(children=gList(
       GeomBar$draw(data, scales, coordinates, ...),
-      GeomBar$draw(transform(data, min=y, max=y), scales, coordinates, ...)
+      GeomBar$draw(transform(data, min=y, max=y, size = size * fatten), scales, coordinates, ...)
     )))
   }
   

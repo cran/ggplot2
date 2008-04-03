@@ -1,13 +1,17 @@
 \name{aes}
 \alias{aes}
+\alias{str.uneval}
+\alias{print.uneval}
 \title{Generate aesthetic mappings}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
 Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
 }
-\usage{aes(...)}
+\usage{aes(x, y, ...)}
 \arguments{
+\item{x}{x value}
+\item{y}{y value}
 \item{...}{List of name value pairs}
 }
 

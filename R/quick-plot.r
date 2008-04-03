@@ -2,9 +2,6 @@
 # Quick plot is a convenient wrapper function for creating simple ggplot plot objects.
 # You can use it like you'd use the \code{\link{plot}} function.
 # 
-# FIXME: describe how to get more information
-# FIXME: add more examples
-# 
 # \code{qplot} provides a quick way to create simple plots.
 # 
 # @arguments x values
@@ -24,6 +21,7 @@
 # @arguments character vector or expression for x axis label
 # @arguments character vector or expression for y axis label
 # @keyword hplot 
+# @alias quickplot 
 #X # Use data from data.frame
 #X qplot(mpg, wt, data=mtcars)
 #X qplot(mpg, wt, data=mtcars, colour=cyl)
@@ -49,7 +47,8 @@ quickplot <- qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., m
   
   # Create data if not explicitly specified
   if (missing(data)) {
-    data <- as.data.frame(lapply(aesthetics, eval, parent.frame(n=1)))
+    
+    data <- as.data.frame(lapply(drop_calculated_aes(aesthetics), eval, parent.frame(n=1)))
 
     facetvars <- all.vars(facets)
     facetvars <- facetvars[facetvars != "."]

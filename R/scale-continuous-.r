@@ -49,18 +49,19 @@ ScaleContinuous <- proto(Scale, {
 
   rbreaks <- function(.) {
     if (!is.null(.$.breaks)) return(.$.breaks)
-    grid.pretty(.$frange())
+    .$map(grid.pretty(.$domain()))
   }
 
   .minor_breaks <- 2
   # Minor breaks are regular on the original scale
   # and need to cover entire range of plot
-  minor_breaks <- function(., n = .$.minor_breaks, b = .$breaks()) {
+  minor_breaks <- function(., n = .$.minor_breaks, b = .$breaks(), r = .$frange()) {
     if (length(b) == 1) return(b)
-
+    
     bd <- diff(b)[1]
-    b <- c(b[1] - bd, b, b[length(b)] + bd)
-    unlist(mapply(.$.tr$seq, b[-length(b)], b[-1], length=n+1, SIMPLIFY=F))
+    if (min(r) < min(b)) b <- c(b[1] - bd, b)
+    if (max(r) > max(b)) b <- c(b, b[length(b)] + bd)
+    unique(unlist(mapply(.$.tr$seq, b[-length(b)], b[-1], length=n+1, SIMPLIFY=F)))
   }
   
   labels <- function(.) {
@@ -130,3 +131,43 @@ ScaleContinuous <- proto(Scale, {
   }
 })
 
+# Set x limits
+# Convenience function to set the limits of the x axis.
+# 
+# Works by creating a new continuous scale, so will only work for 
+# continuous variables.
+# 
+# @arguments lower limit
+# @arguments upper limit
+# @keyword hplot
+#X qplot(mpg, wt, data=mtcars) + xlim(15, 20)
+xlim <- function(min=NA, max=NA) {
+  scale_x_continuous(limits = c(min, max))
+}
+
+# Set y limits
+# Convenience function to set the limits of the y axis.
+# 
+# Works by creating a new continuous scale, so will only work for 
+# continuous variables.
+# 
+# @arguments lower limit
+# @arguments upper limit
+# @keyword hplot
+#X qplot(mpg, wt, data=mtcars) + ylim(15, 20)
+ylim <- function(min=NA, max=NA) {
+  scale_y_continuous(limits = c(min, max))
+}
+
+# Set z limits
+# Convenience function to set the limits of the z axis.
+# 
+# Works by creating a new continuous scale, so will only work for 
+# continuous variables.
+# 
+# @arguments lower limit
+# @arguments upper limit
+# @keyword hplot
+zlim <- function(min=NA, max=NA) {
+  scale_z_continuous(limits = c(min, max))
+}

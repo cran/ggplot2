@@ -1,5 +1,7 @@
 StatContour <- proto(Stat, {
-  calculate <- function(., data, scales, ...) {
+  calculate <- function(., data, scales, na.rm = FALSE, ...) {
+    data <- remove_missing(data, na.rm, name = "stat_contour")
+    
     levels <- scales$get_scales("z")$breaks()
     
     gridise <- function(x) {
@@ -14,12 +16,11 @@ StatContour <- proto(Stat, {
     gridz <- matrix(NA, nrow = length(gridx$unique), ncol = length(gridy$unique))
     gridz[(gridy$group - 1) * length(gridx$unique) + gridx$group] <- data$z
 
-    cl <- contourLines(x = gridx$unique, y = gridy$unique, z = gridz, nlevels = nlevels, levels = levels)  
+    cl <- contourLines(x = gridx$unique, y = gridy$unique, z = gridz, levels = levels)  
      
     cl <- mapply(function(x, piece) {
       rbind(data.frame(x, piece=piece), c(NA, NA, NA))
-    }, cl, 1:length(cl), SIMPLIFY=FALSE)
-
+    }, cl, seq_along(cl), SIMPLIFY=FALSE)
     do.call("rbind", cl)
   }
 

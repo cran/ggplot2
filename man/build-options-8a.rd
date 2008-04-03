@@ -1,6 +1,8 @@
 \name{.build_options}
 \alias{.build_options}
 \alias{ggopt}
+\alias{opts}
+\alias{update.ggplot}
 \alias{theme_default}
 \alias{theme_bw}
 \title{Set ggplot options}

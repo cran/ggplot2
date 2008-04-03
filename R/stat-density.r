@@ -1,6 +1,6 @@
 StatDensity <- proto(Stat, {
-  calculate <- function(., data, scales, adjust=1, kernel="gaussian", trim=FALSE, ...) {
-    data <- data[!is.na(data$x), ]
+  calculate <- function(., data, scales, adjust=1, kernel="gaussian", trim=FALSE, na.rm = FALSE, ...) {
+    data <- remove_missing(data, na.rm, "x", name = "stat_density")
     
     n <- nrow(data)
     if (is.null(data$weight)) data$weight <- rep(1, n) / n
@@ -70,6 +70,9 @@ StatDensity <- proto(Stat, {
     
     # Also useful with
     m + stat_bin()
+    
+    # Make a volcano plot
+    ggplot(diamonds, aes(x = price)) + geom_density(aes(min = -..density.., adjust= 0.5),fill="grey50", colour=NA) + facet_grid(. ~ cut) + coord_flip() 
 
     # Stacked density plots
     # If you want to create a stacked density plot, you need to use
