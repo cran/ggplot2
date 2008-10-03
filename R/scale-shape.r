@@ -1,23 +1,25 @@
 ScaleShape <- proto(ScaleDiscrete, expr={
+  doc <- TRUE
   common <- NULL
   .input <- .output <- "shape"
+  desc <- "Point glyph shapes"
   solid <- TRUE
 
-  new <- function(., name=NULL, solid=TRUE) {
-    .$proto(name=name, solid=solid)
+  new <- function(., name=NULL, solid=TRUE, limits = NULL, breaks = NULL, labels = NULL) {
+    .$proto(name=name, solid=solid, limits = limits, breaks = breaks, .labels = labels)
   }
   
-  breaks <- function(.) {
+  output_set <- function(.) {
     (if (.$solid) {
       c(16, 17, 15, 3, 7, 8)
     } else {
       c(1, 2, 0, 3, 7, 8)
-    })[1:length(.$domain())]
+    })[1:length(.$input_set())]
   }
 
   max_levels <- function(.) 6
   
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
   objname <- "shape"
   description <- "Scale for shapes, aka glyphs"
   icon <- function(.) {

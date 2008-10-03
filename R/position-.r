@@ -4,9 +4,14 @@
 
 Position <- proto(TopLevel, expr = {
   adjust <- function(., data, scales, ...) data
+
   class <- function(.) "position"
   
-  new <- function(.) .$proto()
+  width <- NULL
+  height <- NULL
+  new <- function(., width = NULL, height = NULL) {
+    .$proto(width = width, height = NULL)
+  }
 
   parameters <- function(.) {
     params <- formals(get("new", .))
@@ -31,3 +36,19 @@ Position <- proto(TopLevel, expr = {
   }
   
 })
+
+
+# Convenience function to ensure that all position variables 
+# (x, xmin, xmax, xend) are transformed in the same way
+transform_position <- function(df, trans_x = NULL, trans_y = NULL) {
+  scales <- aes_to_scale(names(df))
+
+  if (!is.null(trans_x)) {
+    df[scales == "x"] <- lapply(df[scales == "x"], trans_x)    
+  }
+  if (!is.null(trans_y)) {
+    df[scales == "y"] <- lapply(df[scales == "y"], trans_y)
+  }
+  
+  df
+}

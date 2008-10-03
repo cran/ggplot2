@@ -24,7 +24,7 @@ GeomPath <- proto(Geom, {
       stop("geom_path: If you are using dotted or dashed lines, colour, size and linetype must be constant over the line", call.=FALSE)
     }
     
-    if (solid_lines) {
+    if (!constant) {
       with(munched, 
         segmentsGrob(x[!end], y[!end], x[!start], y[!start], default.units="native",
         gp=gpar(col=colour[!end], lwd=size[!end] * .pt, lty=linetype[!end]))
@@ -103,7 +103,7 @@ GeomPath <- proto(Geom, {
     # not be used with colour or size that vary across a line
     
     x <- seq(0.01, .99, length=100)
-    df <- data.frame(rep(x, 2), y = c(qlogis(x), 2 * qlogis(x)), group = rep(c("a","b"), each=100))
+    df <- data.frame(x = rep(x, 2), y = c(qlogis(x), 2 * qlogis(x)), group = rep(c("a","b"), each=100))
     p <- ggplot(df, aes(x=x, y=y, group=group))
 
     # Should work

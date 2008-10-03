@@ -3,15 +3,15 @@ GeomPoint <- proto(Geom, {
   draw <- function(., data, scales, coordinates, ...) {    
     with(coordinates$transform(data), 
       ggname(.$my_name(), pointsGrob(x, y, size=unit(size, "mm"), pch=shape, 
-      gp=gpar(col=colour)))
+      gp=gpar(col=colour, fill = fill, fontsize = size * .pt)))
     )
   }
 
   draw_legend <- function(., data, ...) {
     data <- aesdefaults(data, .$default_aes(), list(...))
-    with(data, 
+    with(data,
       pointsGrob(0.5, 0.5, size=unit(size, "mm"), pch=shape, 
-      gp=gpar(col=alpha(colour, 1)))
+      gp=gpar(col=colour, fill=fill, fontsize = size * .pt))
     )
   }
 
@@ -28,7 +28,7 @@ GeomPoint <- proto(Geom, {
   
   default_stat <- function(.) StatIdentity
   required_aes <- c("x", "y")
-  default_aes <- function(.) aes(shape=19, colour="black", size=2)
+  default_aes <- function(.) aes(shape=19, colour="black", size=2, fill = NA)
 
   seealso <- list(
     # scale_area = "Scale area of points, instead of radius",
@@ -54,9 +54,17 @@ GeomPoint <- proto(Geom, {
     # Set aesthetics to fixed value
     p + geom_point(colour = "red", size=3)
         
+    # Transparent points:
+    qplot(mpg, wt, data=mtcars, size=I(5), 
+      colour=I(alpha("black", 0.2)))
+    # to avoid the ring, use shape 21, with NA colour and transparent fill:
+    qplot(mpg, wt, data=mtcars, size=I(5), 
+      shape = I(21), colour=I(NA), fill = I(alpha("black", 0.2)))
+    
     # Use qplot instead
     qplot(x=wt, y=mpg, data=mtcars)
-    qplot(x=wt, y=mpg, data=mtcars, geom="point")
+    qplot(x=wt, y=mpg, data=mtcars, colour = factor(cyl))
+    qplot(x=wt, y=mpg, data=mtcars, colour = I("red"))
   }
   
   

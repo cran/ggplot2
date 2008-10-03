@@ -36,6 +36,22 @@ Trans <- proto(TopLevel, {
     .$transform(get("seq", pos=1)(.$inverse(from), .$inverse(to), length=length))
   }
   
+  input_breaks <- function(., range) {
+    grid.pretty(range)
+  }
+  
+  # Minor breaks are regular on the original scale
+  # and need to cover entire range of plot
+  output_breaks <- function(., n = 2, b, r) {
+    if (length(b) == 1) return(b)
+
+    bd <- diff(b)[1]
+    if (min(r) < min(b)) b <- c(b[1] - bd, b)
+    if (max(r) > max(b)) b <- c(b, b[length(b)] + bd)
+    unique(unlist(mapply(.$seq, b[-length(b)], b[-1], length=n+1, SIMPLIFY=F)))
+  }
+  
+  
   check <- function(., values) {
     .$inverse(.$transform(values))
   }
@@ -74,8 +90,18 @@ ProbabilityTrans <- proto(Trans, {
   label <- function(., values) .$inverse(values)
 })
 
-TransAsn <- Trans$new("asn", function(x) 2 * asin(sqrt(x)), function(x) sin(x / 2)^2)
-TransAtanh <- Trans$new("atanh", "tanh", "force")
+TransAsn <- Trans$new(
+  "asn", 
+  function(x) 2 * asin(sqrt(x)), 
+  function(x) sin(x / 2)^2
+)
+
+TransAtanh <- Trans$new(
+  "atanh", 
+  "tanh", 
+  "force"
+)
+  
 TransDate <- Trans$new("date", "as.numeric", "to_date", "as.Date")
 TransExp <- Trans$new("exp", "exp", "log", function(x) bquote(log(.(x))))
 TransIdentity <- Trans$new("identity", "force", "force", "force")
@@ -87,7 +113,7 @@ TransLogit <- ProbabilityTrans$new("logis")
 TransPow10 <- Trans$new("pow10",function(x) 10^x, "log10", function(x) log10(x))
 TransProbit <- ProbabilityTrans$new("norm")
 TransReverse <- Trans$new("reverse", function(x) -x, function(x) -x, function(x) bquote(.(-x)))
-TransSqrt <- Trans$new("sqrt", "sqrt", function(x) x^2, function(x) bquote(.(x)^2))
+TransSqrt <- Trans$new("sqrt", "sqrt", function(x) x^2, function(x) x^2)
 
 # To date
 # Turn numeric vector into date vector

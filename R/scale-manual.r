@@ -1,29 +1,32 @@
 ScaleManual <- proto(ScaleDiscrete, {  
+  doc <- TRUE
   common <- c("colour","fill","size","shape","linetype")
-  .values <- c()
+  values <- c()
   
-  new <- function(., name=NULL, values=NULL, variable="x") {
-    .$proto(name=name, .values=values, .input=variable, .output=variable)
+  new <- function(., name=NULL, values=NULL, variable="x", limits = NULL, breaks = NULL, labels = NULL) {
+    .$proto(name=name, values=values, .input=variable, .output=variable, limits = limits, breaks = breaks, .labels = labels)
   }
 
   map <- function(., values) {
     .$check_domain()
     if (.$has_names()) {
-      .$breaks()[as.character(values)]
+      .$output_breaks()[as.character(values)]
     } else {
-      .$breaks()[match(as.character(values), .$domain())]
+      .$output_breaks()[match(as.character(values), .$input_set())]
     }
   }
 
-  has_names <- function(.) !is.null(names(.$breaks()))
+  has_names <- function(.) !is.null(names(.$output_breaks()))
 
-  breaks <- function(.) .$.values
-  labels <- function(.) if (.$has_names()) names(.$breaks()) else .$.domain
+  output_breaks <- function(.) .$values
+  output_set <- function(.) .$values
+  labels <- function(.) if (.$has_names()) names(.$output_breaks()) else .$.domain
+  
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "manual"
-  desc <- "Simple way of manually controlling scale"
+  desc <- "Create your own discrete scale"
   icon <- function(.) textGrob("man", gp=gpar(cex=1.2))
   
   examples <- function(.) {

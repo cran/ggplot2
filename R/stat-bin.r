@@ -1,17 +1,18 @@
 # Bin data
-# This function powers \code{\link{stat_bin}}
+# This function powers \code{\link{stat_bin}}R
 #
 # @keyword internal
 bin <- function(x, weight=NULL, binwidth=NULL, origin=NULL, breaks=NULL, range=NULL, width=0.9) {
+  
   if (is.null(weight))  weight <- rep(1, length(x))
   weight[is.na(weight)] <- 0
 
   if (is.null(range))    range <- range(x, na.rm = TRUE, finite=TRUE)
   if (is.null(binwidth)) binwidth <- diff(range) / 30
 
-  if (is.factor(x)) {
-    bins <- factor(x)
-    x <- factor(unique(x))
+  if (is.integer(x)) {
+    bins <- x
+    x <- sort(unique(bins))
     width <- width    
   } else if (diff(range) == 0) {
     width <- width
@@ -32,7 +33,6 @@ bin <- function(x, weight=NULL, binwidth=NULL, origin=NULL, breaks=NULL, range=N
   }
 
   # if (binwidth < resolution(x)) warning("Binwidth is smaller than the resolution of the data")
-
   results <- data.frame(
     count = as.numeric(tapply(weight, bins, sum, na.rm=TRUE)),
     x = x,
@@ -76,10 +76,10 @@ StatBin <- proto(Stat, {
   }
   
   calculate <- function(., data, scales, binwidth=NULL, origin=NULL, breaks=NULL, width=0.9, ...) {
-    range <- scales$get_scales("x")$frange()
+    range <- scales$get_scales("x")$output_set()
 
-    if (is.null(breaks) && is.null(binwidth) && is.numeric(data$x) && !.$informed) {
-      message("stat_bin: breaks/binwidth unspecified, using 30 bins as default.")
+    if (is.null(breaks) && is.null(binwidth) && !is.integer(data$x) && !.$informed) {
+      message("stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.")
       .$informed <- TRUE
     }
     
@@ -114,7 +114,8 @@ StatBin <- proto(Stat, {
     # See geom_histogram for more histogram examples
     
     # To create a unit area histogram, use aes(y = ..density..)
-    (linehist <- m + stat_bin(aes(y = ..density..), geom="line"))
+    (linehist <- m + stat_bin(aes(y = ..density..), binwidth=0.1,
+      geom="line", position="identity"))
     linehist + stat_density(colour="blue", fill=NA)
     
     # Also works with categorical variables

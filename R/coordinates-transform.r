@@ -1,70 +1,55 @@
 CoordTrans <- proto(CoordCartesian, expr={
   
   muncher <- function(.) TRUE
-  munch_group <- function(., data, npieces=50) {
-    n <- nrow(data)
 
-    x <- approx(data$x, n = npieces * (n - 1) + 1)$y
-    y <- approx(data$y, n = npieces * (n - 1) + 1)$y
-    
-    cbind(
-      .$transform(data.frame(x=x, y=y)),
-      data[c(rep(1:(n-1), each=npieces), n), setdiff(names(data), c("x", "y"))]
-    )
+  transform_x <- function(., data) {
+    rescale(.$xtr$transform(data), 0:1, .$output_set()$x)
   }
-  
-  munch <- function(., data, npieces=50) {
-    data <- add_group(data)
-    groups <- split(data, data$group)
-    munched_groups <- lapply(groups, function(df) .$munch_group(df, npieces))
-    do.call("rbind", munched_groups)
-  }
-  
-  transform <- function(., data) {
-    data$x <- .$xtr$transform(data$x)
-    data$y <- .$ytr$transform(data$y)
-    data
+  transform_y <- function(., data) {
+    rescale(.$ytr$transform(data), 0:1, .$output_set()$y)
   }
   
   new <- function(., xtrans="identity", ytrans="identity") {
     if (is.character(xtrans)) xtrans <- Trans$find(xtrans)
     if (is.character(ytrans)) ytrans <- Trans$find(ytrans)
-  
     .$proto(xtr=xtrans, ytr=ytrans)
   }
 
-  frange <- function(.) {
-    expand <- .$expand()
+  pprint <- function(., newline=TRUE) {
+    cat("coord_", .$objname, ": ", 
+      "x = ", .$xtr$objname, ", ", 
+      "y = ", .$ytr$objname, sep = ""
+    )
+    
+    if (newline) cat("\n") 
+  }
+
+  output_set <- function(.) {
+    # range is necessary in case transform has flipped min and max
     list(
-      x = expand_range(.$xtr$transform(.$x()$frange()), expand$x[1], expand$x[2]),
-      y = expand_range(.$ytr$transform(.$y()$frange()), expand$y[1], expand$y[2])
+      x = expand_range(range(.$xtr$transform(.$x()$output_set())), 0.05),
+      y = expand_range(range(.$ytr$transform(.$y()$output_set())), 0.05)
     )
   }
 
-  guide_axes <- function(.) {
-    range <- .$frange()
+  guide_axes <- function(., theme) {
+    breaks <- .$breaks()
     list(
-      x = ggaxis(.$xtr$transform(.$x()$breaks()), .$x()$labels(), "bottom", range$x),
-      y = ggaxis(.$ytr$transform(.$y()$breaks()), .$y()$labels(), "left", range$y)
+      x = guide_axis(breaks$x$major, .$x()$labels(), "bottom", theme),
+      y = guide_axis(breaks$y$major, .$y()$labels(), "left", theme)
     )
   }
 
-  guide_inside <- function(., plot) {
-    gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
-    ggname("grill", gTree(children = gList(
-      ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
+  # guide_background <- function(., theme) {
+  #   x.major <- unit(.$xtr$transform(.$x()$input_breaks_n()), "native")
+  #   x.minor <- unit(.$xtr$transform(.$x()$output_breaks()), "native")
+  #   y.major <- unit(.$ytr$transform(.$y()$input_breaks_n()), "native")
+  #   y.minor <- unit(.$ytr$transform(.$y()$output_breaks()), "native")
+  #   
+  #   draw_grid(theme, x.minor, x.major, y.minor, y.major)
+  # }
 
-      ggname("minor-vertical", segmentsGrob(.$xtr$transform(.$x()$minor_breaks()), unit(0, "npc"), .$xtr$transform(.$x()$minor_breaks()), unit(1, "npc"), gp = gpar(col=plot$grid.minor.colour, lwd=0.5), default.units="native")),
-      ggname("major-vertical", segmentsGrob(.$xtr$transform(.$x()$breaks()), unit(0, "npc"), .$xtr$transform(.$x()$breaks()), unit(1, "npc"), gp = gp, default.units="native")),
-
-      ggname("minor-horizontal", segmentsGrob(unit(0, "npc"), .$ytr$transform(.$y()$minor_breaks()), unit(1, "npc"), .$ytr$transform(.$y()$minor_breaks()), gp = gpar(col=plot$grid.minor.colour, lwd=0.5), default.units="native")),
-      ggname("major-horizontal",segmentsGrob(unit(0, "npc"), .$ytr$transform(.$y()$breaks()), unit(1, "npc"), .$ytr$transform(.$y()$breaks()), gp = gp, default.units="native")),
-
-      ggname("border", rectGrob(gp=gpar(col=plot$grid.colour, lwd=3, fill=NA)))
-    )))
-  }
-
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "trans"
   desc <- "Transformed cartesian coordinate system"

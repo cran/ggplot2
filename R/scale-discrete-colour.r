@@ -7,14 +7,14 @@ ScaleColour <- proto(ScaleDiscrete, expr={
 ScaleHue <- proto(ScaleColour, expr={
   aliases <- c("scale_colour_discrete", "scale_fill_discrete")
   
-  new <- function(., name=NULL, h=c(0,360), l=65, c=100, alpha=1, labels=NULL, h.start = 0, direction = 1,  variable) {
-    .$proto(name=name, h=h, l=l, c=c, alpha=alpha, .input=variable, .output=variable, .labels = labels, direction = direction, start  = h.start)
+  new <- function(., name=NULL, h=c(0,360), l=65, c=100, alpha=1, limits=NULL, breaks = NULL, labels=NULL, h.start = 0, direction = 1,  variable) {
+    .$proto(name=name, h=h, l=l, c=c, alpha=alpha, .input=variable, .output=variable, .labels = labels, breaks = breaks, direction = direction, start  = h.start, limits = limits)
   }
   
-  breaks <- function(.) {
+  output_set <- function(.) {
     rotate <- function(x) (x + .$start) %% 360 * .$direction
-    
-    n <- length(.$domain())
+
+    n <- length(.$input_set())
     grDevices::hcl(
       h = rotate(seq(.$h[1], .$h[2], length = n+1)), 
       c =.$c, 
@@ -27,9 +27,9 @@ ScaleHue <- proto(ScaleColour, expr={
   doc <- TRUE
   common <- c("colour", "fill")
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
   objname <- "hue"
-  desc <- "Colours that vary continuously in hue"
+  desc <- "Qualitative colour scale with evenly spaced hues"
   icon <- function(.) {
     rectGrob(c(0.1, 0.3, 0.5, 0.7, 0.9), width=0.21, 
       gp=gpar(fill=hcl(seq(0, 360, length=6)[-6], c=100, l=65), col=NA)
@@ -37,10 +37,12 @@ ScaleHue <- proto(ScaleColour, expr={
   }
   
   desc_params <- list(
-    h = "range of hues to use, in degrees", 
-    l = "luminance",
-    c = "chroma",
-    alpha = "alpha"
+    h = "range of hues to use, in [0, 360]", 
+    l = "luminance (lightness), in [0, 100]",
+    c = "chroma (intensity of colour)",
+    alpha = "alpha",
+    h.start = "hue to start at",
+    direction = "direction to travel around the colour wheel, 1 = clockwise, -1 = counter-clockwise"
   )
   
   examples <- function(.) {
@@ -77,14 +79,13 @@ ScaleHue <- proto(ScaleColour, expr={
 ScaleBrewer <- proto(ScaleColour, expr={
   doc <- TRUE
 
-  new <- function(., name=NULL, palette=1, type="qual", alpha=1, reverse = FALSE, labels=NULL, variable) {
-    .$proto(name=name, palette=palette, type=type, .input=variable, .output=variable, .alpha=alpha, .reverse = reverse, .labels = labels)
+  new <- function(., name=NULL, palette=1, type="qual", alpha=1, limits=NULL, breaks = NULL, labels=NULL, variable) {
+    .$proto(name=name, palette=palette, type=type, .input=variable, .output=variable, .alpha=alpha, .labels = labels, breaks = breaks, limits= limits)
   }
 
-  breaks <- function(.) {
-    n <- length(.$domain())
-    pal <- brewer.pal(n, .$pal_name())
-    if (.$.reverse) pal <- rev(pal)
+  output_set <- function(.) {
+    n <- length(.$input_set())
+    pal <- brewer.pal(n, .$pal_name())[1:n]
     alpha(pal, .$.alpha)
   }
 
@@ -106,10 +107,10 @@ ScaleBrewer <- proto(ScaleColour, expr={
   
   max_levels <- function(.) RColorBrewer:::maxcolors[RColorBrewer:::namelist == .$pal_name()]
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "brewer"
-  desc <- "Colour brewer colour scales"
+  desc <- "Sequential, diverging and qualitative colour scales from colorbrewer.org"
   details <- "<p>See <a href='http://colorbrewer.org'>colorbrewer.org</a> for more info</p>"
   common <- c("colour", "fill")
 
@@ -120,7 +121,8 @@ ScaleBrewer <- proto(ScaleColour, expr={
   }
   
   examples <- function(.) {
-    (d <- qplot(carat, price, data=diamonds, colour=clarity))
+    dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+    (d <- qplot(carat, price, data=dsamp, colour=clarity))
     
     # Change scale label
     d + scale_colour_brewer()
@@ -138,13 +140,19 @@ ScaleBrewer <- proto(ScaleColour, expr={
     
     # One way to deal with overplotting - use transparency
     # (only works with pdf, quartz and cairo devices)
+    d + scale_colour_brewer(alpha = 0.5)
     d + scale_colour_brewer(alpha = 0.2)
-    d + scale_colour_brewer(alpha = 0.01)
+    
+    # To get remove circular outlines, use shape = 21, colour = NA
+    # and change the fill colour:
+    ggplot(dsamp, aes(carat, price, fill = clarity)) + 
+      geom_point(shape = 21, colour = NA, size = 5) + 
+      scale_fill_brewer(alpha = 0.5)
   
     # scale_fill_brewer works just the same as 
     # scale_colour_brewer but for fill colours
     ggplot(diamonds, aes(x=price, fill=cut)) + 
-      geom_bar(position="dodge") + 
+      geom_histogram(position="dodge", binwidth=1000) + 
       scale_fill_brewer()
     
   }

@@ -1,63 +1,67 @@
-ggplot 0.6
+ggplot2 0.7  (2008-10-03)
 ----------------------------------------
 
-The two big changes in this release are improved documentation and legends.  
+ggplot2 0.7 introduces a new theming system which allows you to control (almost) every aspect of the appearance of the plot.  This system is documented in the book chapter "Polishing your plots for publication", available from http://had.co.nz/ggplot2/book/polishing.pdf.
 
- * all major ggplot2 components now have their own built in documentation, so that (e.g.) ?stat_smooth or ?geom_point now give you useful information
- 
- * the legend code is now considerably more sophisticated and will attempt to merge together legends for the same variable
- 
- * also, legends are drawn based on the geoms used (instead of the scales used, as previously) so should match the plot much better (e.g. for geom_smooth, geom_boxplot, geom_vline, geom_abline, geom_pointrange).
- 
-These features are new, so there are likely to be a few bugs that I haven't discovered.  Please me know if you discover any.
- 
-Other additions and corrections
+Bugs fixed
 
-  * coord_equal: should now work correctly in all situations
-  * coord_polar: add start and direction parameters, giving more control over the layout of the polar coords
-  * coord_polar: added my favourite pie chart example
-  * coord_trans now deals with groups appropriately, at the cost of decreased speed
-  * geom_abline, geom_vline, geom_hline: should now behave better in a wider variety of settings
-  * geom_boxplot: deals with continuous x-axis and grouping much better
-  * geom_boxplot: now has it's own legend which actually looks like a boxplot
-  * geom_boxplot: reports if missing values removed
-  * geom_crossbar: the middle line is now display thicker than the other lines, controlled by the parameter fatten (thanks to Heike Hofmann for the suggestion)
-  * geom_density: fix scale adjustment bug in geom_density
-  * geom_line, geom_text: all size measurements (now lines and text as well) are measured in mm, lines/paths default to paths 0.5mm wide
-  * geom_rug: new to add marginal rug plots
-  * geom_smooth: added example showing how to use geom_smooth with your own models
-  * geom_smooth: fixed bug where if se=FALSE x axis always includes 0
-  * geom_vline, geom_hline: yet another rewrite which should make them more powerful and less error prone.  
-  * ggsave reports width and height of saved image
-  * position_stack: fixed bug when data was empty
-  * qplot: allow qplot to use computed aesthetics too
-  * scale_continuous: tweaks to minor breaks to make appearance better on wider range of coordinate systems
-  * scale_discrete: all discrete scales now have labels argument which you can use to override the factor levels
-  * scale_discrete: now works correctly with character vectors
-  * scale_size: changed default range to [0.5, 3] to better reflect new sizing decisions
-  * scale_size: legends resize to avoid overlaps
-  * scale_x_continuous, scale_y_continuous: new convenience functions xlim and ylim (and zlim) that make it even easier to adjust the limits of the x, y, and z axes
-  * stat_bin, geom_area: fixed bug in combination of stat_bin and geom_area that made it difficult to draw frequency polygons
-  * stat_bin: fixed bug which resulted in increased counts when the x axis was a categorical variable with a single level (thanks to Bob Muenchen for pointing this out!)
-  * stat_bin: no longer incorrectly warns that binwidth is unspecified when breaks are set
-  * stat_bin: now takes origin argument to manually specify origin of first bin (default is round_any(min(range), bin_width, floor))
-  * stat_boxplot, stat_contour, stat_density2d, stat_qq, stat_density: na.rm parameter added to the following statistics (thanks to Leena Choi for suggesting this)
-  * stat_function: new, makes it easy to superimpose a function on the plot
-  * stat_qq: axes flipped to agree with base R
-  * stat_qq: now uses sample aesthetic to select variable for summary
-  * stat_quantile: updated to work with latest version of quantreg
-  * stat_spoke: new, to make it possible to use geom_segment parameterised by angle and radius (thanks to Jiho for the suggestion)
-  * stat_summary: better documentation
-  * stat_summary: convenient auto wrapping of simple summary functions
+* geom_boxplot: now displays outliers even if only one present 
+* geom_jitter: setting one jitter direction to 0 now works
+* geom_segment: should now work correctly in all coordinate systems (note that arrows only work in Cartesian coordinates)
+* ggsave: correctly uses dpi for raster devices and default dpi changed to 72 (thanks to Brian Ripley for pointing this out)
+* ggsave: current device no longer closes if error occurs
+* position_jitter: now works correctly with 0 jitter
+* remove_missing: some statistics were calculated incorrectly when missing values were present
+* scales: extra scales ignored (again)
+* scales: legends respect fixed parameters of the layer
+* scales: legends won't appear when aesthetics are mapped to NULL, or set to fixed value
+* scales: xend and yend now transformed correctly
+* scale_date: breaks are now rounded to correct position
 
-Miscellaneous changes:
+New functionality
 
-  * it's now easy to change the default scales (and their arguments) with the set_default_scale function, see ?set_default_scale for more details (thanks to Bob Muenchen for the suggestion)
-  * new order aesthetic which controls the order in which elements are plotted
-  * min and max are now scaled the same way as y
-  * functions are silently dropped (e.g. aes(colour=col))
-  * scales do not try and map variables that don't exist (fixes some rather obscure bugs)
-  * aes(mpg, wt) is now equivalent to aes(x = mpg, y = wt)
+* geom_point: can now control colour and fill separately for point glyphs with borders
+* geom_step: now has parameter direction which can take values vh (vertical then horizontal) or hv (horizontal then vertical) describing the shape of the stairs
+* qplot: new asp argument to set aspect ratio
+* qplot: now captures the environment in which it was run, which should make it much more robust at finding the variables you expect it to find 
+* qplot: now treats any arguments wrapped in I() as parameters, not aesthetics, e.g. qplot(mpg, wt, data=mtcars, colour = I("red")) or qplot(mpg, wt, data=mtcars, size = I(5))
+* scale_continuous: new minor_breaks argument to controls position of minor breaks
+* scale_discrete: new discrete position scales which make it possible to manually position elements
+* scale_gradientn: new colour scale which creates gradient between any list of colours
+
+More consistent interfaces
+
+* can use color instead of colour, and old R names throughout ggplot2
+* geom_jitter: Arguments changed to height and width to match other position adjustments
+* scales: any point outside of limits is dropped (this was previously the behaviour for discrete scales, but not continuous scales)
+* scales: limits are consistent across discrete and continuous scales (limits c(1, NA) form no longer works for continuous scales)
+* scales: order of legends reversed to match order of x axis (and to be consistent with previous versions)
+* scale_date: new limits argument to set axis limits
+* scale_discrete: all discrete scales accept breaks argument
+* scale_discrete: all discrete scales have limits and labels argument to better control legends
+* scale_discrete: character and logical vectors now reliably treated as discrete scales
+* stat_density2d, geom_density2d: density2d used consistently (instead of density_2d in some places)
+
+Improved aesthetics
+
+* coord_polar: more tweaks to grid lines to enhance appearance
+* coord_polar: new expand argument to control whether axes should be expanded outside the range of the data
+* geom_contour, geom_smooth, geom_quantile: now use blue lines
+* position_stack, position_dodge: should be more informative if conditions for stacking/dodging not met
+* position_jitter: default amount of jittering tweaked to align with boxplots etc.
+* scales: background colour of legends key matches plot
+* themes: Complete rewrite of theming system, see new book chapter for details
+* themes: direct access to plot options via $ is now disabled
+
+Improved documentation and error messages
+
+* facet_grid: documentation improved
+* qplot: Better error messages when needed variables are missing
+* scale_discrete: improved error message for too many values in domain
+* scale_size: improved documentation for discrete variables
+* online documentation generally tweaked and primped to work a little better and look a little nicer
+* website now includes a search box
+* links from rdoc now point to correct pages
 
 
 See CHANGELOG for changes in previous versions

@@ -45,13 +45,13 @@ bolus.ggplot <- function(x, ...) {
     scales = scales$hash(),
     facet = facet$hash(),
     coord = coordinates$hash(),
-    title = title,
-    options = x[intersect(names(x), names(ggopt()))]
+    options = defaults(x$options, theme_get())
   ))
 }
 
 digest.proto <- function(x, ...) x$hash(, ...)
 digest.ggplot <- function(x, ...) {
+  if (is.null(x)) return()
   try_require("digest")
   digest(bolus(x), ...)
 }
@@ -81,11 +81,16 @@ TopLevel$bolus <- function(.) {
   )
 }
 Scale$bolus <- function(.) {
+  settings <- .$settings()
+  settings$.tr <- settings$.tr.$objname
+  settings$.input <- NULL
+  settings$.output <- NULL
+  
   list(
     name = .$objname,
     input = .$.input,
     output = .$.output,
-    settings = .$settings()
+    settings = compact(settings)
   )
 }
 Layer$bolus <- function(.) {

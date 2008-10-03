@@ -73,17 +73,26 @@ Layer <- proto(expr = {
     df
   }
   
+  aesthetics_used <- function(., plot_aesthetics) {
+    aes <- defaults(.$aesthetics, plot_aesthetics)
+    aes <- defaults(.$stat$default_aes(), aes)
+    aesthetics <- names(compact(aes))
+    aesthetics <- intersect(aesthetics, names(.$geom$default_aes()))
+    parameters <- names(.$geom_params)
+    setdiff(aesthetics, parameters)
+  }
+  
   pprint <- function(.) {
     if (is.null(.$geom)) {
       cat("Empty layer\n")
       return(invisible());
     }
-    .$geom$print(newline=FALSE)
-    cat(" +", clist(.$geom_params), "\n")
-    .$stat$print(newline=FALSE)
-    cat(" +", clist(.$stat_params), "\n")
-    .$position$print()
     cat("mapping:", clist(.$aesthetics), "\n")
+    .$geom$print(newline=FALSE)
+    cat(clist(.$geom_params), "\n")
+    .$stat$print(newline=FALSE)
+    cat(clist(.$stat_params), "\n")
+    .$position$print()
   }
   
   
@@ -104,7 +113,7 @@ Layer <- proto(expr = {
     
     # Drop aesthetics that are set manually
     aesthetics <- aesthetics[setdiff(names(aesthetics), names(.$geom_params))]
-    plot$scales$add_defaults(plot$data, aesthetics)
+    plot$scales$add_defaults(plot$data, aesthetics, plot$plot_env)
     
     calc_aesthetics(plot, data, aesthetics, .$ignore.extra)
   }
@@ -142,24 +151,27 @@ Layer <- proto(expr = {
     new <- lapply(new, function(x) parse(text = sub(match, "\\1", x))[[1]])
     
     for(i in seq_along(new)) {
-      data[[names(new)[i]]] <- eval(new[[i]], data, parent.frame())
+      data[[names(new)[i]]] <- eval(new[[i]], data, baseenv())
     }
     
-    plot$scales$add_defaults(data, new)
+    plot$scales$add_defaults(data, new, plot$plot_env)
     
     data
   }
 
-  adjust_position <- function(., data, scales, position) {
-    gg_apply(data, function(x) {
-      if (.$position$position == position) {
-        .$position$adjust(x, scales)
-      } else {
-        x
-      }
+  reparameterise <- function(., data) {
+    gg_apply(data, function(df) {
+      if (!is.null(df)) .$geom$reparameterise(df, .$geom_params)
     })
   }
 
+  adjust_position <- function(., data, scales) {
+    gg_apply(data, function(x) {
+      .$position$adjust(x, scales)
+    })
+  }
+  
+  # Return a matrix of grobTrees, matching dimensions of facets
   make_grobs <- function(., data, scales, cs) {
     force(data)
     gg_apply(data, function(x) .$make_grob(x, scales, cs))
@@ -184,20 +196,22 @@ Layer <- proto(expr = {
 
   class <- function(.) "layer"
 
-  # Methods that probably belong elsewhere ------------------------------------
+  # Methods that probably belong elsewhere ---------------------------------
   
   # Stamp data.frame into list of matrices
   
   scales_transform <- function(., data, scale) {
     gg_apply(data, function(df) scale$transform_df(df))
   }
+
+  scales_map_position <- function(., data, scale) {
+    gg_apply(data, function(df) scale$map_position(df))
+  }
+
   
   # Train scale for this layer
-  scales_train <- function(., data, scale, adjust=FALSE) {
-    gg_apply(data, function(df) {
-      if (adjust) df <- .$geom$adjust_scales_data(scale, df)
-      scale$train_df(df)
-    })
+  scales_train <- function(., data, scale) {
+    gg_apply(data, scale$train_df)
   }
   
   # Map data using scales.
@@ -236,22 +250,26 @@ layer <- Layer$new
 # @arguments extra arguments supplied by user that should be used first
 # @keyword hplot
 # @keyword internal
-calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = FALSE) {
+calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = FALSE, env = plot$plot_env) {
   if (is.null(data)) data <- plot$data
   if (!is.data.frame(data)) stop("data is not a data.frame")
   
-  
   err <- if (ignore.extra) tryNULL else force
-  eval.each <- function(dots) compact(lapply(dots, function(x.) err(eval(x., data, parent.frame()))))
+  eval.each <- function(dots) compact(lapply(dots, function(x.) err(eval(x., data, env))))
   # Conditioning variables needed for facets
   cond <- plot$facet$conditionals()
   
   aesthetics <- drop_calculated_aes(aesthetics)
   evaled <- eval.each(aesthetics)
+  if (length(evaled) == 0) return(data.frame())
+  
   evaled <- evaled[sapply(evaled, is.atomic)]
   
   df <- data.frame(evaled)
-  df <- cbind(df, data[,intersect(names(data), cond), drop=FALSE])
+  facet_vars <- data[, intersect(names(data), cond), drop=FALSE]
+  if (nrow(facet_vars) > 0) {
+    df <- cbind(df, facet_vars)  
+  }
   
   if (is.null(plot$data)) return(df)
   expand.grid.df(df, unique(plot$data[, setdiff(cond, names(df)), drop=FALSE]), unique=FALSE)

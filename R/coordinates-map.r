@@ -12,23 +12,32 @@ CoordMap <- proto(CoordCartesian, {
   munch <- function(., data) .$transform(data)
   
   transform <- function(., data) {
+    # trans <- .$mproject(data[, c("xmin","ymin")])
+    # trans <- .$mproject(data[, c("xmax","ymax")])
+    # trans <- .$mproject(data[, c("xend","yend")])
     trans <- .$mproject(data[, c("x","y")])
-    data.frame(trans[c("x","y")], data[, setdiff(names(data), c("x","y"))])
+    out <- data.frame(
+      trans[c("x", "y")], 
+      data[, setdiff(names(data), c("x", "y"))
+    ])
+    
+    out$x <- rescale(out$x, 0:1, .$output_set()$x)
+    out$y <- rescale(out$y, 0:1, .$output_set()$y)
+    out
   }
   
   mproject <- function(., data) {
     if (is.null(.$orientation)) 
-      .$orientation <- c(90, 0, mean(.$x()$frange()))
+      .$orientation <- c(90, 0, mean(.$x()$output_set()))
     
-    suppressWarnings(do.call("mapproject", 
+    out <- suppressWarnings(do.call("mapproject", 
       list(data, projection=.$projection, parameters  = .$params, orientation = .$orientation)
     ))
   }
   
-  frange <- function(.) {
-    expand <- .$expand()
-    xrange <- expand_range(.$x()$frange(), expand$x[1], expand$x[2])
-    yrange <- expand_range(.$y()$frange(), expand$y[1], expand$y[2])
+  output_set <- function(.) {
+    xrange <- .$x()$output_expand()
+    yrange <- .$y()$output_expand()
     
     df <- data.frame(x = xrange, y = yrange)
     range <- .$mproject(df)$range
@@ -36,18 +45,18 @@ CoordMap <- proto(CoordCartesian, {
     list(x = range[1:2], y = range[3:4])
   }
   
-  guide_axes <- function(.) {
-    range <- .$frange()
+  guide_axes <- function(., theme) {
+    range <- .$output_set()
     list(
-      x = ggaxis(NA, "", "bottom", range$x),
-      y = ggaxis(NA, "", "left", range$y)
+      x = guide_axis(NA, "", "bottom", theme),
+      y = guide_axis(NA, "", "left", theme)
     )
   }
   
-  guide_inside <- function(., plot) {
+  guide_background <- function(., theme) {
     range <- list(
-      x = expand_range(.$x()$frange(), 0.1),
-      y = expand_range(.$y()$frange(), 0.1)
+      x = expand_range(.$x()$output_set(), 0.1),
+      y = expand_range(.$y()$output_set(), 0.1)
     )
     x <- grid.pretty(range$x)
     y <- grid.pretty(range$y)
@@ -55,18 +64,23 @@ CoordMap <- proto(CoordCartesian, {
     xgrid <- expand.grid(x = c(seq(range$x[1], range$x[2], len = 100), NA), y = y)
     ygrid <- expand.grid(y = c(seq(range$y[1], range$y[2], len = 100), NA), x = x)
     
-    xlines <- .$mproject(xgrid)
-    ylines <- .$mproject(ygrid)
+    xlines <- .$transform(xgrid)
+    ylines <- .$transform(ygrid)
 
-    gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
-    ggname("grill", gTree(children = gList(
-      ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
-      ggname("major-verticall", linesGrob(xlines$x, xlines$y, default.units="native", gp = gp)),
-      ggname("major-horizontal", linesGrob(ylines$x, ylines$y, default.units="native", gp = gp))
-    )))
+    ggname("grill", grobTree(
+      theme_render(theme, "panel.background"),
+      theme_render(
+        theme, "panel.grid.major", name = "x", 
+        xlines$x, xlines$y, default.units = "native"
+      ),
+      theme_render(
+        theme, "panel.grid.major", name = "y", 
+        ylines$x, ylines$y, default.units = "native"
+      )
+    ))
   }  
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "map"
   desc <- "Map projections"
@@ -84,7 +98,7 @@ CoordMap <- proto(CoordCartesian, {
     "orientation" = "orientation, which defaults to c(90, 0, mean(range(x))).  This is not optimal for many projections, so you will have to supply your own."
   )
   
-  details <- "<p>This coordinate system provides the full range of map projections available in the mapproject package.</p>\n\n<p>This is still experimental, and if you have any advice to offer regarding a better (or more correct) way to do this, please let me know</p>\n"
+  details <- "<p>This coordinate system provides the full range of map projections available in the mapproj package.</p>\n\n<p>This is still experimental, and if you have any advice to offer regarding a better (or more correct) way to do this, please let me know</p>\n"
   
   examples <- function(.) {
     try_require("maps")

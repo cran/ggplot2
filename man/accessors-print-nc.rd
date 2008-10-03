@@ -1,10 +1,10 @@
 \name{accessors_print}
 \alias{accessors_print}
-\title{Write out all convenience accessor functions to R file.}
+\title{Print accessors}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
-This calls the \code{accessor_print} method for each of the main
+Write out all convenience accessor functions to R file.
 }
 \usage{accessors_print(file = "")}
 \arguments{

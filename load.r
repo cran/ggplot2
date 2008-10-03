@@ -1,10 +1,34 @@
 options(Hverbose=FALSE)
-library(ggplot2)
+loaded <- "ggplot2" %in% search()
+suppressMessages(library(ggplot2, warn.conflicts = FALSE))
+library(plyr)
 
-source.with.err <- function(path) {
-  tryCatch(source(path), error = function(x) {print(path); print(x)})
+load("~/documents/ggplot/ggplot/data/mpg.rda")
+
+paths <- dir("~/documents/ggplot/ggplot/R", full.name=T)
+paths <- paths[basename(paths) != "xxx.r"]
+l_ply(paths, source)
+
+regen <- function() {
+  accessors_print("~/documents/ggplot/ggplot/R/xxx.r")
+  source("~/documents/ggplot/ggplot/R/xxx.r")
 }
-lapply(dir("~/documents/ggplot/ggplot/R", full.name=T), source.with.err)
+if (!loaded) regen()
 
-accessors_print("~/documents/ggplot/ggplot/R/xxx.r")
-source("~/documents/ggplot/ggplot/R/xxx.r")
+# if (!exists("curr")) curr <- NULL
+# 
+# prev <- curr
+# curr <- qplot(mpg, wt, data=mtcars)
+# 
+# curr_d <- digest.ggplot(curr)
+# prev_d <- digest.ggplot(prev)
+# 
+# if (!is.null(prev) & !identical(curr_d, prev_d)) {
+#   curr_b <- bolus(curr)
+#   prev_b <- bolus(prev)
+#   diff <- sapply(seq_along(curr_b), function(i) !identical(curr_b[[i]], prev_b[[i]]))
+#   
+#     
+#   stop("Digest has changed from ", prev_d, " to ", curr_d, call. = FALSE)
+# }
+# 

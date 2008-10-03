@@ -1,7 +1,7 @@
 # Coordinate system looks at scales and creates transformation
 # Applies transformation after munching transform (if necessary)
 # Draws axes
-# Also takes care of facetting?
+# Also takes care of faceting?
 # 
 # x or y
 # continuous or categorical
@@ -13,7 +13,16 @@ Coord <- proto(TopLevel, expr={
   train <- function(., scales) .$.scales <- scales
   
   muncher <- function(.) FALSE
+  
   munch <- function(., data, npieces=50) {
+    data <- add_group(data)
+    
+    groups <- split(data, data$group)
+    munched_groups <- lapply(groups, function(df) .$munch_group(df, npieces))
+    do.call("rbind", munched_groups)
+  }
+  
+  munch_group <- function(., data, npieces=50) {
     n <- nrow(data)
 
     x <- approx(data$x, n = npieces * (n - 1) + 1)$y
@@ -24,7 +33,7 @@ Coord <- proto(TopLevel, expr={
       data[c(rep(1:(n-1), each=npieces), n), setdiff(names(data), c("x", "y"))]
     )
   }
-
+  
   pprint <- function(., newline=TRUE) {
     args <- formals(get("new", .))
     args <- args[!names(args) %in% c(".", "...")]
@@ -34,8 +43,8 @@ Coord <- proto(TopLevel, expr={
     if (newline) cat("\n") 
   }
   
-  guide_foreground <- function(., plot) {
-    ggname("border", rectGrob(gp=gpar(col=plot$border.colour, lwd=2, fill=NA)))
+  guide_foreground <- function(., theme) {
+    theme_render(theme, "panel.border")
   }  
   # Html defaults
   

@@ -4,16 +4,17 @@ StatSmooth <- proto(Stat, {
     if (nrow(data) < 2) return(data.frame())
     
     if (length(unique(data$x)) == 1) {
-      stop("geom_smooth: Only one unique x value in this group.  Maybe you want aes(group = 1)?", call. = FALSE)
+      message("geom_smooth: Only one unique x value in this group.  Maybe you want aes(group = 1)?", call. = FALSE)
+      return(NULL)
     }
     
     if (is.null(data$weight)) data$weight <- 1
     
     if (is.null(xseq)) {
       if (is.factor(data$x)) {
-        xseq <- if (fullrange) scales$get_scales("x")$domain() else levels(data$x)
+        xseq <- if (fullrange) scales$get_scales("x")$input_set() else levels(data$x)
       } else {
-        range <- if (fullrange) scales$get_scales("x")$frange() else range(data$x, na.rm=TRUE)  
+        range <- if (fullrange) scales$get_scales("x")$output_set() else range(data$x, na.rm=TRUE)  
         xseq <- seq(range[1], range[2], length=n)
       }
       
@@ -29,8 +30,8 @@ StatSmooth <- proto(Stat, {
       std <- qnorm(level/2 + 0.5)
       data.frame(
         x = xseq, y = as.vector(pred$fit),
-        min = as.vector(pred$fit - std * pred$se), 
-        max = as.vector(pred$fit + std * pred$se),
+        ymin = as.vector(pred$fit - std * pred$se), 
+        ymax = as.vector(pred$fit + std * pred$se),
         se = as.vector(pred$se)
       )
     } else {
@@ -61,6 +62,16 @@ StatSmooth <- proto(Stat, {
     "max" = "upper pointwise confidence interval around the mean",
     "se" = "standard error"
   )
+  
+  seealso <- list(
+    lm = "for linear smooths",
+    glm = "for generalised linear smooths",
+    loess = "for local smooths",
+    rlm = "for robust smooths",
+    gam = "for smooth smooths"
+  )
+  
+  
   
   examples <- function(.) {
     c <- ggplot(mtcars, aes(y=wt, x=qsec))
