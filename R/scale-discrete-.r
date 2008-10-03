@@ -1,79 +1,62 @@
 ScaleDiscrete <- proto(Scale, expr={
   .domain <- c()
   max_levels <- function(.) Inf
-  .expand <- c(0, 0.75)
+  .expand <- c(0, 0.05)
   .labels <- NULL
+  doc <- FALSE
 
-  train <- function(., x) {
-    if (is.numeric(x)) {
-      warning("Continuous variable (", .$name , ") supplied to ", .$my_name(), ", when a discrete variable was expected.", call.=FALSE) 
-      .$.frange <- range(c(.$.frange, x), na.rm=TRUE)
-    } else {
-      .$.domain <- union(.$.domain, levels(x))      
-    }
-  }
   discrete <- function(.) TRUE
 
-  new <- function(., name=NULL, variable=.$.input, expand = c(0, 0.75), labels = NULL) {
-    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = labels)
+  new <- function(., name=NULL, variable=.$.input, expand = c(0.05, 0), limits = NULL, breaks = NULL, labels = NULL) {
+    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = labels, limits = limits, breaks = breaks)
   }
 
-  # Mapping
-  # -------------------
+  # Range -------------------
   map <- function(., values) {
     .$check_domain()
-    .$breaks()[match(as.character(values), .$domain())]
+    .$output_set()[match(as.character(values), .$input_set())]
   }
 
-  stransform <- function(., values) {
-    values
+  input_breaks <- function(.) nulldefault(.$breaks, .$input_set())
+  input_breaks_n <- function(.) match(.$input_breaks(), .$input_set())
+  
+  labels <- function(.) nulldefault(.$.labels, as.list(.$input_breaks()))
+  
+  output_set <- function(.) seq_along(.$input_set())
+  output_breaks <- function(.) .$map(.$input_breaks())
+
+
+  # Domain ------------------------------------------------
+  
+  transform_df <- function(., df) {
+    NULL
+  }
+
+  train <- function(., x) {
+    if (is.null(x)) return()
+    if (!is.discrete(x)) {
+      stop("Continuous variable (", .$name , ") supplied to the discrete ", .$my_name(), ".", call.=FALSE) 
+    }
+    vals <- if (is.factor(x)) levels(x) else as.character(unique(x))
+    if (any(is.na(x))) vals <- c(NA, vals)
+    
+    .$.domain <- union(.$.domain, vals)
   }
 
   check_domain <- function(.) {
-    d <- .$domain()
+    d <- .$input_set()
     if (length(d) > .$max_levels()) {
-      stop("Too many values in domain (", length(d), " > ", .$max_levels(), ")")
+      stop(.$my_name(), " can deal with a maximum of ", .$max_levels(), " discrete values, but you have ", length(d), ".  See ?scale_manual for a possible alternative", call. = FALSE)
     }  
   }
   
-  .frange <- NULL
-  frange <- function(.) {
-    if (is.null(.$.frange) || all(is.na(.$.frange))) {
-      c(1, length(.$domain())) 
-    } else {
-      .$.frange
-    }
-  }
-
   # Guides
   # -------------------
 
-  minor_breaks <- function(.) .$breaks()
-
-  breaks <- function(.) 1:length(.$domain())
-  rbreaks <- function(.) .$breaks()
-  labels <- function(.) nulldefault(.$.labels, as.list(.$domain()))
+  minor_breaks <- function(.) NA
   
   # Documentation
   objname <- "discrete"
-  common <- c("x", "y", "z")
-  desc <- "Discrete position scale"
-  
-  examples <- function(.) {
-    # The discrete position scale is added automatically whenever you
-    # have a discrete position and the only thing you can do with it
-    # is change the labels
-    
-    (d <- qplot(cut, clarity, data=diamonds, geom="jitter"))
-    
-    d + scale_x_discrete("Cut")
-    d + scale_x_discrete("Cut", labels=c("F","G","VG","P","I"))
-    d + scale_y_discrete("Clarity")
-    d + scale_x_discrete("Cut") + scale_y_discrete("Clarity")
-    
-    # To adjust the order you must modify the underlying factor
-    # see ?reorder for one approach to this    
-  }
   
 
 })

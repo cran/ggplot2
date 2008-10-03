@@ -2,7 +2,7 @@ GeomBlank <- proto(Geom, {
   default_stat <- function(.) StatIdentity
   default_aes <- function(.) aes()
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "blank"
   desc <- "Blank, draws nothing"
@@ -12,5 +12,10 @@ GeomBlank <- proto(Geom, {
     qplot(length, rating, data=movies, geom="blank")
     # Nothing to see here!
   }
+  
+  draw_legend <- function(., data, ...) {
+    nullGrob()
+  }
+  
   
 })

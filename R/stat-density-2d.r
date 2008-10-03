@@ -1,9 +1,9 @@
 StatDensity2d <- proto(Stat, {
-  objname <- "density_2d" 
+  objname <- "density2d" 
   desc <- "Density estimation, 2D"
   
   default_geom <- function(.) GeomDensity2d
-  default_aes <- function(.) aes(group = ..piece..)
+  default_aes <- function(.) aes(colour="#3366FF", size=0.5, group = ..piece..)
   required_aes <- c("x", "y")
 
   desc_outputs <- list(
@@ -27,16 +27,16 @@ StatDensity2d <- proto(Stat, {
   
   examples <- function(.) {
     m <- ggplot(movies, aes(x=rating, y=length)) + geom_point() + scale_y_continuous(limits=c(1, 500))
-    m + geom_density_2d()
+    m + geom_density2d()
 
     dens <- MASS::kde2d(movies$rating, movies$length, n=100)
     densdf <- data.frame(expand.grid(rating = dens$x, length = dens$y), z=as.vector(dens$z))
     m + geom_contour(aes(z=z), data=densdf)
 
-    m + geom_density_2d() + scale_y_log10()
-    m + geom_density_2d() + coord_trans(y="log10")
+    m + geom_density2d() + scale_y_log10()
+    m + geom_density2d() + coord_trans(y="log10")
     
-    m + stat_density_2d(aes(fill = ..level..), geom="polygon")
+    m + stat_density2d(aes(fill = ..level..), geom="polygon")
 
     qplot(rating, length, data=movies, geom=c("point","density2d"), ylim=c(1, 500))
   }  

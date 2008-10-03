@@ -24,6 +24,8 @@ StatSummary <- proto(Stat, {
     "stat_smooth" = "for continuous analog"
   )
   
+  desc_outputs <- list()
+  
   examples <- function(.) {
     # Basic operation on a small dataset
     c <- qplot(cyl, mpg, data=mtcars)
@@ -67,7 +69,7 @@ StatSummary <- proto(Stat, {
     # Summaries are much more useful with a bigger data set:
     m <- ggplot(movies, aes(x=round(rating), y=votes)) + geom_point()
     (m2 <- m + stat_summary(fun="mean_cl_boot", geom="crossbar", colour="red", width=0.3))
-    # Notice how the overplotting skews out visual perception of the mean
+    # Notice how the overplotting skews off visual perception of the mean
     # supplementing the raw data with summary statisitcs is _very_ important
   
     # Next, we'll look at votes on a log scale.
@@ -147,11 +149,11 @@ wrap_hmisc <- function(x, fun, ...) {
   try_require("Hmisc")
 
   result <- safe.call(fun, list(x=x, ...))
-  rename(data.frame(t(result)), c(Median="y", Mean="y", Lower="min", Upper="max"))
+  rename(data.frame(t(result)), c(Median="y", Mean="y", Lower="ymin", Upper="ymax"))
 }
 
 sum_mean_cl_boot <- function(data, ...) wrap_hmisc(data$y, fun=smean.cl.boot, ...)
 sum_mean_cl_normal <- function(data, ...) wrap_hmisc(data$y, fun=smean.cl.normal, ...)
 sum_mean_sdl <- function(data, ...) wrap_hmisc(data$y, fun=smean.sdl, ...)
 sum_median_hilow <- function(data, ...) wrap_hmisc(data$y, fun=smedian.hilow, ...)
-sum_range <- function(data, ...) data.frame(min=min(data$y, na.rm=TRUE), max=max(data$y, na.rm=TRUE))
+sum_range <- function(data, ...) data.frame(ymin=min(data$y, na.rm=TRUE), ymax=max(data$y, na.rm=TRUE))

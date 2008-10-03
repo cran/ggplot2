@@ -1,32 +1,33 @@
 ScaleGradient <- proto(ScaleContinuous, expr={
   aliases <- c("scale_colour_continuous", "scale_fill_continuous")
 
-  new <- function(., name=NULL, low=muted("darkblue"), high="yellow", space="rgb", limits=c(NA,NA), trans="identity", alpha = 1, ..., variable) {
+  new <- function(., name=NULL, low=muted("darkblue"), high="yellow", space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", alpha = 1, ..., variable) {
     if (is.character(trans)) trans <- Trans$find(trans)
-    .$proto(name=name, low=low, high=high, space=space, .input=variable, .output=variable, .tr = trans, limits=limits, alpha = alpha, ...)
+    .$proto(name=name, low=low, high=high, space=space, .input=variable, .output=variable, .tr = trans, limits=limits, alpha = alpha, breaks = breaks, .labels = labels, ...)
   }
   
   map <- function(., x) {
-    rng <- .$frange()
-    domain <- .$domain()
+    domain <- .$input_set()
     x[x < domain[1] | x > domain[2]] <- NA
 
     ramp  <- colorRamp(c(.$low, .$high),  space=.$space, interpolate="linear")
     
-    x <- (x - rng[1]) / diff(rng)
+    x <- (x - domain[1]) / diff(domain)
     
     nice_ramp(ramp, x, .$alpha)
   }
-  
-  rbreaks <- function(.) .$map(.$breaks())
-  labels <- function(.) format(.$breaks())
+    
+  labels <- function(.) format(.$input_breaks())
+  output_breaks <- function(.) {
+    .$map(.$input_breaks()) 
+  }
   
   common <- c("colour", "fill")
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
   
   objname <- "gradient"
-  desc <- "Smooth colour gradient"
+  desc <- "Smooth gradient between two colours"
   icon <- function(.) {
     g <- scale_fill_gradient()
     g$train(1:5)
@@ -85,23 +86,23 @@ ScaleGradient <- proto(ScaleContinuous, expr={
     
     # scale_fill_continuous works similarly, but for fill colours
     (h <- qplot(x - y, data=dsub, geom="histogram", binwidth=0.01, fill=..count..))
-    h + scale_fill_continuous(low="black", high="white", limits=c(0,NA))
+    h + scale_fill_continuous(low="black", high="pink", limits=c(0,3100))
   }
   
   
 })
 
 ScaleGradient2 <- proto(ScaleContinuous, expr={  
-  new <- function(., name=NULL, low=muted("red"), mid="white", high=muted("blue"), midpoint=0, space="rgb", limits=c(NA,NA), trans="identity", alpha=1, ..., variable) {
+  new <- function(., name=NULL, low=muted("red"), mid="white", high=muted("blue"), midpoint=0, space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", alpha=1, ..., variable) {
     if (is.character(trans)) trans <- Trans$find(trans)
-    .$proto(name=name, low=low, mid=mid, high=high, midpoint=midpoint, space=space, ..., .input=variable, .output=variable, .tr=trans, limits=limits, alpha=alpha)
+    .$proto(name=name, low=low, mid=mid, high=high, midpoint=midpoint, space=space, ..., .input=variable, .output=variable, .tr=trans, limits=limits, alpha=alpha, breaks = breaks, .labels = labels)
   }
   
   map <- function(., x) {
-    rng <- .$frange()  - .$midpoint
+    rng <- .$output_set()  - .$midpoint
     extent <- max(abs(rng))
     
-    domain <- .$domain()
+    domain <- .$input_set()
     x[x < domain[1] | x > domain[2]] <- NA
 
     ramp  <- colorRamp(c(.$low, .$mid, .$high),  space=.$space, interpolate="linear")
@@ -114,7 +115,10 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
   
   objname <-"gradient2"
   common <- c("colour", "fill")
-  desc <- "Smooth colour gradient, with midpoint"
+  desc <- "Smooth gradient between three colours (high, low and midpoints)"
+
+  output_breaks <- function(.) .$map(.$input_breaks())
+  labels <- function(.) format(.$input_breaks())
 
   icon <- function(.) {
     g <- scale_fill_gradient2()
@@ -134,7 +138,7 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
     interpolate = "type of interpolation to use, linear or spline, see ?colorRamp for more details"
   )
   seealso <- list(
-    "scale_gradient" = "continuous colour scale with midpoint",
+    "scale_gradient" = "continuous colour scale",
     "colorRamp" = "for details of interpolation algorithm"
   )
   
@@ -176,6 +180,63 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
     p + scale_fill_gradient2("fill")
     # Note how positive and negative values of the same magnitude
     # have similar intensity
+  }
+  
+})
+
+
+ScaleGradientn <- proto(ScaleContinuous, expr={  
+  new <- function(., name=NULL, colours, values = NULL, rescale = TRUE, space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", alpha=1, ..., variable) {
+    if (is.character(trans)) trans <- Trans$find(trans)
+    .$proto(
+      name = name, 
+      colours = colours, values = values, rescale = rescale, 
+      space = space,  alpha = alpha, ..., 
+      .input = variable, .output = variable, .tr = trans, 
+      limits = limits, breaks = breaks, .labels = labels
+    )
+  }
+
+  
+  map <- function(., x) {
+    if (.$rescale) x <- rescale(x, c(0, 1), .$input_set())
+    if (!is.null(.$values)) {
+      xs <- seq(0, 1, length = length(values))      
+      f <- approxfun(values, xs)
+      x <- f(x)
+    }
+    ramp <- colorRamp(.$colours, space=.$space, interpolate="linear")
+    nice_ramp(ramp, x, .$alpha)
+  }
+  
+  objname <-"gradientn"
+  common <- c("colour", "fill")
+  desc <- "Smooth gradient between n colours"
+
+  output_breaks <- function(.) .$map(.$input_breaks())
+  labels <- function(.) format(.$input_breaks())
+
+  icon <- function(.) {
+    g <- scale_fill_gradientn(colours = rainbow(7))
+    g$train(1:5)
+    rectGrob(c(0.1, 0.3, 0.5, 0.7, 0.9), width=0.21, 
+      gp=gpar(fill = g$map(1:5), col=NA)
+    )
+  }
+
+  desc_params <- list(
+    alpha = "alpha value to use for colours",
+    space = "colour space to interpolate through, rgb or Lab, see ?colorRamp for details",
+    interpolate = "type of interpolation to use, linear or spline, see ?colorRamp for more details"
+  )
+  seealso <- list(
+    "scale_gradient" = "continuous colour scale with midpoint",
+    "colorRamp" = "for details of interpolation algorithm"
+  )
+  
+  examples <- function(.) {
+    
+
   }
   
 })

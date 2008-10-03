@@ -7,6 +7,9 @@
 # graphics device from the extension.  This means the only argument you 
 # need to supply is the path.
 # 
+# \code{ggsave} currently recognises the extensions ps, tex (pictex), pdf,
+# tiff, png, bmp and wmf (windows only).
+# 
 # @arguments plot to save, defaults to last plot displayed
 # @arguments file name/path of plot
 # @arguments device to use, automatically extract from file name extension
@@ -27,21 +30,20 @@
 #X # make twice as big as on screen
 #X ggsave(ratings, file="ratings.pdf", scale=2)
 #X }
-ggsave <- function(plot = last_plot(), filename=default_name(plot), device=default_device(filename), scale=1, width=par("din")[1], height=par("din")[2], dpi=96, path="", ...) {
+ggsave <- function(plot = last_plot(), filename=default_name(plot), device=default_device(filename), scale=1, width=par("din")[1], height=par("din")[2], dpi=72, path="", keep = plot$options$keep, drop = plot$options$drop, ...) {
 
-  ps <- function(..., width, height)  grDevices::ps(..., width=width, height=height)
+  ps <- function(..., width, height)  grDevices::postscript(..., width=width, height=height)
   tex <- function(..., width, height) grDevices::pictex(..., width=width, height=height)
   pdf <- function(..., version="1.4") grDevices::pdf(..., version=version)
-  png <- function(..., width, height) grDevices::png(..., width=width*dpi, height=height*dpi)
-  jpeg <- function(..., width, height) grDevices::jpeg(..., width=width*dpi, height=height*dpi)
-  bmp <- function(..., width, height) grDevices::bmp(..., width=width*dpi, height=height*dpi)
   wmf <- function(..., width, height) grDevices::win.metafile(..., width=width, height=height)
+
+  png <- function(..., width, height) grDevices::png(..., width=width*dpi, height=height*dpi, res = dpi)
+  jpeg <- function(..., width, height) grDevices::jpeg(..., width=width*dpi, height=height*dpi, res = dpi)
+  bmp <- function(..., width, height) grDevices::bmp(..., width=width*dpi, height=height*dpi, res = dpi)
+  tiff <- function(..., width, height) grDevices::tiff(..., width=width*dpi, height=height*dpi, res = dpi)
   
   default_name <- function(plot) { 
-    paste(path, digest.ggplot(plot), ".pdf", sep="")
-    # title <- if (is.null(plot$title) || nchar(plot$title) == 0) "ggplot" else plot$title
-    # clean <- tolower(gsub("[^a-zA-Z]+", "_", title))
-    # paste(clean, ".pdf", sep="")
+    paste(path, digest.ggplot(plot), ".png", sep="")
   }
   
   default_device <- function(filename) {
@@ -57,9 +59,9 @@ ggsave <- function(plot = last_plot(), filename=default_name(plot), device=defau
   width <- width * scale
   height <- height * scale
   
-  on.exit(capture.output(dev.off()))
   device(file=filename, width=width, height=height, ...)
-  print(plot)
+  on.exit(capture.output(dev.off()))
+  print(plot, keep = keep, drop = drop)
   
   invisible()
 }

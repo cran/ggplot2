@@ -1,23 +1,29 @@
 CoordPolar <- proto(Coord, {
 
-  new <- function(., theta="x", start = 0, direction = 1) {
+  new <- function(., theta="x", start = 0, direction = 1, expand = FALSE) {
     theta <- if (theta == "x") "x" else "y"
     r <- if (theta == "x") "y" else "x"
 
-    c(.$proto(theta = theta, r = r, start=start, direction=sign(direction)), list(opts(aspect.ratio = 1)))
+    c(
+      .$proto(
+        theta = theta, r = r, 
+        start = start, direction = sign(direction),
+        expand = expand
+      ), 
+      list(opts(aspect.ratio = 1))
+    )
   }
 
   theta_scale <- function(.) .$.scales$get_scales(.$theta)
   theta_range <- function(.) {
-    if (.$theta_discrete()) {
-      expand_range(.$theta_scale()$frange(), 0,0.5)
+    if (.$expand) {
+      .$theta_scale()$output_expand()
     } else {
-      expand_range(.$theta_scale()$frange(), 0,0)
+      .$theta_scale()$output_set()
     }
   }
   theta_rescale <- function(., x) {
     rotate <- function(x) (x + .$start) %% (2 * pi) * .$direction
-    
     rotate(rescale(x, c(0, 2 * pi), .$theta_range()))
   }
   theta_discrete <- function(., x) .$.scales$get_scales(.$theta)$objname == "discrete"
@@ -27,14 +33,14 @@ CoordPolar <- proto(Coord, {
   
   r_scale <- function(.) .$.scales$get_scales(.$r)
   r_range <- function(.) {
-    if (.$r_discrete()) {
-      expand_range(.$r_scale()$frange(), 0,0.5)
+    if (.$expand) {
+      .$r_scale()$output_expand()
     } else {
-      expand_range(.$r_scale()$frange(), 0,0)
+      .$r_scale()$output_set()
     }
   }
   
-  r_rescale <- function(., x) rescale(x, c(0, 0.9), .$r_range())
+  r_rescale <- function(., x) rescale(x, c(0, 0.4), .$r_range())
   r_discrete <- function(., x) .$.scales$get_scales(.$r)$objname == "discrete"
 
   muncher <- function(.) TRUE
@@ -42,57 +48,88 @@ CoordPolar <- proto(Coord, {
     r <- .$r_rescale(data[[.$r]])
     theta <- .$theta_rescale(data[[.$theta]])
     
-    data$x <- r * sin(theta)
-    data$y <- r * cos(theta)
-  
+    data$x <- r * sin(theta) + 0.5
+    data$y <- r * cos(theta) + 0.5
+
     data
   }
   
-  guide_inside <- function(., plot) {
+  guide_background <- function(., theme) {
     
-    theta <- .$theta_rescale(.$theta_scale()$breaks())
-    thetamin <- .$theta_rescale(.$theta_scale()$minor_breaks())
-    thetafine <- seq(0, 2*pi, length=100)
+    theta <- .$theta_rescale(.$theta_scale()$input_breaks_n())
+    thetamin <- .$theta_rescale(.$theta_scale()$output_breaks())
+    thetafine <- seq(0, 2 * pi, length=100)
     
+    
+    r <- 0.4
+    rfine <- c(.$r_rescale(.$r_scale()$input_breaks_n()), 0.45)
+
+    ggname("grill", grobTree(
+      theme_render(theme, "panel.background"),
+      if (length(labels) > 0) theme_render(
+        theme, "panel.grid.major", name = "angle", 
+        x = c(rbind(0, 0.45 * sin(theta))) + 0.5, 
+        y = c(rbind(0, 0.45 * cos(theta))) + 0.5,
+        id.lengths = rep(2, length(theta)), 
+        default.units="native"
+      ),
+      theme_render(
+        theme, "panel.grid.minor", name = "angle", 
+        x = c(rbind(0, 0.45 * sin(thetamin))) + 0.5, 
+        y = c(rbind(0, 0.45 * cos(thetamin))) + 0.5,
+        id.lengths = rep(2, length(thetamin)),  
+        default.units="native"
+      ),
+      
+      theme_render(
+        theme, "panel.grid.major", name = "radius",
+        x = rep(rfine, each=length(thetafine)) * sin(thetafine) + 0.5, 
+        y = rep(rfine, each=length(thetafine)) * cos(thetafine) + 0.5,
+        id.lengths = rep(length(thetafine), length(rfine)),
+        default.units="native"
+      )
+    ))
+  }
+
+  guide_foreground <- function(., theme) {
+    theta <- .$theta_rescale(.$theta_scale()$input_breaks_n())
     labels <- .$theta_scale()$labels()
-    ends_apart <- 1 - (theta[length(theta)] - theta[1]) / (2*pi)
+    
+    # Combine the two ends of the scale if they are close
+    ends_apart <- (theta[length(theta)] - theta[1]) %% (2*pi)
     if (ends_apart < 0.05) {
       labels[length(labels)] <- paste(labels[1], labels[length(labels)], sep="/")
       labels <- labels[-1]
       theta <- theta[-1]
     }
-    
-    r <- 1
-    rfine <- .$r_rescale(.$r_scale()$breaks())
-
-    gp <- gpar(fill=plot$grid.fill, col=plot$grid.colour)
-    
-    ggname("grill", gTree(children = gList(
-      ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
-      if (length(labels) > 0) ggname("major-angle", segmentsGrob(0, 0, 5 * sin(theta), 5*cos(theta), gp=gp, default.units="native")),
-      ggname("minor-angle", segmentsGrob(0, 0, 5 * sin(thetamin), 5*cos(thetamin), gp=gp, default.units="native")),
-      if (length(labels) > 0) ggname("labels-angle", textGrob(labels, r * 1.1 * sin(theta), r * 1.1 * cos(theta), gp=gpar(col=plot$axis.colour), default.units="native")),
-      ggname("major-radius", polylineGrob(rep(rfine, each=length(thetafine)) * sin(thetafine), rep(rfine, each=length(thetafine)) * cos(thetafine), default.units="native", gp=gp))# ,
-      #       ggname("labels-radius", textGrob(.$r_scale()$labels(), 0.02, rfine + 0.04, default.units="native", gp=gpar(col=plot$axis.colour), hjust=0))
-    )))
-  }
+      
+    grobTree(
+      if (length(labels) > 0) theme_render(
+        theme, "axis.text.x", 
+        labels, 0.45 * sin(theta) + 0.5, 0.45 * cos(theta) + 0.5,
+        hjust = 0.5, vjust = 0.5,
+        default.units="native"
+      ),      
+      theme_render(theme, "panel.border")
+    )
+  }  
 
   
-  frange <- function(.) {
+  output_set <- function(.) {
     list(
       x = expand_range(c(-1, 1), 0.1, 0),
       y = expand_range(c(-1, 1), 0.1, 0)
     )
   }
     
-  guide_axes <- function(.) {
+  guide_axes <- function(., theme) {
     list(
-      x = ggaxis(c(-1, 1), "", "bottom", c(-1,1)),
-      y = ggaxis(.$r_rescale(.$r_scale()$breaks()) / 2 + 0.6, .$r_scale()$labels(), "left", c(0, 1.2))
+      x = guide_axis(c(-1, 1), "", "bottom", theme),
+      y = guide_axis(.$r_rescale(.$r_scale()$input_breaks_n()) + 0.5, .$r_scale()$labels(), "left", theme)
     )
   }
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "polar"
   desc <- "Polar coordinates"
@@ -103,15 +140,11 @@ CoordPolar <- proto(Coord, {
   desc_params <- list(
     theta = "variable to map angle to ('x' or 'y')",
     start = "offset from 12 o'clock in radians",
-    direction = "1, clockwise; -1, anticlockwise"
+    direction = "1, clockwise; -1, anticlockwise",
+    expand = "should axes be expanded to slightly outside the range of the data? (default: FALSE)"
   )
   
   examples <- function(.) {
-    # Still very experimental, so a bit on the buggy side, but I'm
-    # working on it.  Also need to deal properly with cyclical
-    # variables
-    ggopt(aspect.ratio = 1)    
-    
     # NOTE: Use these plots with caution - polar coordinates has
     # major perceptual problems.  The main point of these examples is 
     # to demonstrate how these common plots can be described in the
@@ -137,8 +170,6 @@ CoordPolar <- proto(Coord, {
     )
     ggplot(df, aes(x = "", y = value, fill = variable)) + geom_bar(width=1) + scale_fill_manual(values = c("red","yellow")) + coord_polar("y", start=pi/3) + opts(title = "Pac man")
     
-    
-    
     # Windrose + doughnut plot
     movies$rrating <- factor(round_any(movies$rating, 1))
     movies$budgetq <- factor(chop(movies$budget, 4), labels=1:4)
@@ -149,7 +180,6 @@ CoordPolar <- proto(Coord, {
     doh + geom_bar(width=1) + coord_polar()
     #Doughnut plot
     doh + geom_bar(width=0.9, position="fill") + coord_polar(theta="y")
-    ggopt(aspect.ratio = NULL)
   }
 
 })

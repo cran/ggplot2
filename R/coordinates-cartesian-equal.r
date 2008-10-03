@@ -4,9 +4,9 @@ CoordEqual <- proto(CoordCartesian, {
     list(.$proto(ratio=ratio), opts(aspect.ratio = ratio))
   }
 
-  frange <- function(.) {
-    xlim <- .$x()$frange()
-    ylim <- .$y()$frange()
+  output_set <- function(.) {
+    xlim <- .$x()$output_set()
+    ylim <- .$y()$output_set()
     
     xr <- diff(xlim)
     yr <- diff(ylim)
@@ -32,32 +32,40 @@ CoordEqual <- proto(CoordCartesian, {
     xlim <- mean(xlim) + xratio * c(-0.5, 0.5)
     ylim <- mean(ylim) + yratio * c(-0.5, 0.5)
     
-    expand <- .$expand()
+    .$x()$train(xlim)
+    .$y()$train(ylim)
+    
     list(
-      x = expand_range(xlim, expand$x[1], expand$x[2]),
-      y = expand_range(ylim, expand$y[1], expand$y[2])
+      x = .$x()$output_expand(),
+      y = .$y()$output_expand()
     )
   }
   
-  guide_axes <- function(.) {
-    range <- .$frange()
-    list(
-      x = ggaxis(grid.pretty(range$x), grid.pretty(range$x), "bottom", range$x),
-      y = ggaxis(grid.pretty(range$y), grid.pretty(range$y), "left", range$y)
-    )
-  }
-
-  guide_inside <- function(., plot) {
-    range <- .$frange()
-    breaks <- list(
-      x = list(major = grid.pretty(range$x), minor = .$x()$minor_breaks(b = grid.pretty(range$x))),
-      y = list(major = grid.pretty(range$y), minor = .$y()$minor_breaks(b = grid.pretty(range$y)))
-    )
+  guide_axes <- function(., theme) {
+    range <- .$output_set()
+    y.pretty <- grid.pretty(range$y)
+    x.pretty <- grid.pretty(range$x)
     
-    draw_grid(plot, breaks)
+    list(
+      x = guide_axis(.$transform_x(x.pretty), x.pretty, "bottom", theme),
+      y = guide_axis(.$transform_y(y.pretty), y.pretty, "left", theme)
+    )
+  }
+  
+  guide_background <- function(., theme) {
+    range <- .$output_set()
+    y.pretty <- .$transform_y(grid.pretty(range$y))
+    x.pretty <- .$transform_x(grid.pretty(range$x))
+
+    x.major <- unit(x.pretty, "native")
+    x.minor <- unit(.$x()$output_breaks(b = x.pretty), "native")
+    y.major <- unit(y.pretty, "native")
+    y.minor <- unit(.$y()$output_breaks(b = y.pretty), "native")
+    
+    draw_grid(theme, x.minor, x.major, y.minor, y.major)
   }
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "equal"
   desc <- "Equal scale cartesian coordinates"

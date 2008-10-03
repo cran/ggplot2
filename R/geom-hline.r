@@ -2,6 +2,7 @@ GeomHline <- proto(Geom, {
   new <- function(., ...) {
     .super$new(., ..., ignore.extra = TRUE)
   }
+
   draw <- function(., data, scales, coordinates, intercept = NULL, ...) {
     if (is.character(intercept)) intercept <- (match.fun(intercept))(data$y)
     
@@ -13,8 +14,8 @@ GeomHline <- proto(Geom, {
       data$intercept <- intercept
     }
     
-    xrange <- coordinates$frange()$x
-
+    xrange <- scales$get_scales("x")$output_expand()
+    
     data <- transform(data,
       x = xrange[1],
       xend = xrange[2],

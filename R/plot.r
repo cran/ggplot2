@@ -9,7 +9,7 @@ ggplot <- function(data, ...) UseMethod("ggplot")
 # @arguments default list of aesthetic mappings (these can be colour, size, shape, line type -- see individual geom functions for more details)
 # @seealso \url{http://had.co.nz/ggplot/ggplot.html}
 # @keyword hplot
-ggplot.default <- function(data = NULL, mapping=aes(), ...) {
+ggplot.default <- function(data = NULL, mapping=aes(), ..., environment = globalenv()) {
   if (!is.null(data) && !is.data.frame(data)) stop("Data needs to be a data.frame")
   if (!missing(mapping) && !inherits(mapping, "uneval")) stop("Mapping should be created with aes or aes_string")
   
@@ -18,34 +18,23 @@ ggplot.default <- function(data = NULL, mapping=aes(), ...) {
     layers = list(),
     scales = Scales$new(),
     defaults = mapping,
-    title = NULL
+    options = list(),
+    coordinates = CoordCartesian$new(),
+    facet = FacetGrid$new(),
+    plot_env = environment
   ), class="ggplot")
-  p$coordinates <- CoordCartesian$new()
-  p$facet <- FacetGrid$new()
-  p$scales$add_defaults(p$data, p$defaults)
+
+  p$scales$add_defaults(p$data, p$defaults, p$plot_env)
 
   set_last_plot(p)
   p
 }
 
 
-# Print ggplot
-# Print generic for ggplot.  Plot on current graphics device.
-#
-# @arguments plot to display
-# @arguments draw new (empty) page first?
-# @arguments viewport to draw plot in
-# @arguments other arguments passed on to \\code{\\link{ggplot_plot}}
-# @keyword hplot
-# @keyword internal 
-print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...) {
-  if (newpage) grid.newpage()
-  if (is.null(vp)) {
-    grid.draw(ggplot_plot(x, ...)) 
-  } else {
-    if (is.character(vp)) seekViewport(vp) else pushViewport(vp)
-    grid.draw(ggplot_plot(x, ...)) 
-    upViewport()
-  }
+plot_clone <- function(plot) {
+  p <- plot
+  p$scales <- plot$scales$clone()
+  p$layers <- lapply(plot$layers, function(x) x$clone())
+  
+  p
 }
-

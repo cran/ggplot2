@@ -1,14 +1,24 @@
 ScaleSize <- proto(ScaleContinuous, expr={
+  doc <- TRUE
   common <- NULL
   .input <- .output  <- "size"
   aliases <- c("scale_area")
   
-  new <- function(., name=NULL, to=c(0.2, 3)) {
-    .$proto(name=name, .range=to)
+  
+  new <- function(., name=NULL, limits=NULL, breaks=NULL, labels=NULL, trans = NULL, to = c(0.5, 3)) {
+    .super$new(., name=name, limits=limits, breaks=breaks, labels=labels, trans=trans, variable = "size", to = to)
   }
+  
+  map <- function(., values) {
+    rescale(values, .$to, .$input_set())
+  }
+  output_breaks <- function(.) .$map(.$input_breaks())
   
   objname <- "size"
   desc <- "Size scale for continuous variable"
+  seealso <- list(
+    "scale_manual" = "for sizing discrete variables"
+  )
   
   icon <- function(.) {
     pos <- c(0.15, 0.3, 0.5, 0.75)
@@ -32,9 +42,10 @@ ScaleSize <- proto(ScaleContinuous, expr={
     # idea, unless your factor is ordered, as in this example
     qplot(mpg, cyl, data=mtcars, size=factor(cyl))
     
-    # For lines, you need to tell that you want lines on the legend
-    (p <- qplot(mpg, cyl, data=mtcars, size=cyl, geom="line"))
-    p + scale_size(guide="line")
+    # To control the size mapping for discrete variable, use 
+    # scale_size_manual:
+    last_plot() + scale_size_manual(values=c(2,4,6))
+    
   }
   
 })
@@ -47,4 +58,6 @@ ScaleSizeDiscrete <- proto(ScaleDiscrete, expr={
   doc <- FALSE
 
   max_levels <- function(.) Inf
+  output_set <- function(.) seq_along(.$input_set())
+  
 }) 

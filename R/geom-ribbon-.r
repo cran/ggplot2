@@ -1,29 +1,19 @@
-GeomRibbon <- proto(GeomInterval, {
+GeomRibbon <- proto(Geom, {
   default_stat <- function(.) StatIdentity
-  default_aes <- function(.) aes(colour="grey60", fill="grey80", size=0.5, linetype=1)
-  guide_geom <- function(.) "smooth"
+  default_aes <- function(.) aes(colour="grey60", fill="grey60", size=0.5, linetype=1)
+  required_aes <- c("x", "ymin", "ymax")
+  guide_geom <- function(.) "ribbon"
 
-  adjust_scales_data <- function(., scales, data) {
-    if (!"y" %in% scales$input()) {
-      scales$add(ScaleContinuous$new(variable="y"))  
-    }
-
-    y <- scales$get_scales("y")
-    y$train(data$min)
-    y$train(data$y)
-    y$train(data$max)
+  draw_legend <- function(., data, ...)  {
+    data <- aesdefaults(data, .$default_aes(), list(...))
+  
+    rectGrob(gp=gpar(col=data$colour, fill=data$fill))
   }
 
-  # draw_legend <- function(., data, ...)  {
-  #   data <- aesdefaults(data, .$default_aes(), list(...))
-  # 
-  #   rectGrob(gp=gpar(col=data$colour, fill=data$fill))
-  # }
-
   draw <- function(., data, scales, coordinates, ...) {
-    data <- data[complete.cases(data[, c("x","min","max")]), ]
+    data <- data[complete.cases(data[, c("x","ymin","ymax")]), ]
     tb <- with(data,
-      coordinates$munch(data.frame(x=c(x, rev(x)), y=c(max, rev(min))))
+      coordinates$munch(data.frame(x=c(x, rev(x)), y=c(ymax, rev(ymin))))
     )
     
     with(data, ggname(.$my_name(), gTree(children=gList(
@@ -40,7 +30,7 @@ GeomRibbon <- proto(GeomInterval, {
     ))))
   }
 
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
   objname <- "ribbon"
   desc <- "Ribbons, y range with continuous x values"
   
@@ -61,12 +51,12 @@ GeomRibbon <- proto(GeomInterval, {
 
     h <- ggplot(huron, aes(x=year))
 
-    h + geom_ribbon(aes(min=0, max=level))
+    h + geom_ribbon(aes(ymin=0, ymax=level))
     h + geom_area(aes(y = level))
 
     # Add aesthetic mappings
-    h + geom_ribbon(aes(min=level-1, max=level+1))
-    h + geom_ribbon(aes(min=level-1, max=level+1)) + geom_line(aes(y=level))
+    h + geom_ribbon(aes(ymin=level-1, ymax=level+1))
+    h + geom_ribbon(aes(ymin=level-1, ymax=level+1)) + geom_line(aes(y=level))
     
     # Another data set, with multiple y's for each x
     m <- ggplot(movies, aes(y=votes, x=year)) 
@@ -82,18 +72,21 @@ GeomRibbon <- proto(GeomInterval, {
 })
 
 GeomArea <- proto(GeomRibbon,{
-  default_aes <- function(.) aes(colour="grey60", fill="grey80", min=0, max=y, size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour=NA, fill="grey60", size=0.5, linetype=1)
   default_pos <- function(.) PositionStack
-  required_aes <- c("x", "y", "min", "max")
+  required_aes <- c("x", "y")
 
-  # Documetation -----------------------------------------------
+  reparameterise <- function(., df, params) {
+    transform(df, ymin = 0, ymax = y)
+  }
+
+  # Documentation -----------------------------------------------
   objname <- "area"
   desc <- "Area plots"
 
   icon <- function(.) {
     polygonGrob(c(0, 0,0.3, 0.5, 0.8, 1, 1), c(0, 1,0.5, 0.6, 0.3, 0.8, 0), gp=gpar(fill="grey60", col=NA))
   }
-
 
   details <- "<p>An area plot is the continuous analog of a stacked bar chart (see geom_bar), and can be used to show how composition of the whole varies over the range of x.  Choosing the order in which different components is stacked is very important, as it becomes increasing hard to see the individual pattern as you move up the stack.</p>\n<p>An area plot is a special case of geom_ribbon, where the minimum of the range is fixed to 0, and the position adjustment defaults to position_stacked.</p>"
 

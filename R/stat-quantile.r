@@ -8,7 +8,7 @@ StatQuantile <- proto(Stat, {
     formula = "formula relating y variables to x variables",
     xseq = "exact points to evaluate smooth at, overrides n"
   )
-  desc_output <- list(
+  desc_outputs <- list(
     quantile = "quantile of distribution"
   )
   
@@ -26,7 +26,7 @@ StatQuantile <- proto(Stat, {
     data <- remove_missing(data, na.rm, c("x", "y"), name = "stat_quantile")
     model <- method(formula, data=data, tau=quantiles, weight=weight, ...)
 
-    yhats <- predict(model, data.frame(x=xseq), type="matrix")
+    yhats <- t(predict(model, data.frame(x=xseq), type="matrix"))
 
     data.frame(
       y = as.vector(yhats), x = xseq, quantile = rep(quantiles, each=length(xseq))

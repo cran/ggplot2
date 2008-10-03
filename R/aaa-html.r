@@ -11,8 +11,8 @@
   "intercept"= "x/y intercept", 
   "label"= "text label", 
   "linetype"= "line type", 
-  "max"= "maximum of interval", 
-  "min"= "minimum of interval", 
+  "ymax"= "maximum of interval", 
+  "ymin"= "minimum of interval", 
   "angle"= "angle", 
   "shape"= "shape of point", 
   "size"= "size", 
@@ -50,21 +50,27 @@ html_index <- function() {
   ps(
     TopLevel$html_header("ggplot"),
     html_auto_link(ps(readLines("templates/index.html"), collapse="\n"), skip="ggplot"),
+    "<br clear='all' />\n", 
     "<h2>Geoms</h2>\n",
     "<p>Geoms, short for geometric objects, describe the type of plot you will produce.  <a href='geom_.html'>Read more</a></p>\n",
     html_linked_list(Geom$find_all()),
+    "<br clear='all' />\n", 
     "<h2>Statistics</h2>\n",
     "<p>It's often useful to transform your data before plotting, and that's what statistical transformations do.  <a href='stat_.html'>Read more</a></p>\n",
     html_linked_list(Stat$find_all()),
+    "<br clear='all' />\n", 
     "<h2>Scales</h2>\n",
     "<p>Scales control the mapping between data and aesthetics.  <a href='scale_.html'>Read more</a></p>\n",
     html_linked_list(Scale$find_all()),
+    "<br clear='all' />\n", 
     "<h2>Coordinate systems</h2>\n",
     "<p>Coordinate systems adjust the mapping from coordinates to the 2d plane of the computer screen.  <a href='coord_.html'>Read more</a></p>\n",
     html_linked_list(Coord$find_all()),
-    "<h2>Facetting</h2>\n",
+    "<br clear='all' />\n", 
+    "<h2>Faceting</h2>\n",
     "<p>Facets display subsets of the dataset in different panels.  <a href='facet_.html'>Read more</a></p>\n",
     html_linked_list(Facet$find_all()),
+    "<br clear='all' />\n", 
     "<h2>Position adjustments</h2>\n",
     "<p>Position adjustments can be used to fine tune positioning of objects to achieve effects like dodging, jittering and stacking.  <a href='position_.html'>Read more</a></p>\n",
     html_linked_list(Position$find_all()),
@@ -100,8 +106,8 @@ all_html_pages_create <- function(path="web/") {
   Coord$all_html_pages_create()
   Position$all_html_pages_create()
   Facet$all_html_pages_create()
-  system("pdf2png web/graphics/*.pdf")
-  system("rm web/graphics/*.pdf")
+  # system("pdf2png web/graphics/*.pdf")
+  # system("rm web/graphics/*.pdf")
   system("optipng web/graphics/*.png  > /dev/null")
 }
 

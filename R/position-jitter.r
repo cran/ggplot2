@@ -1,51 +1,43 @@
 PositionJitter <- proto(Position, {
-  
-  xjitter <- NULL
-  yjitter <- NULL
-  new <- function(., xjitter=NULL, yjitter=NULL) {
-    .$proto(xjitter=xjitter, yjitter=yjitter)
-  }
-  
   adjust <- function(., data, scales) {
     check_required_aesthetics(c("x", "y"), names(data), "position_jitter")
     
-    xrange <- diff(scales$get_scales("x")$frange())
-    yrange <- diff(scales$get_scales("y")$frange())
+    if (is.null(.$width)) .$width <- resolution(data$x) * 0.4
+    if (is.null(.$height)) .$height <- resolution(data$y) * 0.4
     
-    if (is.null(.$xjitter)) .$xjitter <- (is.integeric(resolution(data$x))) * 1
-    if (is.null(.$yjitter)) .$yjitter <- (is.integeric(resolution(data$y))) * 1
+    trans_x <- NULL
+    trans_y <- NULL
+    if(.$width > 0) {
+      trans_x <- function(x) jitter(x, amount = .$width)
+    }
+    if(.$height > 0) {
+      trans_y <- function(x) jitter(x, amount = .$height)
+    }
     
-    data <- transform(data, 
-      x = jitter(x, amount = .$xjitter * xrange/50),
-      y = jitter(y, amount = .$yjitter * yrange/50)
-    )
-
-    suppressWarnings(scales$get_scales("x")$train(data$x))
-    suppressWarnings(scales$get_scales("y")$train(data$y))
-    data
+    transform_position(data, trans_x, trans_y)
   }
   
-  position <- "after"
   objname <- "jitter" 
   desc <- "Jitter points to avoid overplotting"
   
   icon <- function(.) GeomJitter$icon()
   desc_params <- list(
-    xjitter = "degree of jitter in x direction, see ?jitter for details, defaults to 1 if the x variable is a factor, 0 otherwise", 
-    yjitter = "degree of jitter in y direction, see ?jitter for details, defaults to 1 if the y variable is a factor, 0 otherwise"
+    width = "degree of jitter in x direction. Defaults to 40\\% of the resolution of the data.", 
+    height = "degree of jitter in y direction. Defaults to 40\\% of the resolution of the data."
     )
 
   examples <- function(.) {
     qplot(am, vs, data=mtcars)
-    qplot(am, vs, data=mtcars, position="jitter")
-    # Control amount of jittering by calling position_jitter
-    qplot(am, vs, data=mtcars, position=position_jitter(x=10, y=0))
-    qplot(am, vs, data=mtcars, position=position_jitter(x=0.5, y=0.5))
     
-    # See lots of actually useful examples at geom_jitter
-    # You can, however, jitter any geom, however little sense it might make
-    qplot(cut, clarity, data=diamonds, geom="blank", group=1) + geom_path()
-    qplot(cut, clarity, data=diamonds, geom="blank", group=1) + geom_path(position="jitter")
+    # Default amount of jittering will generally be too much for 
+    # small datasets:
+    qplot(am, vs, data=mtcars, position="jitter")
+    # Control the amount as follows
+    qplot(am, vs, data=mtcars, position=position_jitter(w=0.1, h=0.1))
+    
+    # The default works better for large datasets, where it will 
+    # will up as much space as a boxplot or a bar
+    qplot(cut, price, data=diamonds, geom=c("boxplot", "jitter"))
   }
   
 })

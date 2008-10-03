@@ -1,58 +1,23 @@
 GeomTile <- proto(Geom, {
-  draw_groups <- function(., ...) .$draw(...)
-  draw <- function(., data,  scales, coordinates, ...) {
-    if (nrow(data) == 1) return(NULL)
-    # data$colour[is.na(data$colour)] <- data$fill[is.na(data$colour)]
+  reparameterise <- function(., df, params) {
+    df$width <- df$width %||% params$width %||% resolution(df$x, FALSE)
+    df$height <- df$height %||% params$height %||% resolution(df$y, FALSE)
 
-    if (coordinates$muncher()) {
-      data <- transform(data, top=y + height/2, bottom= y - height/2, left=x - width/2, right=x + width/2)
-      ggname(.$my_name(), gTree(children=do.call("gList", lapply(1:nrow(data), function(i) {
-        data <- data[i, ]
-        df <- cbind(with(data, rbind(
-          cbind(y = top, x=left),
-          cbind(y = top, x=right),
-          cbind(y = bottom, x=right),
-          cbind(y = bottom, x=left)
-        )), data[rep(1,4), names(.$default_aes())])
-        GeomPolygon$draw(df, scales, coordinates)
-      }))))
-    } else {  
-    with(data, 
-      ggname(.$my_name(), rectGrob(x, y, width=width * size, height=height * size, default.units="native", just=c("centre","centre"), 
-      gp=gpar(col=colour, fill=fill)))
+    transform(df, 
+      xmin = x - width / 2,  xmax = x + width / 2,  width = NULL,
+      ymin = y - height / 2, ymax = y + height / 2, height = NULL 
     )
-    }
+  }
+
+  draw_groups <- function(., data,  scales, coordinates, ...) {
+    # data$colour[is.na(data$colour)] <- data$fill[is.na(data$colour)]
+    GeomRect$draw(data, scales, coordinates, ...)
   }
   
   draw_legend <- function(., data, ...)  {
     data <- aesdefaults(data, .$default_aes(), list(...))
-
     rectGrob(gp=gpar(col=NA, fill=data$fill))
-  }
-  
-  adjust_scales_data <- function(., scales, data) {
-    if(is.null(data$width)) data$width <- resolution(data$x)
-    if(is.null(data$height)) data$height <- resolution(data$y)
-    
-    if (is.factor(data$x)) {
-      x <- data$x[1:2]
-    } else {
-      x <- c(max(data$x + data$width/2), min(data$x - data$width/2))
-    }
-    
-    if (is.factor(data$y)) {
-      y <- data$y[1:2]
-    } else {
-      y <- c(max(data$y + data$height /2 ), min(data$y - data$height / 2))
-    }
-
-    df <- data[1:2, ]
-    df$x <- x
-    df$y <- y
-    
-    rbind(data, df)
-  }
-  
+  }  
 
   objname <- "tile"
   desc <- "Tile plot as densely as possible, assuming that every tile is the same size. "
@@ -64,7 +29,7 @@ GeomTile <- proto(Geom, {
   }
 
   default_stat <- function(.) StatIdentity
-  default_aes <- function(.) aes(fill="grey50", colour=NA, size=1, width = resolution(x), height = resolution(y), size=1, linetype=1)
+  default_aes <- function(.) aes(fill="grey60", colour=NA, size=0.1, linetype=1)
   required_aes <- c("x", "y")
   guide_geom <- function(.) "tile"
   
@@ -84,7 +49,6 @@ GeomTile <- proto(Geom, {
 
     # Add aesthetic mappings
     p + geom_tile(aes(fill=z))
-    p + geom_tile(aes(width=z, height=z))
     
     # Change scale
     p + geom_tile(aes(fill=z)) + scale_fill_gradient(low="green", high="red")
@@ -126,6 +90,6 @@ GeomTile <- proto(Geom, {
     # You can manually set the colour of the tiles using 
     # scale_manual
     col <- c("darkblue", "blue", "green", "orange", "red")
-    qplot(x, y, fill=col[z], data=example, geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col, guide="tile")
+    qplot(x, y, fill=col[z], data=example, geom="tile", width=w, group=1) + scale_fill_identity(labels=letters[1:5], breaks=col)
   }
 })

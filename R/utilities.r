@@ -21,7 +21,7 @@ check_required_aesthetics <- function(required, present, name) {
 #X clist(list(a=1, b=2))
 #X clist(par()[1:5])
 clist <- function(l) {
-  paste("(", paste(names(l), l, sep="=", collapse=", "), ")", sep="")
+  paste(paste(names(l), l, sep=" = ", collapse=", "), sep="")
 }
 
 # Abbreviated paste
@@ -102,10 +102,6 @@ remove_missing <- function(df, na.rm=FALSE, vars = names(df), name="") {
     if (!na.rm) warning("Removed ", sum(missing), " rows containing missing values", name, ".", call. = FALSE)
   }
 
-  if (any(missing)) {
-    df <- df[!missing, ]
-    if (!na.rm) warning("Removed ", sum(missing), " rows containing missing values", name, ".", call. = FALSE)
-  }
 
   df
 }
@@ -131,6 +127,26 @@ rescale <- function(x, to=c(0,1), from=range(x, na.rm=TRUE)) {
     warning("Categorical variable automatically converted to continuous", call.=FALSE)
     x <- as.numeric(x)
   }
-  
-  (x-from[1])/diff(from)*diff(to) + to[1]
+  scaled <- (x-from[1])/diff(from)*diff(to) + to[1]
+  ifelse(scaled %inside% to, scaled, NA)
+}
+
+
+# "Invert" a list
+# Keys become values, values become keys
+# 
+# @arguments list to invert
+# @keyword internal
+invert <- function(L) {
+  t1 <- unlist(L)
+  names(t1) <- rep(names(L), lapply(L, length))
+  tapply(names(t1), t1, c)
+}
+
+# Inside
+# Return logical vector indicating if x is inside the interval
+# 
+# @keywords internal
+"%inside%" <- function(x, interval) {
+  x >= interval[1] & x <= interval[2]
 }

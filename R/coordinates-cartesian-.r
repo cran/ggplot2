@@ -7,61 +7,90 @@ CoordCartesian <- proto(Coord, expr={
   x <- function(.) .$.scales$get_scales("x")
   y <- function(.) .$.scales$get_scales("y")
   
-  transform <- function(., data) data
+  transform <- function(., data) {
+    transform_position(data, .$transform_x, .$transform_y)
+  }
+  transform_x <- function(., data) {
+    rescale(data, 0:1, .$output_set()$x)
+  }
+  transform_y <- function(., data) {
+    rescale(data, 0:1, .$output_set()$y)
+  }
   
   # Assumes contiguous series of points
-  munch <- function(., data, npieces=1) data
+  munch <- function(., data, npieces=1) .$transform(data)
   
-  expand <- function(.) {
+  output_set <- function(.) {
     list(
-      x = .$x()$.expand, 
-      y = .$y()$.expand
+      x = .$x()$output_expand(),
+      y = .$y()$output_expand()
     )
   }
   
-  frange <- function(.) {
-    expand <- .$expand()
+  breaks <- function(.) {
     list(
-      x = expand_range(range(.$x()$frange()), expand$x[1], expand$x[2]),
-      y = expand_range(range(.$y()$frange()), expand$y[1], expand$y[2])
+      x = list(
+        major = .$transform_x(.$x()$input_breaks_n()),
+        minor = .$transform_x(.$x()$output_breaks())
+      ), 
+      y = list(
+        major = .$transform_y(.$y()$input_breaks_n()),
+        minor = .$transform_y(.$y()$output_breaks())
+      )
     )
   }
 
-  guide_axes <- function(.) {
-    range <- .$frange()
+  guide_axes <- function(., theme) {
+    breaks <- .$breaks()
     list(
-      x = ggaxis(.$x()$breaks(), .$x()$labels(), "bottom", range$x),
-      y = ggaxis(.$y()$breaks(), .$y()$labels(), "left", range$y)
+      x = guide_axis(breaks$x$major, .$x()$labels(), "bottom", theme),
+      y = guide_axis(breaks$y$major, .$y()$labels(), "left", theme)
     )
   }
   
-  xlabel <- function(., gp) ggname("xlabel", textGrob(.$x()$name, just=c("centre", "centre"), gp=gp))
-  ylabel <- function(., gp) ggname("ylabel", textGrob(.$y()$name, rot=90, just=c("centre","centre"), gp=gp))
+  xlabel <- function(., theme) theme_render(theme, "axis.title.x", .$x()$name)
+  ylabel <- function(., theme) theme_render(theme, "axis.title.y", .$y()$name)
 
   # Axis labels should go in here somewhere too
-  guide_inside <- function(., plot) {
-    breaks <- list(
-      x = list(major = .$x()$breaks(), minor = .$x()$minor_breaks()),
-      y = list(major = .$y()$breaks(), minor = .$y()$minor_breaks())
-    )
+  guide_background <- function(., theme) {
+    breaks <- .$breaks()
+    x.major <- unit(breaks$x$major, "native")
+    x.minor <- unit(breaks$x$minor, "native")
+    y.major <- unit(breaks$y$major, "native")
+    y.minor <- unit(breaks$y$minor, "native")
     
-    draw_grid(plot, breaks)
+    draw_grid(theme, x.minor, x.major, y.minor, y.major)
   }
   
-  draw_grid <- function(plot, breaks) {
-    gp <- gpar(col=plot$grid.colour)
-    ggname("grill", gTree(children = gList(
-      ggname("background", rectGrob(gp=gpar(fill=plot$grid.fill, col=NA))),
+  draw_grid <- function(theme, x.minor, x.major, y.minor, y.major) {
+    ggname("grill", grobTree(
+      theme_render(theme, "panel.background"),
+      
+      theme_render(
+        theme, "panel.grid.minor", name = "y",
+        x = rep(0:1, length(y.minor)), y = rep(y.minor, each=2), 
+        id.lengths = rep(2, length(y.minor))
+      ),
+      theme_render(
+        theme, "panel.grid.minor", name = "x", 
+        x = rep(x.minor, each=2), y = rep(0:1, length(x.minor)),
+        id.lengths = rep(2, length(x.minor))
+      ),
 
-      ggname("minor-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$minor, unit(1, "npc"), breaks$y$minor, gp = gpar(col=plot$grid.minor.colour, lwd=0.8), default.units="native")),
-      ggname("minor-vertical", segmentsGrob(breaks$x$minor, unit(0, "npc"), breaks$x$minor, unit(1, "npc"), gp = gpar(col=plot$grid.minor.colour, lwd=0.8), default.units="native")),
-
-      ggname("major-horizontal", segmentsGrob(unit(0, "npc"), breaks$y$major, unit(1, "npc"), breaks$y$major, gp = gp, default.units="native")),
-      ggname("major-vertical", segmentsGrob(breaks$x$major, unit(0, "npc"), breaks$x$major, unit(1, "npc"), gp = gp, default.units="native"))
-    )))
+      theme_render(
+        theme, "panel.grid.major", name = "y",
+        x = rep(0:1, length(y.major)), y = rep(y.major, each=2), 
+        id.lengths = rep(2, length(y.major))
+      ),
+      theme_render(
+        theme, "panel.grid.major", name = "x", 
+        x = rep(x.major, each=2), y = rep(0:1, length(x.major)), 
+        id.lengths = rep(2, length(x.major))
+      )
+    ))
   }
   
-  # Documetation -----------------------------------------------
+  # Documentation -----------------------------------------------
 
   objname <- "cartesian"
   desc <- "Cartesian coordinates"
