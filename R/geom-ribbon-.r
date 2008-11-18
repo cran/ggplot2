@@ -1,19 +1,14 @@
 GeomRibbon <- proto(Geom, {
   default_stat <- function(.) StatIdentity
-  default_aes <- function(.) aes(colour="grey60", fill="grey60", size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour=NA, fill="grey20", size=0.5, linetype=1)
   required_aes <- c("x", "ymin", "ymax")
-  guide_geom <- function(.) "ribbon"
+  guide_geom <- function(.) "polygon"
 
-  draw_legend <- function(., data, ...)  {
-    data <- aesdefaults(data, .$default_aes(), list(...))
-  
-    rectGrob(gp=gpar(col=data$colour, fill=data$fill))
-  }
 
   draw <- function(., data, scales, coordinates, ...) {
     data <- data[complete.cases(data[, c("x","ymin","ymax")]), ]
     tb <- with(data,
-      coordinates$munch(data.frame(x=c(x, rev(x)), y=c(ymax, rev(ymin))))
+      coordinates$munch(data.frame(x=c(x, rev(x)), y=c(ymax, rev(ymin))), scales)
     )
     
     with(data, ggname(.$my_name(), gTree(children=gList(
@@ -35,7 +30,7 @@ GeomRibbon <- proto(Geom, {
   desc <- "Ribbons, y range with continuous x values"
   
   icon <- function(.) {
-    polygonGrob(c(0, 0.3, 0.5, 0.8, 1, 1, 0.8, 0.5, 0.3, 0), c(0.5, 0.3, 0.4, 0.2, 0.3, 0.7, 0.5, 0.6, 0.5, 0.7), gp=gpar(fill="grey60", col=NA))
+    polygonGrob(c(0, 0.3, 0.5, 0.8, 1, 1, 0.8, 0.5, 0.3, 0), c(0.5, 0.3, 0.4, 0.2, 0.3, 0.7, 0.5, 0.6, 0.5, 0.7), gp=gpar(fill="grey20", col=NA))
   }
   
   seealso <- list(
@@ -72,7 +67,7 @@ GeomRibbon <- proto(Geom, {
 })
 
 GeomArea <- proto(GeomRibbon,{
-  default_aes <- function(.) aes(colour=NA, fill="grey60", size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour=NA, fill="grey20", size=0.5, linetype=1)
   default_pos <- function(.) PositionStack
   required_aes <- c("x", "y")
 
@@ -85,7 +80,7 @@ GeomArea <- proto(GeomRibbon,{
   desc <- "Area plots"
 
   icon <- function(.) {
-    polygonGrob(c(0, 0,0.3, 0.5, 0.8, 1, 1), c(0, 1,0.5, 0.6, 0.3, 0.8, 0), gp=gpar(fill="grey60", col=NA))
+    polygonGrob(c(0, 0,0.3, 0.5, 0.8, 1, 1), c(0, 1,0.5, 0.6, 0.3, 0.8, 0), gp=gpar(fill="grey20", col=NA))
   }
 
   details <- "<p>An area plot is the continuous analog of a stacked bar chart (see geom_bar), and can be used to show how composition of the whole varies over the range of x.  Choosing the order in which different components is stacked is very important, as it becomes increasing hard to see the individual pattern as you move up the stack.</p>\n<p>An area plot is a special case of geom_ribbon, where the minimum of the range is fixed to 0, and the position adjustment defaults to position_stacked.</p>"

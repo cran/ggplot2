@@ -3,7 +3,7 @@ StatDensity2d <- proto(Stat, {
   desc <- "Density estimation, 2D"
   
   default_geom <- function(.) GeomDensity2d
-  default_aes <- function(.) aes(colour="#3366FF", size=0.5, group = ..piece..)
+  default_aes <- function(.) aes(colour="#3366FF", size=0.5, group = interaction(..piece.., ..level..))
   required_aes <- c("x", "y")
 
   desc_outputs <- list(
@@ -11,18 +11,21 @@ StatDensity2d <- proto(Stat, {
   )
   icon <- function(.) GeomDensity2d$icon()
 
-  calculate <- function(., data, scales, na.rm = FALSE, ...) {
+  calculate <- function(., data, scales, na.rm = FALSE, contour = TRUE, ...) {
     df <- data.frame(data[, c("x", "y")])
     df <- remove_missing(df, na.rm, name = "stat_density2d")
 
     dens <- do.call(MASS::kde2d, c(df, n=100, ...))
     df <- with(dens, data.frame(expand.grid(x = x, y = y), z = as.vector(z)))
     
-    z_scale <- scale_z_continuous()
-    z_scale$train(df$z)
-    scales$add(z_scale)
-    
-    StatContour$calculate(df, scales, ...)
+    if (contour) {
+      StatContour$calculate(df, scales, ...)      
+    } else {
+      names(df) <- c("x", "y", "density")
+      df$level <- 1
+      df$piece <- 1
+      df
+    }
   }
   
   examples <- function(.) {
@@ -39,6 +42,25 @@ StatDensity2d <- proto(Stat, {
     m + stat_density2d(aes(fill = ..level..), geom="polygon")
 
     qplot(rating, length, data=movies, geom=c("point","density2d"), ylim=c(1, 500))
+    
+    # If you map an aesthetic to a categorical variable, you will get a
+    # set of contours for each value of that variable
+    qplot(rating, length, data = movies, geom = "density2d", 
+      colour = factor(Comedy), ylim = c(0, 150))
+    qplot(rating, length, data = movies, geom = "density2d", 
+      colour = factor(Action), ylim = c(0, 150))
+    qplot(carat, price, data = diamonds, geom = "density2d", colour = cut)
+    
+    # Another example ------
+    d <- ggplot(diamonds, aes(carat, price)) + xlim(1,3)
+    d + geom_point() + geom_density2d()
+    
+    # If we turn contouring off, we can use use geoms like tiles:
+    d + stat_density2d(geom="tile", aes(fill = ..density..), contour = FALSE)
+    last_plot() + scale_fill_gradient(limits=c(1e-5,8e-4))
+    
+    # Or points:
+    d + stat_density2d(geom="point", aes(size = ..density..), contour = FALSE)
   }  
   
 })

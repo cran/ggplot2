@@ -2,7 +2,7 @@
 # This function powers \code{\link{stat_bin}}R
 #
 # @keyword internal
-bin <- function(x, weight=NULL, binwidth=NULL, origin=NULL, breaks=NULL, range=NULL, width=0.9) {
+bin <- function(x, weight=NULL, binwidth=NULL, origin=NULL, breaks=NULL, range=NULL, width=0.9, drop = FALSE) {
   
   if (is.null(weight))  weight <- rep(1, length(x))
   weight[is.na(weight)] <- 0
@@ -32,24 +32,20 @@ bin <- function(x, weight=NULL, binwidth=NULL, origin=NULL, breaks=NULL, range=N
     width <- diff(breaks)
   }
 
-  # if (binwidth < resolution(x)) warning("Binwidth is smaller than the resolution of the data")
   results <- data.frame(
     count = as.numeric(tapply(weight, bins, sum, na.rm=TRUE)),
     x = x,
     width = width
   )
-  results <- transform(results,
-    density = count / width / sum(count, na.rm=TRUE)
-  )
 
-  # Need to leave zeros in for non-bar representations
-  # results <- subset(results, count > 0)
-  transform(results,
-    ncount = count / max(count, na.rm=TRUE),
-    ndensity = density / max(density, na.rm=TRUE)
-  )
-  
-  
+  res <- within(results, {
+    count[is.na(count)] <- 0
+    density <- count / width / sum(count, na.rm=TRUE)
+    ncount <- count / max(count, na.rm=TRUE)
+    ndensity <- density / max(density, na.rm=TRUE)
+  })
+  if (drop) res <- subset(res, count > 0)
+  res
 }
 
 # Generate sequence of fixed size intervals covering range
@@ -75,15 +71,15 @@ StatBin <- proto(Stat, {
     .super$calculate_groups(., data, ...)
   }
   
-  calculate <- function(., data, scales, binwidth=NULL, origin=NULL, breaks=NULL, width=0.9, ...) {
-    range <- scales$get_scales("x")$output_set()
+  calculate <- function(., data, scales, binwidth=NULL, origin=NULL, breaks=NULL, width=0.9, drop = FALSE, ...) {
+    range <- scales$x$output_set()
 
     if (is.null(breaks) && is.null(binwidth) && !is.integer(data$x) && !.$informed) {
       message("stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.")
       .$informed <- TRUE
     }
     
-    bin(data$x, data$weight, binwidth=binwidth, origin=origin, breaks=breaks, range=range, width=width)
+    bin(data$x, data$weight, binwidth=binwidth, origin=origin, breaks=breaks, range=range, width=width, drop = FALSE)
   }
 
   objname <- "bin" 

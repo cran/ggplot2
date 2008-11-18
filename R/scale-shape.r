@@ -5,8 +5,8 @@ ScaleShape <- proto(ScaleDiscrete, expr={
   desc <- "Point glyph shapes"
   solid <- TRUE
 
-  new <- function(., name=NULL, solid=TRUE, limits = NULL, breaks = NULL, labels = NULL) {
-    .$proto(name=name, solid=solid, limits = limits, breaks = breaks, .labels = labels)
+  new <- function(., name=NULL, solid=TRUE, limits = NULL, breaks = NULL, labels = NULL, formatter = identity) {
+    .$proto(name=name, solid=solid, limits = limits, breaks = breaks, .labels = labels, formatter = formatter)
   }
   
   output_set <- function(.) {
@@ -21,7 +21,7 @@ ScaleShape <- proto(ScaleDiscrete, expr={
   
   # Documentation -----------------------------------------------
   objname <- "shape"
-  description <- "Scale for shapes, aka glyphs"
+  desc <- "Scale for shapes, aka glyphs"
   icon <- function(.) {
     gTree(children=gList(
       circleGrob(0.7, 0.7, r=0.1),

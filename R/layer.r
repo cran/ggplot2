@@ -54,7 +54,7 @@ Layer <- proto(expr = {
     proto(., 
       geom=geom, geom_params=geom_params, 
       stat=stat, stat_params=stat_params, 
-      data=data, aesthetics=mapping, 
+      data=data, mapping=mapping, 
       position=position,
       ignore.extra = ignore.extra
     )
@@ -63,7 +63,7 @@ Layer <- proto(expr = {
   clone <- function(.) as.proto(.$as.list(all.names=TRUE))
   
   use_defaults <- function(., data) {
-    df <- aesdefaults(data, .$geom$default_aes(), compact(.$aesthetics))
+    df <- aesdefaults(data, .$geom$default_aes(), compact(.$mapping))
     
     # Override mappings with parameters
     gp <- intersect(c(names(df), .$geom$required_aes), names(.$geom_params))
@@ -74,7 +74,7 @@ Layer <- proto(expr = {
   }
   
   aesthetics_used <- function(., plot_aesthetics) {
-    aes <- defaults(.$aesthetics, plot_aesthetics)
+    aes <- defaults(.$mapping, plot_aesthetics)
     aes <- defaults(.$stat$default_aes(), aes)
     aesthetics <- names(compact(aes))
     aesthetics <- intersect(aesthetics, names(.$geom$default_aes()))
@@ -87,7 +87,7 @@ Layer <- proto(expr = {
       cat("Empty layer\n")
       return(invisible());
     }
-    cat("mapping:", clist(.$aesthetics), "\n")
+    cat("mapping:", clist(.$mapping), "\n")
     .$geom$print(newline=FALSE)
     cat(clist(.$geom_params), "\n")
     .$stat$print(newline=FALSE)
@@ -98,14 +98,14 @@ Layer <- proto(expr = {
   
   # Produce data.frame of evaluated aesthetics
   # Depending on the construction of the layer, we may need
-  # to stitch together a data frame using the defaults from plot\$defaults 
+  # to stitch together a data frame using the defaults from plot\$mapping 
   # and overrides for a given geom.
   #
   make_aesthetics <- function(., plot) {
     data <- nulldefault(.$data, plot$data)
     if (is.null(data)) stop("No data for layer", call.=FALSE)
 
-    aesthetics <- compact(defaults(.$aesthetics, plot$defaults))
+    aesthetics <- compact(defaults(.$mapping, plot$mapping))
     # Override grouping if specified in layer
     if (!is.null(.$geom_params$group)) {
       aesthetics["group"] <- .$geom_params$group
@@ -123,13 +123,15 @@ Layer <- proto(expr = {
   }
   
   calc_statistic <- function(., data, scales) {
-    if (is.null(data) || nrow(data) == 0) return()
-
-# tryNULL(
-    do.call(.$stat$calculate_groups, c(
+    if (is.null(data) || nrow(data) == 0) return(data.frame())
+    
+    res <- do.call(.$stat$calculate_groups, c(
       list(data=as.name("data"), scales=as.name("scales")), 
       .$stat_params)
-    )#)
+    )
+    if (is.null(res)) return(data.frame())
+    
+    res
     
   }
 
@@ -138,30 +140,39 @@ Layer <- proto(expr = {
   # of aesthetic mappings occur.  This allows the mapping of variables 
   # created by the statistic, for example, height in a histogram, levels
   # on a contour plot.
+  # 
+  # This also takes care of applying any scale transformations that might
+  # be necessary
   map_statistics <- function(., data, plot) {
     gg_apply(data, function(x) .$map_statistic(x, plot=plot))
   }
   
   map_statistic <- function(., data, plot) {
     if (is.null(data) || length(data) == 0 || nrow(data) == 0) return()
-    aesthetics <- defaults(.$aesthetics, defaults(plot$defaults, .$stat$default_aes()))
+    aesthetics <- defaults(.$mapping, 
+      defaults(plot$mapping, .$stat$default_aes()))
+
+    new <- strip_dots(aesthetics[is_calculated_aes(aesthetics)])
+    if (length(new) == 0) return(data)
+
+    # Add map stat output to aesthetics
+    stat_data <- as.data.frame(lapply(new, eval, data, baseenv()))
+    names(stat_data) <- names(new)
     
-    match <- "\\.\\.([a-zA-z._]+)\\.\\."
-    new <- aesthetics[grep(match, aesthetics)]
-    new <- lapply(new, function(x) parse(text = sub(match, "\\1", x))[[1]])
-    
-    for(i in seq_along(new)) {
-      data[[names(new)[i]]] <- eval(new[[i]], data, baseenv())
-    }
-    
+    # Add any new scales, if needed
     plot$scales$add_defaults(data, new, plot$plot_env)
+    stat_data <- plot$scales$transform_df(stat_data)
     
-    data
+    cunion(stat_data, data)
   }
 
   reparameterise <- function(., data) {
     gg_apply(data, function(df) {
-      if (!is.null(df)) .$geom$reparameterise(df, .$geom_params)
+      if (!is.null(df)) {
+        .$geom$reparameterise(df, .$geom_params) 
+      } else {
+        data.frame()
+      }
     })
   }
 
@@ -171,14 +182,8 @@ Layer <- proto(expr = {
     })
   }
   
-  # Return a matrix of grobTrees, matching dimensions of facets
-  make_grobs <- function(., data, scales, cs) {
-    force(data)
-    gg_apply(data, function(x) .$make_grob(x, scales, cs))
-  }
-
   make_grob <- function(., data, scales, cs) {
-    if (is.null(data) || nrow(data) == 0) return()
+    if (is.null(data) || nrow(data) == 0) return(nullGrob())
     data <- .$use_defaults(data)
     
     check_required_aesthetics(.$geom$required_aes, c(names(data), names(.$geom_params)), paste("geom_", .$geom$objname, sep=""))
@@ -200,19 +205,15 @@ Layer <- proto(expr = {
   
   # Stamp data.frame into list of matrices
   
-  scales_transform <- function(., data, scale) {
-    gg_apply(data, function(df) scale$transform_df(df))
+  scales_transform <- function(., data, scales) {
+    gg_apply(data, scales$transform_df)
   }
 
-  scales_map_position <- function(., data, scale) {
-    gg_apply(data, function(df) scale$map_position(df))
-  }
-
-  
   # Train scale for this layer
-  scales_train <- function(., data, scale) {
-    gg_apply(data, scale$train_df)
+  scales_train <- function(., data, scales) {
+    gg_apply(data, scales$train_df)
   }
+
   
   # Map data using scales.
   scales_map <- function(., data, scale) {
@@ -235,7 +236,7 @@ layer <- Layer$new
 # Build data frome for a plot with given data and ... (dots) arguments
 #
 # Depending on the layer, we need
-# to stitch together a data frame using the defaults from plot\$defaults 
+# to stitch together a data frame using the defaults from plot\$mapping 
 # and overrides for a given geom.
 #
 # Arguments in dots are evaluated in the context of \\code{data} so that
@@ -259,7 +260,7 @@ calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = F
   # Conditioning variables needed for facets
   cond <- plot$facet$conditionals()
   
-  aesthetics <- drop_calculated_aes(aesthetics)
+  aesthetics <- aesthetics[!is_calculated_aes(aesthetics)]
   evaled <- eval.each(aesthetics)
   if (length(evaled) == 0) return(data.frame())
   
@@ -275,13 +276,24 @@ calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = F
   expand.grid.df(df, unique(plot$data[, setdiff(cond, names(df)), drop=FALSE]), unique=FALSE)
 }
 
-# Drop calculated aesthetics
-# Remove aesthetics mapped to variables created by statistics
+# Is calculated aesthetic?
+# Determine if aesthetic is calculated from the statistic
 # 
-# @keyword internal
-drop_calculated_aes <- function(aesthetics) {
+# @keywords internal
+is_calculated_aes <- function(aesthetics) {
   match <- "\\.\\.([a-zA-z._]+)\\.\\."
   stats <- rep(F, length(aesthetics))
   stats[grep(match, sapply(aesthetics, as.character))] <- TRUE
-  aesthetics[!stats]
+  stats
+}
+
+# Strip dots
+# Strip dots from expressions that represent mappings of aesthetics to output from statistics
+# 
+# @keywords internal
+strip_dots <- function(aesthetics) {
+  match <- "\\.\\.([a-zA-z._]+)\\.\\."
+  strings <- lapply(aesthetics, deparse)
+  strings <- lapply(strings, gsub, pattern = match, replacement = "\\1")
+  lapply(strings, function(x) parse(text = x)[[1]]) 
 }

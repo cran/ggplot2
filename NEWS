@@ -1,67 +1,66 @@
-ggplot2 0.7  (2008-10-03)
+ggplot2 0.8  (2008-11-18)
 ----------------------------------------
 
-ggplot2 0.7 introduces a new theming system which allows you to control (almost) every aspect of the appearance of the plot.  This system is documented in the book chapter "Polishing your plots for publication", available from http://had.co.nz/ggplot2/book/polishing.pdf.
+The two biggest new features in this release are the (long awaited) ability to have scales that vary between facets, and a faceting system that works like lattice (facet_wrap). From qplot, you can use facet_wrap by specifying one sided formula (~ colour, as opposed to . ~ color). To see some potential uses for these new features, see the "Positioning" chapter of the book.  Implementing these changes has required a rewrite of large parts of the coordinate systems code, so if anything seems strange with non-Cartesian coordinate systems, please get in touch.
 
-Bugs fixed
+I've also made another round of tweaks to make the plots more aesthetically pleasing.  This includes using a bright blue colour for geoms used to add statistical summaries to plots (contour, smooth, and quantiles), and tweaking the default colour scheme for the continuous colour scale.  Please let me know what you think.  Remember that most of these options are controllable with the theming system - see the book chapter "Polishing your plots for publication".
 
-* geom_boxplot: now displays outliers even if only one present 
-* geom_jitter: setting one jitter direction to 0 now works
-* geom_segment: should now work correctly in all coordinate systems (note that arrows only work in Cartesian coordinates)
-* ggsave: correctly uses dpi for raster devices and default dpi changed to 72 (thanks to Brian Ripley for pointing this out)
-* ggsave: current device no longer closes if error occurs
-* position_jitter: now works correctly with 0 jitter
-* remove_missing: some statistics were calculated incorrectly when missing values were present
-* scales: extra scales ignored (again)
-* scales: legends respect fixed parameters of the layer
-* scales: legends won't appear when aesthetics are mapped to NULL, or set to fixed value
-* scales: xend and yend now transformed correctly
-* scale_date: breaks are now rounded to correct position
+Accompanying this new release of the package is an updated and expanded version of the book.  The content of the book is now largely complete (~170 pages), and over the coming months I will be working on make it polished and easy to understand.  See http://had.co.nz/ggplot2/book.  I love to hear your feedback about the book, but at this point please don't bother reporting minor typos, I would much rather hear about what you want to do, but can't figure out from the book.
 
-New functionality
+Other new features:
 
-* geom_point: can now control colour and fill separately for point glyphs with borders
-* geom_step: now has parameter direction which can take values vh (vertical then horizontal) or hv (horizontal then vertical) describing the shape of the stairs
-* qplot: new asp argument to set aspect ratio
-* qplot: now captures the environment in which it was run, which should make it much more robust at finding the variables you expect it to find 
-* qplot: now treats any arguments wrapped in I() as parameters, not aesthetics, e.g. qplot(mpg, wt, data=mtcars, colour = I("red")) or qplot(mpg, wt, data=mtcars, size = I(5))
-* scale_continuous: new minor_breaks argument to controls position of minor breaks
-* scale_discrete: new discrete position scales which make it possible to manually position elements
-* scale_gradientn: new colour scale which creates gradient between any list of colours
+* geom_bin2d/stat_bin2d & geom_hex/stat_binhex: for 2d square and hexagon binning, particularly useful for alleviating overplotting in scatterplots
+* geom_freqpoly: draws frequency polygons (= stat_bin + geom_line)
+* scale_position: both discrete and continuous gain a new formatter argument to control the default formatting of the axis labels.  See also the handy numeric formatters: dollar, comma and percent
+* the xlim and ylim functions now produce discrete scales when appropriate, and generate a reverse scale if the minimum is greater than the maximum
 
-More consistent interfaces
+Improvements
 
-* can use color instead of colour, and old R names throughout ggplot2
-* geom_jitter: Arguments changed to height and width to match other position adjustments
-* scales: any point outside of limits is dropped (this was previously the behaviour for discrete scales, but not continuous scales)
-* scales: limits are consistent across discrete and continuous scales (limits c(1, NA) form no longer works for continuous scales)
-* scales: order of legends reversed to match order of x axis (and to be consistent with previous versions)
-* scale_date: new limits argument to set axis limits
-* scale_discrete: all discrete scales accept breaks argument
-* scale_discrete: all discrete scales have limits and labels argument to better control legends
-* scale_discrete: character and logical vectors now reliably treated as discrete scales
-* stat_density2d, geom_density2d: density2d used consistently (instead of density_2d in some places)
+* coord_map gains experimental axis labels
+* facet_grid: new support for varying scales in rows and columns
+* facet_wrap: new faceter which wraps a 1d ribbon of panels into 2d, in a similar way to lattice
+* geom_bin: gains a drop argument to control whether or not 0 count bins should be removed
+* geom_path and geom_line gain arrows argument to match geom_segment
+* ggsave now checks that you are using it with a ggplot plot
+* ggsave now produces postscript files that are suitable for embedding in another document
+* ggsave now recognises the .svg extension and will produce svg files, if possible
+* ggsave: default dpi changed to 300, on the assumption that you are saving the plot for printing
+* qplot: uses facet_wrap if formula looks like ~ a + b (as opposed to a ~ b)
 
-Improved aesthetics
+Aesthetic tweaks
 
-* coord_polar: more tweaks to grid lines to enhance appearance
-* coord_polar: new expand argument to control whether axes should be expanded outside the range of the data
-* geom_contour, geom_smooth, geom_quantile: now use blue lines
-* position_stack, position_dodge: should be more informative if conditions for stacking/dodging not met
-* position_jitter: default amount of jittering tweaked to align with boxplots etc.
-* scales: background colour of legends key matches plot
-* themes: Complete rewrite of theming system, see new book chapter for details
-* themes: direct access to plot options via $ is now disabled
+* geom_bar, geom_polygon, geom_rect, ...: default fill colour is now much closer to black to match the defaults in other geoms (point, line, etc)
+* geom_line, geom_path, geom_segment: lines have squared ends
+* geom_point, geom_pointrange and geom_boxplot: now use shape = 16 instead of 19.  This shape does not have a border from R 2.8 on, and so will look better when displayed transparently.
+* geom_contour, geom_density2d, geom_quantile and geom_smooth use a bright blue colour for lines, to make them stand out when used with black points
+* scale_gradient: tweaked default colours to make more aesthetically pleasing
+* theme: new theme setting panel.margin (a unit) controls gap between panels in facetted plots (for both grid and wrap)
+* theme_gray: removed black border around strips
+* theme_bw: tweaks to make black and white theme look a little nicer
 
-Improved documentation and error messages
+Bug fixes
 
-* facet_grid: documentation improved
-* qplot: Better error messages when needed variables are missing
-* scale_discrete: improved error message for too many values in domain
-* scale_size: improved documentation for discrete variables
-* online documentation generally tweaked and primped to work a little better and look a little nicer
-* website now includes a search box
-* links from rdoc now point to correct pages
-
+* coord_cartesian now correctly clips instead of dropping points outside of its limits
+* facet_grid: margins now grouped correctly in default case (non-aesthetic variables ignored when generating default group value)
+* facet_grid: fix long standing bug when combining datasets with different levels of facetting variable
+* geom_smooth calls stat::predict explicitly to avoid conflicts with packages that override predict for S4 model classes
+* grid: correctly expose subcomponents of strips and axes
+* mapping aesthetics to functions of stat output now works in a much wider variety of cases
+* order aesthetic should now work with bars (and in general more geoms)
+* position_dodge now works with points and other geoms that lack xmin and xmax
+* scale_area works once more
+* scale_discrete_position: empty levels are no longer displayed by default, if you want them, use breaks = levels(myfactor)
+* scale_discrete_position: fixed bug when limits were set
+* scale_discrete_position: more aesthetically pleasing expansion for a wider ranges of plots (picks expansion based on whether or not geom with width used, e.g. bars)
+* scale_gradient*: axes are correctly labelled when a transformation is used
+* scale_x_log10, scale_y_sqrt etc now correctly transform output from statistics as well as raw data
+* scale_z_* now removed because no longer used by anything
+* stat_bin: correctly returns 0 when no observations in a bin (was previously returning NA)
+* stat_quantreg: deal with yet another new output format from quantreg
+* stat_contour now has arguments to control the position of the contours, rather than relying on the z scale
+* theme: panel.empty setting removed as it is no longer used
+* theme_grey now aliased to theme_gray
+* theme_line: setting size works correctly
+* theme_rect, theme_segment: size now measured in mm, to be consistent with the rest of ggplot
 
 See CHANGELOG for changes in previous versions

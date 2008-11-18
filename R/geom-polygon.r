@@ -4,7 +4,7 @@ GeomPolygon <- proto(Geom, {
     if (n == 1) return()
     
     ggname(.$my_name(), gTree(children=gList(
-      with(coordinates$munch(data), 
+      with(coordinates$munch(data, scales), 
         polygonGrob(x, y, default.units="native",
         gp=gpar(col=colour, fill=fill, lwd=size  * .pt, linetype=linetype))
       )
@@ -14,12 +14,21 @@ GeomPolygon <- proto(Geom, {
 
   objname <- "polygon"
   desc <- "Polygon, a filled path"
-  icon <- function(.) polygonGrob(c(0.1, 0.4, 0.7, 0.9, 0.6, 0.3), c(0.5, 0.8, 0.9, 0.4, 0.2, 0.3), gp=gpar(fill="grey60", col=NA))
+  icon <- function(.) polygonGrob(c(0.1, 0.4, 0.7, 0.9, 0.6, 0.3), c(0.5, 0.8, 0.9, 0.4, 0.2, 0.3), gp=gpar(fill="grey20", col=NA))
   
   default_stat <- function(.) StatIdentity
-  default_aes <- function(.) aes(colour="NA", fill="grey60", size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour="NA", fill="grey20", size=0.5, linetype=1)
   required_aes <- c("x", "y")
-  guide_geom <- function(.) "tile"
+  guide_geom <- function(.) "polygon"
+
+  draw_legend <- function(., data, ...)  {
+    data <- aesdefaults(data, .$default_aes(), list(...))
+  
+    with(data, grobTree(
+      rectGrob(gp = gpar(col = colour, fill = fill)),
+      linesGrob(gp = gpar(col = colour, lwd = size * .pt, lineend="butt"))
+    ))
+  }
 
   seealso <- list(
     geom_path = "an unfilled polygon",

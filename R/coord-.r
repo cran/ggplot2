@@ -1,35 +1,35 @@
-# Coordinate system looks at scales and creates transformation
-# Applies transformation after munching transform (if necessary)
-# Draws axes
-# Also takes care of faceting?
-# 
-# x or y
-# continuous or categorical
-# ideally should bind a few together (and will eventually become coordinate systems)
-
-
 Coord <- proto(TopLevel, expr={
+  limits <- list()
   class <- function(.) "coord"
-  train <- function(., scales) .$.scales <- scales
   
   muncher <- function(.) FALSE
   
-  munch <- function(., data, npieces=50) {
-    data <- add_group(data)
-    
-    groups <- split(data, data$group)
-    munched_groups <- lapply(groups, function(df) .$munch_group(df, npieces))
-    do.call("rbind", munched_groups)
+  # Rescaling at coord level should not be clipped: this is what 
+  # makes zooming work
+  rescale_var <- function(., data, range) {
+    rescale(data, 0:1, range, clip = FALSE)  
   }
   
-  munch_group <- function(., data, npieces=50) {
+  munch <- function(., data, details, npieces=50) {
+    if (!.$muncher()) {
+      .$transform(data, details)
+    } else {
+      data <- add_group(data)
+
+      groups <- split(data, data$group)
+      munched_groups <- lapply(groups, function(df) .$munch_group(df, details, npieces))
+      do.call("rbind", munched_groups)      
+    }
+  }
+  
+  munch_group <- function(., data, details, npieces=50) {
     n <- nrow(data)
 
     x <- approx(data$x, n = npieces * (n - 1) + 1)$y
     y <- approx(data$y, n = npieces * (n - 1) + 1)$y
     
     cbind(
-      .$transform(data.frame(x=x, y=y)),
+      .$transform(data.frame(x=x, y=y), details),
       data[c(rep(1:(n-1), each=npieces), n), setdiff(names(data), c("x", "y"))]
     )
   }
@@ -43,7 +43,7 @@ Coord <- proto(TopLevel, expr={
     if (newline) cat("\n") 
   }
   
-  guide_foreground <- function(., theme) {
+  guide_foreground <- function(., scales, theme) {
     theme_render(theme, "panel.border")
   }  
   # Html defaults

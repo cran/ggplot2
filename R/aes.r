@@ -65,6 +65,14 @@ aes_to_scale <- function(var) {
   var
 }
 
+# Is aesthetic a position aesthetic?
+# Figure out if an aesthetic is a position or not
+# 
+# @keyword internal
+is_position_aes <- function(vars) {
+  aes_to_scale(vars) %in% c("x", "y")
+}
+
 
 # Generate aesthetic mappings from a string
 # Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms.  Compared to aes this function operates on strings rather than expressions.
