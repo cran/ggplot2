@@ -1,10 +1,10 @@
 GeomPath <- proto(Geom, {
   draw_groups <- function(., ...) .$draw(...)
 
-  draw <- function(., data, scales, coordinates, ...) {
+  draw <- function(., data, scales, coordinates, arrow = NULL, ...) {
     if (nrow(data) < 2) return()
 
-    munched <- coordinates$munch(data)
+    munched <- coordinates$munch(data, scales)
 
     # Work out whether we should use lines or segments
     g <- split(munched, munched$group)
@@ -26,24 +26,32 @@ GeomPath <- proto(Geom, {
     
     if (!constant) {
       with(munched, 
-        segmentsGrob(x[!end], y[!end], x[!start], y[!start], default.units="native",
-        gp=gpar(col=colour[!end], lwd=size[!end] * .pt, lty=linetype[!end]))
+        segmentsGrob(x[!end], y[!end], x[!start], y[!start],
+        default.units="native", arrow = arrow, 
+        gp = gpar(
+          col = colour[!end], fill = colour[!end], lwd = size[!end] * .pt, 
+          lty = linetype[!end], lineend = "butt"
+        ))
       )
     } else {
       with(munched, 
         polylineGrob(
-          x, y, id = as.integer(factor(group)), default.units="native",
-          gp = gpar(col=colour[start], lwd=size[start] * .pt, lty=linetype[start])
+          x, y, id = as.integer(factor(group)), 
+          default.units="native", arrow = arrow, 
+          gp = gpar(
+            col = colour[start], fill = colour[start], lwd = size[start] * .pt, 
+            lty = linetype[start], lineend = "butt")
         )
       )
     }
   }
 
   draw_legend <- function(., data, ...) {
+    data$arrow <- NULL
     data <- aesdefaults(data, .$default_aes(), list(...))
 
     with(data, 
-      ggname(.$my_name(), segmentsGrob(0, 0.5, 1, 0.5, default.units="npc",
+      ggname(.$my_name(), segmentsGrob(0.1, 0.5, 0.9, 0.5, default.units="npc",
       gp=gpar(col=colour, lwd=size * .pt, lty=linetype, lineend="butt")))
     )
   }

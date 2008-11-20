@@ -62,7 +62,6 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
   aesthetics <- rename_aes(aesthetics)
   class(aesthetics) <- "uneval"
   
-  env <- parent.frame()
   if (missing(data)) {
     # If data not explicitly specified, will be pulled from workspace
     data <- data.frame()
@@ -78,8 +77,14 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
     if (nrow(data) == 0) stop("data has no rows")
   }
 
-  p <- ggplot(data, aesthetics, environment = env) +
-    facet_grid(facets = deparse(facets), margins = margins)
+  env <- parent.frame()
+  p <- ggplot(data, aesthetics, environment = env)
+  
+  if (is.formula(facets) && length(facets) == 2) {
+    p <- p + facet_wrap(facets)
+  } else {
+    p <- p + facet_grid(facets = deparse(facets), margins = margins)
+  }
   
   if (!is.null(main)) p <- p + opts("title" = main)
 
@@ -110,8 +115,8 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
   if (!missing(xlab) && !is.null(x)) x$name <- xlab
   if (!missing(ylab) && !is.null(y)) y$name <- ylab
   
-  if (!missing(xlim) & !is.null(x)) x$limits <- xlim
-  if (!missing(ylim) & !is.null(y)) y$limits <- ylim
+  if (!missing(xlim)) p <- p + xlim(xlim)
+  if (!missing(ylim)) p <- p + ylim(ylim)
   
   p
 }

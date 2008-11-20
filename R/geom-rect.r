@@ -2,11 +2,11 @@ GeomRect <- proto(Geom, {
   
   default_stat <- function(.) StatIdentity
   default_pos <- function(.) PositionIdentity
-  default_aes <- function(.) aes(colour=NA, fill="grey60", size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour=NA, fill="grey20", size=0.5, linetype=1)
   
   required_aes <- c("xmin", "xmax", "ymin", "ymax")
 
-  draw <- function(., data, scales, coordinates, ...) {
+  draw <- draw_groups <- function(., data, scales, coordinates, ...) {
     if (coordinates$muncher()) {
       aesthetics <- setdiff(
         names(data), c("x", "y", "xmin","xmax", "ymin", "ymax")
@@ -22,7 +22,7 @@ GeomRect <- proto(Geom, {
       
       ggname("bar",do.call("grobTree", polys))
     } else {
-      with(coordinates$transform(data), 
+      with(coordinates$transform(data, scales), 
         ggname(.$my_name(), rectGrob(
           xmin, ymax, 
           width = xmax - xmin, height = ymax - ymin, 
@@ -40,10 +40,10 @@ GeomRect <- proto(Geom, {
   # Documentation -----------------------------------------------
   objname <- "rect"
   desc <- "2d rectangles"
-  guide_geom <- function(.) "tile"
+  guide_geom <- function(.) "polygon"
   
   icon <- function(.) {
-    rectGrob(c(0.3, 0.7), c(0.4, 0.8), height=c(0.4, 0.8), width=0.3, vjust=1, gp=gpar(fill="grey60", col=NA))
+    rectGrob(c(0.3, 0.7), c(0.4, 0.8), height=c(0.4, 0.8), width=0.3, vjust=1, gp=gpar(fill="grey20", col=NA))
   }
   
   examples <- function(.) {

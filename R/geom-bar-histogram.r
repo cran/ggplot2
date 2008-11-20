@@ -8,7 +8,7 @@ GeomHistogram <- proto(GeomBar, {
   
   icon <- function(.) {
     y <- c(0.2, 0.3, 0.5, 0.6,0.2, 0.8, 0.5, 0.3)
-    rectGrob(seq(0.1, 0.9, by=0.1), y, height=y, width=0.1, vjust=1, gp=gpar(fill="grey60", col=NA))
+    rectGrob(seq(0.1, 0.9, by=0.1), y, height=y, width=0.1, vjust=1, gp=gpar(fill="grey20", col=NA))
   }
   
   examples <- function(.) {
@@ -34,7 +34,18 @@ GeomHistogram <- proto(GeomBar, {
     m + geom_histogram(aes(fill = ..count..))
 
     # Change scales
-    m + geom_histogram(aes(fill = ..count..)) + scale_fill_gradient("Count", low="green", high="red")
+    m + geom_histogram(aes(fill = ..count..)) + 
+      scale_fill_gradient("Count", low = "green", high = "red")
+
+    # Often we don't want the height of the bar to represent the
+    # count of observations, but the sum of some other variable.
+    # For example, the following plot shows the number of movies
+    # in each rating.
+    qplot(rating, data=movies, geom="bar", binwidth = 0.1)
+    # If, however, we want to see the number of votes cast in each
+    # category, we need to weight by the votes variable
+    qplot(rating, data=movies, geom="bar", binwidth = 0.1,
+      weight=votes, ylab = "votes")
     
     m <- ggplot(movies, aes(x = votes))
     # For transformed scales, binwidth applies to the transformed data.
@@ -55,12 +66,23 @@ GeomHistogram <- proto(GeomBar, {
     m + geom_histogram() + coord_trans(x = "sqrt")
     m + geom_histogram(binwidth=1000) + coord_trans(x = "sqrt")
       
+    # You can also transform the y axis.  Remember that the base of the bars
+    # has value 0, so log transformations are not appropriate 
+    m <- ggplot(movies, aes(x = rating))
+    m + geom_histogram(binwidth = 0.5) + scale_y_sqrt()
+    m + geom_histogram(binwidth = 0.5) + scale_y_reverse()
+    
     # Set aesthetics to fixed value
-    m + geom_histogram(colour="darkgreen", fill="white") + aes(x=rating)
+    m + geom_histogram(colour = "darkgreen", fill = "white", binwidth = 0.5)
     
     # Use facets
-    m <- m + facet_grid(Action ~ Comedy)
-    m + geom_histogram()
+    m <- m + geom_histogram(binwidth = 0.5)
+    m + facet_grid(Action ~ Comedy)
+    
+    # Often more useful to use density on the y axis when facetting
+    m <- m + aes(y = ..density..)
+    m + facet_grid(Action ~ Comedy)
+    m + facet_wrap(~ mpaa)
 
     # Multiple histograms on the same graph
     # see ?position, ?position_fill, etc for more details

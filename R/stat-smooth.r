@@ -4,17 +4,17 @@ StatSmooth <- proto(Stat, {
     if (nrow(data) < 2) return(data.frame())
     
     if (length(unique(data$x)) == 1) {
-      message("geom_smooth: Only one unique x value in this group.  Maybe you want aes(group = 1)?", call. = FALSE)
-      return(NULL)
+      message("geom_smooth: Only one unique x value in this group.  Maybe you want aes(group = 1)?")
+      return(data.frame())
     }
     
     if (is.null(data$weight)) data$weight <- 1
     
     if (is.null(xseq)) {
       if (is.factor(data$x)) {
-        xseq <- if (fullrange) scales$get_scales("x")$input_set() else levels(data$x)
+        xseq <- if (fullrange) scales$x$input_set() else levels(data$x)
       } else {
-        range <- if (fullrange) scales$get_scales("x")$output_set() else range(data$x, na.rm=TRUE)  
+        range <- if (fullrange) scales$x$output_set() else range(data$x, na.rm=TRUE)  
         xseq <- seq(range[1], range[2], length=n)
       }
       
@@ -24,7 +24,7 @@ StatSmooth <- proto(Stat, {
     
     method.special <- function(...) method(formula, data=data, weights=weight, ...)
     model <- safe.call(method.special, list(...), names(formals(method)))
-    pred <- predict(model, data.frame(x=xseq), se=se, type="response")
+    pred <- stats::predict(model, data.frame(x=xseq), se=se, type="response")
 
     if (se) {
       std <- qnorm(level/2 + 0.5)

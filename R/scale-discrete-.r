@@ -7,8 +7,8 @@ ScaleDiscrete <- proto(Scale, expr={
 
   discrete <- function(.) TRUE
 
-  new <- function(., name=NULL, variable=.$.input, expand = c(0.05, 0), limits = NULL, breaks = NULL, labels = NULL) {
-    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = labels, limits = limits, breaks = breaks)
+  new <- function(., name=NULL, variable=.$.input, expand = c(0.05, 0), limits = NULL, breaks = NULL, labels = NULL, formatter = identity) {
+    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = labels, limits = limits, breaks = breaks, formatter = formatter)
   }
 
   # Range -------------------
@@ -20,7 +20,12 @@ ScaleDiscrete <- proto(Scale, expr={
   input_breaks <- function(.) nulldefault(.$breaks, .$input_set())
   input_breaks_n <- function(.) match(.$input_breaks(), .$input_set())
   
-  labels <- function(.) nulldefault(.$.labels, as.list(.$input_breaks()))
+  labels <- function(.) {
+    if (!is.null(.$.labels)) return(.$.labels)
+    
+    f <- match.fun(get("formatter", .))
+    as.list(f(.$input_breaks()))
+  }
   
   output_set <- function(.) seq_along(.$input_set())
   output_breaks <- function(.) .$map(.$input_breaks())
@@ -32,12 +37,19 @@ ScaleDiscrete <- proto(Scale, expr={
     NULL
   }
 
+  # Override default behaviour: we do need to train, even if limits
+  # have been set
+  train_df <- function(., df) {
+    input <- .$input_aesthetics(df)
+    l_ply(input, function(var) .$train(df[[var]]))
+  }
+
   train <- function(., x) {
     if (is.null(x)) return()
     if (!is.discrete(x)) {
       stop("Continuous variable (", .$name , ") supplied to the discrete ", .$my_name(), ".", call.=FALSE) 
     }
-    vals <- if (is.factor(x)) levels(x) else as.character(unique(x))
+    vals <- if (is.factor(x)) levels(factor(x, exclude = NULL)) else as.character(unique(x))
     if (any(is.na(x))) vals <- c(NA, vals)
     
     .$.domain <- union(.$.domain, vals)

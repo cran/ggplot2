@@ -35,11 +35,21 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
   
   
   output_set <- function(.) range(seq_along(.$input_set()), .$cont_domain, na.rm = TRUE)
+  output_expand <- function(.) {
+    if (is.integer(.$cont_domain)) { 
+      expand_range(.$output_set(), 0, 0.50)
+    } else {
+      expand_range(.$output_set(), 0.05)      
+    }
+  }
+  
   
   examples <- function(.) {
+    qplot(cut, data=diamonds, stat="bin")
+    qplot(cut, data=diamonds, geom="bar")
+    
     # The discrete position scale is added automatically whenever you
-    # have a discrete position and the only thing you can do with it
-    # is change the labels
+    # have a discrete position.
     
     (d <- qplot(cut, clarity, data=subset(diamonds, carat > 1), geom="jitter"))
     
@@ -52,7 +62,19 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
     # Use limits to adjust the which levels (and in what order)
     # are displayed
     d + scale_x_discrete(limits=c("Fair","Ideal"))
+
+    # you can also use the short hand functions xlim and ylim
+    d + xlim("Fair","Ideal", "Good")
+    d + ylim("I1", "IF")
+    
     # See ?reorder to reorder based on the values of another variable
+    qplot(manufacturer, cty, data=mpg)
+    qplot(reorder(manufacturer, cty), cty, data=mpg)
+    qplot(reorder(manufacturer, displ), cty, data=mpg)
+    
+    # Use abbreviate as a formatter to reduce long names
+    qplot(reorder(manufacturer, cty), cty, data=mpg) +  
+      scale_x_discrete(formatter = "abbreviate")
     
   }
   
@@ -67,7 +89,7 @@ discrete_range <- function(...) {
   pieces <- list(...)
   
   clevels <- function(x) {
-    if (is.factor(x)) levels(x) else as.character(unique(x))
+    if (is.factor(x)) levels(factor(x, exclude=NULL)) else as.character(unique(x))
   }
   
   vals <- unlist(lapply(pieces, clevels))

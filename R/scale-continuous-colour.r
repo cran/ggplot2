@@ -1,7 +1,7 @@
 ScaleGradient <- proto(ScaleContinuous, expr={
   aliases <- c("scale_colour_continuous", "scale_fill_continuous")
 
-  new <- function(., name=NULL, low=muted("darkblue"), high="yellow", space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", alpha = 1, ..., variable) {
+  new <- function(., name=NULL, low="#fffacd", high="#3366FF", space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", alpha = 1, ..., variable) {
     if (is.character(trans)) trans <- Trans$find(trans)
     .$proto(name=name, low=low, high=high, space=space, .input=variable, .output=variable, .tr = trans, limits=limits, alpha = alpha, breaks = breaks, .labels = labels, ...)
   }
@@ -17,7 +17,7 @@ ScaleGradient <- proto(ScaleContinuous, expr={
     nice_ramp(ramp, x, .$alpha)
   }
     
-  labels <- function(.) format(.$input_breaks())
+  labels <- function(.) .$.tr$label(.$input_breaks())
   output_breaks <- function(.) {
     .$map(.$input_breaks()) 
   }
@@ -118,7 +118,7 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
   desc <- "Smooth gradient between three colours (high, low and midpoints)"
 
   output_breaks <- function(.) .$map(.$input_breaks())
-  labels <- function(.) format(.$input_breaks())
+  labels <- function(.) .$.tr$label(.$input_breaks())
 
   icon <- function(.) {
     g <- scale_fill_gradient2()
@@ -186,8 +186,10 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
 
 
 ScaleGradientn <- proto(ScaleContinuous, expr={  
-  new <- function(., name=NULL, colours, values = NULL, rescale = TRUE, space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", alpha=1, ..., variable) {
+  new <- function(., name=NULL, colours, values = NULL, rescale = TRUE, space="rgb", breaks = NULL, labels = NULL, limits = NULL, trans="identity", alpha=1, ..., variable) {
     if (is.character(trans)) trans <- Trans$find(trans)
+    if (!is.null(values)) limits <- range(values)
+    
     .$proto(
       name = name, 
       colours = colours, values = values, rescale = rescale, 
@@ -201,20 +203,20 @@ ScaleGradientn <- proto(ScaleContinuous, expr={
   map <- function(., x) {
     if (.$rescale) x <- rescale(x, c(0, 1), .$input_set())
     if (!is.null(.$values)) {
-      xs <- seq(0, 1, length = length(values))      
-      f <- approxfun(values, xs)
+      xs <- seq(0, 1, length = length(.$values))      
+      f <- approxfun(.$values, xs)
       x <- f(x)
     }
     ramp <- colorRamp(.$colours, space=.$space, interpolate="linear")
     nice_ramp(ramp, x, .$alpha)
   }
   
-  objname <-"gradientn"
+  objname <- "gradientn"
   common <- c("colour", "fill")
   desc <- "Smooth gradient between n colours"
 
   output_breaks <- function(.) .$map(.$input_breaks())
-  labels <- function(.) format(.$input_breaks())
+  labels <- function(.) .$.tr$label(.$input_breaks())
 
   icon <- function(.) {
     g <- scale_fill_gradientn(colours = rainbow(7))
@@ -234,7 +236,26 @@ ScaleGradientn <- proto(ScaleContinuous, expr={
     "colorRamp" = "for details of interpolation algorithm"
   )
   
-  examples <- function(.) {
+  examples <- function(.) {    
+    # scale_colour_gradient make it easy to use existing colour palettes
+
+    dsub <- subset(diamonds, x > 5 & x < 6 & y > 5 & y < 6)
+    dsub$diff <- with(dsub, sqrt(abs(x-y))* sign(x-y))
+    (d <- qplot(x, y, data=dsub, colour=diff))
+
+    d + scale_colour_gradientn(colour = rainbow(7))
+    d + scale_colour_gradientn(colour = topo.colors(10))
+    d + scale_colour_gradientn(colour = terrain.colors(10))
+
+    # You can force them to be symmetric by supplying a vector of 
+    # values, and turning rescaling off
+    max_val <- max(abs(dsub$diff))
+    values <- seq(-max_val, max_val, length = 11)
+
+    d + scale_colour_gradientn(colours = topo.colors(10), 
+      values = values, rescale = FALSE)
+    d + scale_colour_gradientn(colours = terrain.colors(10), 
+      values = values, rescale = FALSE)
     
 
   }

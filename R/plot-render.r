@@ -8,10 +8,10 @@
 panelGrob <- function(plot, pieces = ggplot_build(plot)) {
   theme <- plot_theme(plot)
 
-  grobs <- plot$facet$add_guides(plot$data, pieces$panels, pieces$cs, theme)
-  viewports <- plot$facet$create_viewports(grobs, theme)
+  grobs <- pieces$facet$add_guides(plot$data, pieces$panels, pieces$cs, theme)
+  viewports <- pieces$facet$create_viewports(grobs, theme)
 
-  grobs <- assign_viewports(grobs)
+  grobs <- assign_viewports(grobs[setdiff(names(grobs), c("widths", "heights")), drop = FALSE])
   
   ggname("plot", 
     gTree(
@@ -67,8 +67,8 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   
   title <- theme_render(theme, "plot.title", plot$options$title)
 
-  xlabel <- cs$xlabel(theme)
-  ylabel <- cs$ylabel(theme)
+  xlabel <- pieces$facet$xlabel(theme)
+  ylabel <- pieces$facet$ylabel(theme)
 
   grobs <- list(
     title = title, 

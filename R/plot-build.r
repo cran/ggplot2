@@ -5,59 +5,59 @@
 ggplot_build <- function(plot) {
   if (length(plot$layers) == 0) stop("No layers in plot", call.=FALSE)
   
-  # Apply function to layer and matching data
-  dlapply <- function(f) mapply(f, data, layers, SIMPLIFY=FALSE)
-
   plot <- plot_clone(plot)
   layers <- plot$layers
   scales <- plot$scales
   facet <- plot$facet
   cs <- plot$coordinates
+  # Apply function to layer and matching data
+  dlapply <- function(f) mlply(cbind(d = data, p = layers), f)
 
-  # Compute aesthetics from values at various levels
+  # Evaluate aesthetics
   data <- lapply(layers, function(x) x$make_aesthetics(plot))
   
   # Facet
-  data <- mapply(function(d, p) facet$stamp_data(d), data, layers, SIMPLIFY=FALSE)
+  facet$initialise(data)
+  data <- facet$stamp_data(data)
 
-  # Transform scales where possible.  Also need to train so statisics
-  # (e.g. stat_smooth) have access to info
+  # Transform all scales
   data <- dlapply(function(d, p) p$scales_transform(d, scales))
-  dlapply(function(d, p) p$scales_train(d, scales))
-
-  # Ensure that position scales are of the correct type: 
-  # continuous are numeric, and discrete are integers
-  data <- dlapply(function(d, p) p$scales_map_position(d, scales))
-
+  
+  # Map and train positions so that statistics have access to ranges
+  # and all positions are numeric
+  facet$position_train(data, scales)
+  data <- facet$position_map(data, scales)
+  
   # Apply and map statistics, then reparameterise geoms that need it
-  data <- dlapply(function(d, p) p$calc_statistics(d, scales))
+  data <- facet$calc_statistics(data, layers)
   data <- dlapply(function(d, p) p$map_statistics(d, plot))  
   data <- dlapply(function(d, p) p$reparameterise(d))
 
-  # Adjust position before scaling
+  # Adjust position
   data <- dlapply(function(d, p) p$adjust_position(d, scales))
-
-  # Transform, train and map new scales  
-  dlapply(function(d, p) p$scales_train(d, scales))
-  data <- dlapply(function(d, p) p$scales_map(d, scales))
-
-  # missing_scales <- setdiff(c("x", "y"), scales$output())
-  # if (length(missing_scales) > 0) {
-  #   stop("ggplot: Some aesthetics (", paste(missing_scales, collapse =", "), ") are missing scales, you will need to add them by hand.", call.=FALSE)
-  # }
+  
+  npscales <- scales$non_position_scales()
+  
+  # Train and map, for final time
+  if (npscales$n() > 0) {
+    dlapply(function(d, p) p$scales_train(d, npscales))
+    data <- dlapply(function(d, p) p$scales_map(d, npscales))
+  }
+  facet$position_train(data, scales)
+  data <- facet$position_map(data, scales)    
 
   # Produce grobs
-  cs$train(scales)
-  grobs <- dlapply(function(d, p) p$make_grobs(d, scales, cs))
-  grobs3d <- array(unlist(grobs, recursive=FALSE), c(dim(data[[1]]), length(data)))
-  panels <- aaply(grobs3d, 1:2, splat(grobTree), drop. = FALSE)
+  grobs <- facet$make_grobs(data, layers, cs)
   
-  scales <- plot$scales$minus(plot$scales$get_scales(c("x", "y", "z")))
+  grobs3d <- array(unlist(grobs, recursive=FALSE), c(dim(data[[1]]), length(data)))
+  panels <- aaply(grobs3d, 1:2, splat(grobTree), .drop = FALSE)
   
   list(
     plot = plot,
-    scales = scales,
+    scales = npscales,
     cs = cs,
-    panels = panels
+    panels = panels,
+    facet = facet
   )
 }
+

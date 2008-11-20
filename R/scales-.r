@@ -35,7 +35,7 @@ Scales <- proto(Scale, expr={
   
   get_scales <- function(., output, scales=FALSE) {
     scale <- .$.scales[.$find(output)]
-    if (length(scale) == 0) return()
+    if (length(scale) == 0) return(Scales$new())
     if (scales || length(scale) > 1) {
       .$proto(.scales = scale)
     } else {
@@ -51,11 +51,13 @@ Scales <- proto(Scale, expr={
     Filter(function(x) x$trained(), .$.scales)
   }
   
-  minus <- function(., that) {
-    new <- .$proto()
-    keep <- !sapply(new$.scales, function(this) any(sapply(that$.scales, identical, this)))
-    new$.scales <- new$.scales[keep]
-    new
+  position_scales <- function(.) {
+    .$get_scales(c("x","y","z"), TRUE)
+  }
+  
+  non_position_scales <- function(.) {
+    out <- setdiff(.$output(), c("x", "y", "z"))
+    .$get_scales(out, TRUE)
   }
   
   output <- function(.) {
@@ -66,7 +68,6 @@ Scales <- proto(Scale, expr={
     sapply(.$.scales, function(scale) scale$input())
   }
   
-  
   # Train scale from a data frame
   train_df <- function(., df) {
     if (is.null(df)) return()
@@ -74,6 +75,11 @@ Scales <- proto(Scale, expr={
     lapply(.$.scales, function(scale) {
       scale$train_df(df)
     })
+  }
+  
+  train_position <- function(., df) {
+    pos_df <- df[is_position_aes(names(df))]
+    .$train_df(pos_df)
   }
   
   # Map values from a data.frame. Returns data.frame
@@ -87,33 +93,15 @@ Scales <- proto(Scale, expr={
     )
   }
   
-  map_position <- function(., df) {
-    if (.$has_scale("x")) {
-      scale_x <- .$get_scales("x")
-      trans_x <- function(x) scale_x$map(x)
-    } else {
-      trans_x <- force
-    }
-
-    if (.$has_scale("y")) {
-      scale_y <- .$get_scales("y")
-      trans_y <- function(y) scale_y$map(y)
-    } else {
-      trans_y <- force
-    }
-    
-    transform_position(df, trans_x, trans_y)
-  }
-  
+  # Transform values to cardinal representation
   transform_df <- function(., df) {
     if (length(.$.scales) == 0) return(df)
     if (is.null(df)) return(df)
-    mapped <- compact(lapply(.$.scales, function(scale) {
+    transformed <- compact(lapply(.$.scales, function(scale) {
       scale$transform_df(df)
     }))
-    mapped <- do.call("data.frame", mapped)
     
-    data.frame(c(mapped, df[setdiff(names(df), names(mapped))]))
+    cunion(as.data.frame(transformed), df)
   }
   
   # Add default scales.
