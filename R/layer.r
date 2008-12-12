@@ -21,7 +21,7 @@ Layer <- proto(expr = {
   params <- NULL
   ignore.extra <- FALSE
   
-  new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ..., ignore.extra = FALSE) {
+  new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ..., ignore.extra = FALSE, legend = NA) {
     
     if (is.null(geom) && is.null(stat)) stop("Need at least one of stat and geom")
     
@@ -56,7 +56,8 @@ Layer <- proto(expr = {
       stat=stat, stat_params=stat_params, 
       data=data, mapping=mapping, 
       position=position,
-      ignore.extra = ignore.extra
+      ignore.extra = ignore.extra,
+      legend = legend
     )
   }
   
@@ -87,7 +88,9 @@ Layer <- proto(expr = {
       cat("Empty layer\n")
       return(invisible());
     }
-    cat("mapping:", clist(.$mapping), "\n")
+    if (!is.null(.$mapping)) {
+      cat("mapping:", clist(.$mapping), "\n")      
+    }
     .$geom$print(newline=FALSE)
     cat(clist(.$geom_params), "\n")
     .$stat$print(newline=FALSE)
@@ -253,7 +256,10 @@ layer <- Layer$new
 # @keyword internal
 calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = FALSE, env = plot$plot_env) {
   if (is.null(data)) data <- plot$data
-  if (!is.data.frame(data)) stop("data is not a data.frame")
+  
+  if (!is.data.frame(data)) {
+    data <- fortify(data)
+  }
   
   err <- if (ignore.extra) tryNULL else force
   eval.each <- function(dots) compact(lapply(dots, function(x.) err(eval(x., data, env))))

@@ -13,6 +13,7 @@ Scales <- proto(Scale, expr={
     old <- .$find(scale$output())
 
     if (length(old) > 0 && sum(old) == 1 && is.null(scale$name)) {
+      scale <- scale$clone()
       scale$name <- .$.scales[old][[1]]$name
     }
     
@@ -32,6 +33,7 @@ Scales <- proto(Scale, expr={
     out
   }
 
+
   
   get_scales <- function(., output, scales=FALSE) {
     scale <- .$.scales[.$find(output)]
@@ -43,12 +45,37 @@ Scales <- proto(Scale, expr={
     }
   }
   
+  
   has_scale <- function(., output) {
     any(.$find(output))
   }
   
   get_trained_scales <- function(.) {
     Filter(function(x) x$trained(), .$.scales)
+  }
+  
+  get_scales_by_name <- function(., input) {
+    Filter(function(s) deparse(s$name) == input, .$get_trained_scales())
+  }
+  
+  variables <- function(.) {
+    unique(sapply(.$.scales, function(scale) deparse(scale$name)))
+  }
+  
+  legend_desc <- function(.) {
+    # For each input aesthetic, get breaks and labels
+    vars <- .$variables() 
+    names(vars) <- vars
+    compact(lapply(vars, function(var) {
+      scales <- .$get_scales_by_name(var)
+      if (length(scales) == 0) return()
+      
+      breaks <- as.data.frame(lapply(scales, function(s) s$output_breaks()))
+      names(breaks)  <- lapply(scales, function(s) s$output())
+      
+      breaks$.labels <- scales[[1]]$labels()
+      breaks
+    }))
   }
   
   position_scales <- function(.) {
@@ -96,7 +123,7 @@ Scales <- proto(Scale, expr={
   # Transform values to cardinal representation
   transform_df <- function(., df) {
     if (length(.$.scales) == 0) return(df)
-    if (is.null(df)) return(df)
+    if (is.null(df) || nrow(df) == 0) return(df)
     transformed <- compact(lapply(.$.scales, function(scale) {
       scale$transform_df(df)
     }))
@@ -126,8 +153,8 @@ Scales <- proto(Scale, expr={
     # Determine variable type for each column -------------------------------
     vartype <- function(x) {
       if (inherits(x, "Date")) return("date")
+      if (inherits(x, "POSIXt")) return("datetime")
       if (is.numeric(x)) return("continuous")
-      if (is.factor(x)) return("discrete")
       
       "discrete"
     }

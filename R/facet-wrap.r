@@ -20,14 +20,22 @@ FacetWrap <- proto(Facet, {
   # Data shape
   
   initialise <- function(., data) {
-    .$shape <- dlply(data[[1]], .$facets, nrow)
-    dim(.$shape) <- c(1, length(.$shape))
+    vars <- llply(data, function(df) {
+      as.data.frame(eval.quoted(.$facets, df))
+    })
+    labels <- unique(do.call(rbind, vars))
+    labels <- labels[do.call("order", labels), , drop = FALSE]
+    n <- nrow(labels)
+    
+    .$shape <- matrix(NA, 1, n)
+    attr(.$shape, "split_labels") <- labels
   }
   
   stamp_data <- function(., data) {
     data <- add_missing_levels(data, .$conditionals())
     lapply(data, function(df) {
-      data.matrix <- dlply(add_group(df), .$facets)
+      data.matrix <- dlply(add_group(df), .$facets, .drop = FALSE)
+      data.matrix <- as.list(data.matrix)
       dim(data.matrix) <- c(1, length(data.matrix))
       data.matrix
     })
@@ -46,8 +54,8 @@ FacetWrap <- proto(Facet, {
 
     for (i in seq_len(n)) {
       scales <- list(
-        x = .$scales$x[[i]], 
-        y = .$scales$y[[i]]
+        x = .$scales$x[[i]]$clone(), 
+        y = .$scales$y[[i]]$clone()
       ) 
       details <- coord$compute_ranges(scales)
       axes_h[[1, i]] <- coord$guide_axis_h(details, theme)
@@ -94,7 +102,6 @@ FacetWrap <- proto(Facet, {
     }
     axes_width <- grobColWidth(axes_v)
     
-    axes_h <- grobMatrix(axes_h, nrow, ncol, .$as.table)
     if (.$free$x) {
       axes_h <- grobMatrix(axes_h, nrow, ncol, .$as.table)
     } else {
@@ -105,11 +112,13 @@ FacetWrap <- proto(Facet, {
     }
     axes_height <- grobRowHeight(axes_h)
 
-    all <- cweave(
-      rweave(gap,    axes_v, gap,    gap), 
-      rweave(labels, panels, axes_h, gap), 
-      rweave(gap,    gap,    gap,    gap)
-    )
+    all <- rweave(
+      cweave(gap,    labels, gap),
+      cweave(axes_v, panels, gap),
+      cweave(gap,    axes_h, gap),
+      cweave(gap,    gap,    gap)
+    )    
+    
     margin <- list(theme$panel.margin)
     heights <- interleave(labels_height, panels_height, axes_height, margin)
     heights <- do.call("unit.c", heights)
@@ -127,7 +136,7 @@ FacetWrap <- proto(Facet, {
   labels_default <- function(., gm, theme) {
     labels_df <- attr(gm, "split_labels")
     labels_df[] <- llply(labels_df, format, justify = "none")
-    labels <- aaply(labels_df, 1, paste, collapse=", ")
+    labels <- apply(labels_df, 1, paste, collapse=", ")
 
     llply(labels, ggstrip, theme = theme)
   }
@@ -142,12 +151,11 @@ FacetWrap <- proto(Facet, {
     layout_vp <- viewport(layout=layout, name="panels")
     
     children_vp <- vpList(
-      setup_viewports("panel",   guides$panel, clip = "on")
+      setup_viewports("panel",   guides$panel, clip = "off")
     )
     
     vpTree(layout_vp, children_vp)
   }
-
   
   # Position scales ----------------------------------------------------------
   
@@ -195,8 +203,8 @@ FacetWrap <- proto(Facet, {
 
       for(i in seq_along(.$scales$x)) {
         scales <- list(
-          x = .$scales$x[[i]], 
-          y = .$scales$y[[i]]
+          x = .$scales$x[[i]]$clone(), 
+          y = .$scales$y[[i]]$clone()
         )
         details <- coord$compute_ranges(scales)
         grobs[[1, i]] <- layer$make_grob(layerd[[1, i]], details, coord)
@@ -257,10 +265,18 @@ FacetWrap <- proto(Facet, {
     p <- qplot(displ, hwy, data = mpg)
     p + facet_wrap(~ cyl)
     p + facet_wrap(~ cyl, scales = "free") 
+    
+    # Add data that does not contain all levels of the faceting variables
+    cyl6 <- subset(mpg, cyl == 6)
+    p + geom_point(data = cyl6, colour = "red", size = 1) + 
+      facet_wrap(~ cyl)
+    p + geom_point(data = transform(cyl6, cyl = 7), colour = "red") + 
+      facet_wrap(~ cyl)
+    
   }
   
   pprint <- function(., newline=TRUE) {
-    cat("facet_", .$objname, "(", .$facets, ", ", .$margins, ")", sep="")
+    cat("facet_", .$objname, "(", paste(names(.$facets), collapse = ", "), ")", sep="")
     if (newline) cat("\n")
   }
   
