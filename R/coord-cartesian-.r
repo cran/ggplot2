@@ -3,7 +3,6 @@ CoordCartesian <- proto(Coord, expr={
     .$proto(limits = list(x = xlim, y = ylim))
   }
   
-  munch <- function(., data, scales, npieces=1) .$transform(data, scales)
   transform <- function(., data, details) {
     rescale_x <- function(data) .$rescale_var(data, details$x.range)
     rescale_y <- function(data) .$rescale_var(data, details$y.range)
@@ -13,13 +12,13 @@ CoordCartesian <- proto(Coord, expr={
   
   compute_ranges <- function(., scales) {
     x.range <- .$limits[["x"]] %||% scales$x$output_expand()
-    x.major <- .$rescale_var(scales$x$input_breaks_n(), x.range)
-    x.minor <- .$rescale_var(scales$x$output_breaks(), x.range)
+    x.major <- .$rescale_var(scales$x$input_breaks_n(), x.range, TRUE)
+    x.minor <- .$rescale_var(scales$x$output_breaks(), x.range, TRUE)
     x.labels <- scales$x$labels()
 
     y.range <- .$limits[["y"]] %||% scales$y$output_expand()
-    y.major <- .$rescale_var(scales$y$input_breaks_n(), y.range)
-    y.minor <- .$rescale_var(scales$y$output_breaks(), y.range)
+    y.major <- .$rescale_var(scales$y$input_breaks_n(), y.range, TRUE)
+    y.minor <- .$rescale_var(scales$y$output_breaks(), y.range, TRUE)
     y.labels <- scales$y$labels()
     
     list(

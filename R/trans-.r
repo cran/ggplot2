@@ -102,7 +102,6 @@ TransAtanh <- Trans$new(
   "force"
 )
   
-TransDate <- Trans$new("date", "as.numeric", "to_date", "as.Date")
 TransExp <- Trans$new("exp", "exp", "log", function(x) bquote(log(.(x))))
 TransIdentity <- Trans$new("identity", "force", "force", "force")
 TransInverse <- Trans$new(function(x) 1/x, function(x) 1/x, function(x) bquote(phantom()^1 / phantom()[.(x)]))
@@ -115,9 +114,5 @@ TransProbit <- ProbabilityTrans$new("norm")
 TransReverse <- Trans$new("reverse", function(x) -x, function(x) -x, function(x) bquote(.(-x)))
 TransSqrt <- Trans$new("sqrt", "sqrt", function(x) x^2, function(x) x^2)
 
-# To date
-# Turn numeric vector into date vector
-# 
-# @keyword internal
-to_date <- function(x) structure(x, class="Date")
-
+TransDate <- Trans$new("date", "as.numeric", "to_date")
+TransDatetime <- Trans$new("datetime", "as.numeric", "to_time")

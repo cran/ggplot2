@@ -46,6 +46,10 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   cs <- pieces$cs
 
   theme <- plot_theme(plot)
+  margin <- list(
+    top = theme$plot.margin[1], right = theme$plot.margin[2],
+    bottom = theme$plot.margin[3], left = theme$plot.margin[4]
+  )
   
   position <- theme$legend.position
   if (length(position) == 2) {
@@ -60,15 +64,19 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   # each of these grobs has a vp set
 
   legend_box <- if (position != "none") {
-    guide_legends_box(scales, scale_usage(plot), horiz, theme) 
+    guide_legends_box(scales, plot$layers, plot$mapping, horiz, theme) 
   } else {
     nullGrob()
   } 
   
   title <- theme_render(theme, "plot.title", plot$options$title)
 
-  xlabel <- pieces$facet$xlabel(theme)
-  ylabel <- pieces$facet$ylabel(theme)
+  labels <- cs$labels(list(
+    x = pieces$facet$xlabel(),
+    y = pieces$facet$ylabel())
+  )
+  xlabel <- theme_render(theme, "axis.title.x", labels$x)
+  ylabel <- theme_render(theme, "axis.title.y", labels$y)
 
   grobs <- list(
     title = title, 
@@ -81,31 +89,41 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   # Calculate sizes ----------------------------------------------------------
   if (is.null(legend_box)) position <- "none"
     
-  ylab_width <- unit(0.5, "lines") + unit(1, "grobwidth", grobs$ylabel)
-  xlab_height <- unit(0.5, "lines") + unit(1, "grobheight", grobs$xlabel)
+  ylab_width <- unit(1, "grobwidth", grobs$ylabel) + unit(0.25, "lines")
+  legend_width <- grobWidth(grobs$legend_box)
 
   widths <- switch(position, 
-    right =  unit.c(ylab_width, unit(1, "null"), grobWidth(grobs$legend_box) + unit(1, "lines")),
-    left =   unit.c(grobWidth(grobs$legend_box) + unit(1, "lines"), ylab_width, unit(1, "null")), 
+    right =  unit.c(ylab_width, unit(1, "null"), legend_width),
+    left =   unit.c(legend_width, ylab_width, unit(1, "null")), 
     top =    ,
     bottom = ,
     manual = ,
     none =   unit.c(ylab_width, unit(1, "null"))
   )
+  widths <- unit.c(margin$left, widths, margin$right)
+
+  legend_height <- grobHeight(grobs$legend_box)
+  title_height <- grobHeight(grobs$title)
+  xlab_height <- unit(1, "grobheight", grobs$xlabel) + unit(0.25, "lines")
+
   heights <- switch(position,
-    top =    unit.c(grobHeight(grobs$title) + unit(1, "lines"), grobHeight(grobs$legend_box), unit(1, "null"), xlab_height),
-    bottom = unit.c(grobHeight(grobs$title)  + unit(1, "lines"), unit(1, "null"), xlab_height, grobHeight(grobs$legend_box)),
+    top =    unit.c(
+      title_height, legend_height, unit(1, "null"), xlab_height),
+    bottom = unit.c(
+      title_height, unit(1, "null"), xlab_height, legend_height),
     right =  ,
     left =   ,
     manual = ,
-    none =   unit.c(grobHeight(grobs$title) + unit(1, "lines"), unit(1, "null"), xlab_height)
+    none =   unit.c(title_height, unit(1, "null"), xlab_height)
   )
+  heights <- unit.c(margin$top, heights, margin$bottom)
   
   if (position == "manual") {
     legend_vp <- viewport(
       name = "legend_box",
-      x = coords[1], y = coords[2], just = plot$legend.justification,
-      width = grobWidth(legend), height = grobHeight(legend)
+      x = coords[1], y = coords[2], just = theme$legend.justification,
+      width = grobWidth(grobs$legend_box), 
+      height = grobHeight(grobs$legend_box)
     )
   } else {
     legend_vp <- viewport(name = "legend_box")
@@ -134,7 +152,7 @@ surround_viewports <- function(position, widths, heights, legend_vp) {
     heights=heights, widths=widths
   )
 
-  vp <- function(name, row, col, ...) {
+  vp <- function(name, row, col) {
     viewport(
       name = name, 
       layout = layout, 
@@ -145,11 +163,11 @@ surround_viewports <- function(position, widths, heights, legend_vp) {
 
   if (position == "right") {
     viewports <- vpList(
-      vp("panels", 2, 2),
-      vp("legend_box", 2, 3),
-      vp("ylabel", 2, 1),
-      vp("xlabel", 3, 2),
-      vp("title", 1, 2)
+      vp("panels", 3, 3),
+      vp("legend_box", 3, 4),
+      vp("ylabel", 3, 2),
+      vp("xlabel", 4, 3),
+      vp("title", 2, 3)
     )
   } else if (position == "left") {
     viewports <- vpList(
@@ -177,10 +195,10 @@ surround_viewports <- function(position, widths, heights, legend_vp) {
     )
   } else {
     viewports <- vpList(
-      vp("panels", 2, 2),
-      vp("ylabel", 2, 1),
-      vp("xlabel", 3, 2),
-      vp("title", 1, 2),
+      vp("panels", 3, 3),
+      vp("ylabel", 3, 2),
+      vp("xlabel", 4, 3),
+      vp("title", 2, 3),
       legend_vp
     )
   }
