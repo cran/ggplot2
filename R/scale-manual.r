@@ -9,10 +9,14 @@ ScaleManual <- proto(ScaleDiscrete, {
 
   map <- function(., values) {
     .$check_domain()
+
+    values <- as.character(values)
+    values[is.na(values)] <- "NA"
+
     if (.$has_names()) {
-      .$output_breaks()[as.character(values)]
+      .$output_breaks()[values]
     } else {
-      .$output_breaks()[match(as.character(values), .$input_set())]
+      .$output_breaks()[match(values, .$input_set())]
     }
   }
 
@@ -20,8 +24,10 @@ ScaleManual <- proto(ScaleDiscrete, {
 
   output_breaks <- function(.) .$values
   output_set <- function(.) .$values
-  labels <- function(.) if (.$has_names()) names(.$output_breaks()) else .$.domain
-  
+  labels <- function(.) {
+    if (!is.null(.$.labels)) return(.$.labels)
+    if (.$has_names()) names(.$output_breaks()) else .$.domain
+  }
 
   # Documentation -----------------------------------------------
 

@@ -1,44 +1,39 @@
-ggplot2 0.8.1  (2008-12-12)
+ggplot2 0.8.2  (2008-02-23)
 ----------------------------------------
 
 New features
 
-* new labs, xlab & ylab functions for easily modifying axis labels and legend titles
-* qplot now guesses what geom you want based on the position aesthetics that you provide:
-  * both x & y: scatterplot
-  * only x: histogram
-  * only y: scatterplot of seq_along(y) vs y
-* scale_datetime: a first attempt at a scale for date time objects of class POSIXt
+* borders, fortify.map and map_data to make it easier to draw map borders and choropleth maps
 
-Aesthetic improvements
+* cut_interval and cut_number utility functions to discretise continuous variables
 
-* legends should now work in cases where you have multiple layers the use the same geom and have different aesthetic mappings
-* theme: new theme setting legend.key.size determines size of keys in legend
-* theme: new theme setting plot.margins to control the plot margins
-* tweaks to plot and legend layout
+* stat_summary has reparameterised to make it easier to specify different summary functions.  It now has four parameters: fun.y, fun.ymin and fun.ymax; and fun.data.  See the documentation for stat_summary for more details
 
-Other minor improvements
+Minor improvements
 
-* geom_point warns if missing values present in data and not displayed on plot
-* geom_smooth gives a more accurate warning when you have incorrectly specified the grouping
-* geom_smooth will switch to an alternative smoothing method (mgcv::gam(y ~ s(x, bs = "cr"))), when there are more than 1000 observations
-* layers gain a legend argument, which allow you to force the layer either into (TRUE) or out of (FALSE) the legend
+* ggfluctuation: default to aspect ratio that produces squares
+* ggsave: filename now first parameter, not second
+* qplot: if sample aesthetic is used, stat automatically set to qq
+* scale_datetime: improved breaks calculation
+* scale_gradient: better default colour scheme from red to blue (thanks to Charlotte Wickham for providing the Munsell colours)
+* scale_size and scale_area: increased default size range
+* stats: all give useful error message if missing a required aesthetic
+* theme_set warns if missing needed theme elements
+* theme_text: now possible to right and left align text with hjust=0 and hjust=1 respectively
 
 Bug fixes
 
-* coord_equal now calculates scales correctly again
-* coord_flip: flips axes labels again too
-* coord_trans fix bug where transformation incorrect
-* facet_grid: fix bug where tick labels where being produced outside the range of the axes
-* facet_wrap: fixed bug with ncol = 1 or nrow = 1
-* facet_wrap: labels correctly clipped to axis ranges
-* facet_wrap: labels will match panels even when factor levels are not in alphabetical order
-* facet_wrap: now works when a layer doesn't contain every level of the faceting variables
-* geom_abline should now work in a wider variety of situations
-* geom_smooth now gives correct asymmetric standard errors with generalised linear models (thanks to Thierry Onkelinx)
-* geom_vline and geom_hline now correctly transform their intercepts if the scale is transformed    
-* geom_vline and geom_hline: now use xintercept and yintercept instead of intercept
-* legend.position and legend.justification work again
-* position_dodge now works for any number of elements with smaller widths, not just 2!
-* scale_discrete_position: does a better job of calculating axis limits when plotting a mixture of continuous and discrete values (e.g. with geom_jitter)
-* summary: tweaks to improve output
+* be explicit about plyr::is.discrete to avoid clash with Hmisc
+* facet_wrap: work around R bug so no longer crashers when ncol = 1
+* geom_errorbar now works correctly with dashed lines
+* geom_path will now silently ignore lines with less than 2 points (instead of throwing a mysterious error as before)
+* geom_polygon etc now correctly displays linetype on legends
+* geom_step now works with multiple groups
+* geom_vline and geom_hline: fix bug when mapping intercept to variable in data frame
+* ggsave: path parameter correctly sets path
+* guides: fix broken legend from default stat aesthetics (e.g. for stat_sum)
+* scale_manual now works better with missing values
+* scale_manual: labels now correctly sets legend labels.
+* stat_density_2d: no longer passes unnecessary parameters to kde2d causing an error message (seen when setting aesthetics with qplot)
+* stat_pointrange: better relationship between point and line widths
+* stat_sum now correctly preserves other aesthetic columns (should be a bit faster too)

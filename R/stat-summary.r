@@ -7,13 +7,25 @@ StatSummary <- proto(Stat, {
   default_geom <- function(.) GeomPointrange
   required_aes <- c("x", "y")
    
-  calculate <- function(., data, scales, fun, ...) {
+  calculate <- function(., data, scales, fun.data = NULL, fun.y = NULL, fun.ymax = NULL, fun.ymin = NULL, ...) {
     
-    if (is.character(fun)) {
-      sumfun <- paste("sum", fun, sep="_")
-      if (exists(sumfun)) fun <- match.fun(sumfun)
+    if (!missing(fun.data)) {
+      # User supplied function that takes complete data frame as input
+      fun.data <- match.fun(fun.data)
+      fun <- function(df, ...) {
+        fun.data(df$y, ...)
+      }
+    } else {
+      # User supplied individual vector functions
+      fs <- compact(list(ymin = fun.ymin, y = fun.y, ymax = fun.ymax))
+      
+      fun <- function(df, ...) {
+        res <- llply(fs, function(f) do.call(f, list(df$y, ...)))
+        names(res) <- names(fs)
+        as.data.frame(res)
+      }
     }
-    summaryby(data, data$x, auto_wrap(fun), ...)
+    summarise_by_x(data, fun, ...)
   }
   seealso <- list(
     "geom_errorbar" = "error bars",
@@ -24,18 +36,26 @@ StatSummary <- proto(Stat, {
     "stat_smooth" = "for continuous analog"
   )
   
+  desc_params <- list(
+    fun.data = "Complete summary function.  Should take data frame as input and return data frame as output.",
+    fun.ymin = "ymin summary function (should take numeric vector and return single number)",
+    fun.y = "ym summary function (should take numeric vector and return single number)",
+    fun.ymax = "ymax summary function (should take numeric vector and return single number)"
+  )
+  
+  
   desc_outputs <- list()
   
   examples <- function(.) {
     # Basic operation on a small dataset
     c <- qplot(cyl, mpg, data=mtcars)
     c + stat_summary()
-    
-    # The simplest type of summary range takes a vector of x's and returns
-    # a single value:
+
+    # You can supply individual functions to summarise the value at 
+    # each x:
     
     stat_sum_single <- function(fun, geom="point", ...) {
-      stat_summary(fun=fun, colour="red", geom=geom, size = 3, ...)      
+      stat_summary(fun.y=fun, colour="red", geom=geom, size = 3, ...)      
     }
     
     c + stat_sum_single(mean)
@@ -43,32 +63,34 @@ StatSummary <- proto(Stat, {
     c + stat_sum_single(median)
     c + stat_sum_single(sd)
     
-    # More complex summary functions operate on a data.frame, summarising
-    # the values of y for a given x (the split into separate data.frames with
-    # uniques values of x is performed automatically by stat_summary)
-    #
+    c + stat_summary(fun.y = mean, fun.ymin = min, fun.ymax = max, 
+      colour = "red")
+    
+    # Alternatively, you can supply a function that operates on a data.frame.
     # A set of useful summary functions is provided from the Hmisc package:
     
     stat_sum_df <- function(fun, geom="crossbar", ...) {
-      stat_summary(fun=fun, colour="red", geom=geom, width=0.2, ...)
+      stat_summary(fun.data=fun, colour="red", geom=geom, width=0.2, ...)
     }
     
     c + stat_sum_df("mean_cl_boot")
     c + stat_sum_df("mean_sdl")
     c + stat_sum_df("mean_sdl", mult=1)
     c + stat_sum_df("median_hilow")
-    c + stat_sum_df("range", geom="linerange")
 
     # There are lots of different geoms you can use to display the summaries
         
-    c + stat_sum_df(fun="mean_cl_normal")
-    c + stat_sum_df(fun="mean_cl_normal", geom = "errorbar")
-    c + stat_sum_df(fun="mean_cl_normal", geom = "pointrange")
-    c + stat_sum_df(fun="mean_cl_normal", geom = "smooth")
+    c + stat_sum_df(fun.data="mean_cl_normal")
+    c + stat_sum_df(fun.data="mean_cl_normal", geom = "errorbar")
+    c + stat_sum_df(fun.data="mean_cl_normal", geom = "pointrange")
+    c + stat_sum_df(fun.data="mean_cl_normal", geom = "smooth")
         
     # Summaries are much more useful with a bigger data set:
     m <- ggplot(movies, aes(x=round(rating), y=votes)) + geom_point()
-    (m2 <- m + stat_summary(fun="mean_cl_boot", geom="crossbar", colour="red", width=0.3))
+    m2 <- m + 
+       stat_summary(fun.data = "mean_cl_boot", geom = "crossbar", 
+         colour = "red", width = 0.3)
+    m2
     # Notice how the overplotting skews off visual perception of the mean
     # supplementing the raw data with summary statisitcs is _very_ important
   
@@ -97,39 +119,12 @@ StatSummary <- proto(Stat, {
 # @argument summary function (must take and return a data.frame)
 # @argument other arguments passed on to summary function
 # @keyword internal
-summaryby <- function(data, split, summary, ...) {
-  parts <- split(data, factor(split))
-  unique <- lapply(parts, function(df) uniquecols(df[setdiff(names(df), c("y"))]))
+summarise_by_x <- function(data, summary, ...) {
+  summary <- ddply(data, .(x), summary)
+  unique <- ddply(data, .(x), uniquecols)
+  unique$y <- NULL
   
-  summary <- lapply(parts, summary, ...)
-  
-  parts <- mapply(function(x,y) {
-    cbind(x, y[rep(1, nrow(x)), ,drop=FALSE])
-  }, summary, unique, SIMPLIFY=FALSE)
-  do.call("rbind.fill", parts)
-}
-
-# Wrap summary function
-# Creates a new function which will operate correctly with \code{\link{stat_summary}}.
-# 
-# \code{\link{stat_summary}} assumes that summary functions take data.frames
-# as input, and return data frames as output.  This function will convert
-# a function that takes a vector of values to the correct format.
-#
-# @arguments function to wrap
-# @keyword internal
-#X sum_mean <- auto_wrap(mean)
-#X sum_mean(data.frame(y = 1:10))
-auto_wrap <- function(f) {
-  if (is.character(f)) f <- match.fun(f)
-  args <- names(formals(f))
-  if ("data" %in% args) {
-    function(data, ...) f(data, ...)
-  } else if ("x" %in% args ) {
-    function(df, ...) data.frame(y = safe.call(f, list(x = df$y, ...)))
-  } else {
-    stop("Functions provided to stat_summary require a parameter named data or x")
-  }
+  merge(summary, unique, by = "x")
 }
 
 # Wrap Hmisc summary functions 
@@ -148,12 +143,18 @@ auto_wrap <- function(f) {
 wrap_hmisc <- function(x, fun, ...) {
   try_require("Hmisc")
 
-  result <- safe.call(fun, list(x=x, ...))
-  rename(data.frame(t(result)), c(Median="y", Mean="y", Lower="ymin", Upper="ymax"))
+  result <- safe.call(fun, list(x = x, ...))
+  rename(
+    data.frame(t(result)), 
+    c(Median = "y", Mean = "y", Lower = "ymin", Upper = "ymax")
+  )
 }
 
-sum_mean_cl_boot <- function(data, ...) wrap_hmisc(data$y, fun=smean.cl.boot, ...)
-sum_mean_cl_normal <- function(data, ...) wrap_hmisc(data$y, fun=smean.cl.normal, ...)
-sum_mean_sdl <- function(data, ...) wrap_hmisc(data$y, fun=smean.sdl, ...)
-sum_median_hilow <- function(data, ...) wrap_hmisc(data$y, fun=smedian.hilow, ...)
-sum_range <- function(data, ...) data.frame(ymin=min(data$y, na.rm=TRUE), ymax=max(data$y, na.rm=TRUE))
+mean_cl_boot <- function(x, ...) 
+  wrap_hmisc(x, fun = smean.cl.boot, ...)
+mean_cl_normal <- function(x, ...) 
+  wrap_hmisc(x, fun = smean.cl.normal, ...)
+mean_sdl <- function(x, ...) 
+  wrap_hmisc(x, fun = smean.sdl, ...)
+median_hilow <- function(x, ...) 
+  wrap_hmisc(x, fun = smedian.hilow, ...)

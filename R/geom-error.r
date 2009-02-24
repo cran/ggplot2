@@ -27,20 +27,20 @@ GeomErrorbar <- proto(Geom, {
     "geom_pointrange" = "range indicated by straight line, with point in the middle",
     "geom_linerange" = "range indicated by straight line",
     "geom_crossbar" = "hollow bar with middle indicated by horizontal line",
-    "stat_summary " = "examples of these guys in use",
+    "stat_summary" = "examples of these guys in use",
     "geom_smooth" = "for continuous analog"
   )
 
   draw <- function(., data, scales, coordinates, width = NULL, ...) {
     GeomPath$draw(with(data, data.frame( 
-      x = as.vector(rbind(xmin, xmax, x,    x,    xmin, xmax)), 
-      y = as.vector(rbind(ymax, ymax, ymax, ymin, ymin, ymin)),
-      colour = rep(colour, each = 6),
-      size = rep(size, each = 6),
-      linetype = rep(linetype, each = 6),
-      group = rep(1:(nrow(data)), each=6),
+      x = as.vector(rbind(xmin, xmax, NA, x,    x,    NA, xmin, xmax)), 
+      y = as.vector(rbind(ymax, ymax, NA, ymax, ymin, NA, ymin, ymin)),
+      colour = rep(colour, each = 8),
+      size = rep(size, each = 8),
+      linetype = rep(linetype, each = 8),
+      group = rep(1:(nrow(data)), each = 8),
       stringsAsFactors = FALSE, 
-      row.names = 1:(nrow(data) * 6)
+      row.names = 1:(nrow(data) * 8)
     )), scales, coordinates, ...)
   }
   

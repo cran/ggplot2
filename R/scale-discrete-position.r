@@ -17,7 +17,7 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
   cont_domain <- c(NA, NA)
   
   train <- function(., x) {
-    if (is.discrete(x)) {
+    if (plyr::is.discrete(x)) {
       .$.domain <- discrete_range(.$.domain, x)
     } else {
       .$cont_domain <- range(.$cont_domain, x, na.rm = TRUE)
@@ -25,7 +25,7 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
   }
   
   map <- function(., values) {
-    if (is.discrete(values)) {
+    if (plyr::is.discrete(values)) {
       .$check_domain()
       seq_along(.$input_set())[match(as.character(values), .$input_set())]
     } else {
@@ -85,15 +85,20 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
 # This is the equivalent of range for discrete variables 
 # 
 # @keywords internal
-discrete_range <- function(...) {
+discrete_range <- function(..., drop = TRUE) {
   pieces <- list(...)
   
   clevels <- function(x) {
-    if (is.factor(x)) levels(factor(x, exclude=NULL)) else as.character(unique(x))
+    if (is.null(x)) return(character())
+    
+    if (!drop && is.factor(x)) {
+      values <- levels(x)
+    } else {
+      values <- as.character(unique(x)) 
+    }
+    if (any(is.na(x))) values <- c(values, NA)
+    values
   }
   
-  vals <- unlist(lapply(pieces, clevels))
-  if (any(unlist(lapply(compact(pieces), is.na)))) vals <- c(NA, vals)
-
-  unique(vals)
+  unique(unlist(lapply(pieces, clevels)))
 }
