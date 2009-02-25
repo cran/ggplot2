@@ -89,7 +89,7 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   # Calculate sizes ----------------------------------------------------------
   if (is.null(legend_box)) position <- "none"
     
-  ylab_width <- unit(1, "grobwidth", grobs$ylabel) + unit(0.25, "lines")
+  ylab_width <- grobWidth(grobs$ylabel) + unit(0.25, "lines")
   legend_width <- grobWidth(grobs$legend_box)
 
   widths <- switch(position, 
@@ -103,8 +103,9 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   widths <- unit.c(margin$left, widths, margin$right)
 
   legend_height <- grobHeight(grobs$legend_box)
-  title_height <- grobHeight(grobs$title)
-  xlab_height <- unit(1, "grobheight", grobs$xlabel) + unit(0.25, "lines")
+  title_height <- grobHeight(grobs$title) + 
+    if (is.null(plot$options$title)) unit(0, "lines") else unit(0.5, "lines")
+  xlab_height <- grobHeight(grobs$xlabel) + unit(0.5, "lines")
 
   heights <- switch(position,
     top =    unit.c(
@@ -215,6 +216,7 @@ surround_viewports <- function(position, widths, heights, legend_vp) {
 # @keyword hplot
 # @keyword internal 
 print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...) {
+  set_last_plot(x)
   if (newpage) grid.newpage()
   if (is.null(vp)) {
     grid.draw(ggplotGrob(x, ...)) 

@@ -1,4 +1,4 @@
-GeomStep <- proto(GeomPath, {
+GeomStep <- proto(Geom, {
   objname <- "step"
   desc <- "Connect observations by stairs"
   icon <- function(.) {
@@ -9,6 +9,8 @@ GeomStep <- proto(GeomPath, {
     linesGrob(xs, ys, gp=gpar(col="grey20"))
   }
   details <- "Equivalent to plot(type='s')."
+
+  default_aes <- function(.) aes(colour="black", size=0.5, linetype=1)
   
   draw <- function(., data, scales, coordinates, direction = "hv", ...) {
     data <- stairstep(data, direction)
@@ -31,6 +33,14 @@ GeomStep <- proto(GeomPath, {
     # Steps go vertically, then horizontally
     qplot(seq_along(x), x, geom="step", direction = "vh")
     plot(x, type = "S")
+    
+    # Also works with other aesthetics
+    df <- data.frame(
+      x = sort(rnorm(50)),
+      trt = sample(c("a", "b"), 50, rep = T)
+    )
+    qplot(seq_along(x), x, data = df, geom="step", colour = trt)
+    
   }
 })
 

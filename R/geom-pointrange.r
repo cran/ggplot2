@@ -12,18 +12,18 @@ GeomPointrange <- proto(Geom, {
     "geom_errorbar" = "error bars",
     "geom_linerange" = "range indicated by straight line, + examples",
     "geom_crossbar" = "hollow bar with middle indicated by horizontal line",
-    "stat_summary " = "examples of these guys in use",
+    "stat_summary" = "examples of these guys in use",
     "geom_smooth" = "for continuous analog"
   )
   default_stat <- function(.) StatIdentity
-  default_aes <- function(.) aes(colour = "black", size=1, linetype=1, shape=16, fill=NA)
+  default_aes <- function(.) aes(colour = "black", size=2, linetype=1, shape=16, fill=NA)
   guide_geom <- function(.) "pointrange"
   required_aes <- c("x", "y", "ymin", "ymax")
 
   draw <- function(., data, scales, coordinates, ...) {
     if (is.null(data$y)) return(GeomLinerange$draw(data, scales, coordinates, ...))
     ggname(.$my_name(),gTree(children=gList(
-      GeomLinerange$draw(transform(data, size = size / 2), scales, coordinates, ...),
+      GeomLinerange$draw(transform(data, size = size / 4), scales, coordinates, ...),
       GeomPoint$draw(data, scales, coordinates, ...)
     )))
   }

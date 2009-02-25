@@ -128,6 +128,11 @@ Layer <- proto(expr = {
   calc_statistic <- function(., data, scales) {
     if (is.null(data) || nrow(data) == 0) return(data.frame())
     
+    check_required_aesthetics(.$stat$required_aes, 
+      c(names(data), names(.$stat_params)), 
+      paste("stat_", .$stat$objname, sep=""))
+
+    
     res <- do.call(.$stat$calculate_groups, c(
       list(data=as.name("data"), scales=as.name("scales")), 
       .$stat_params)
@@ -152,6 +157,7 @@ Layer <- proto(expr = {
   
   map_statistic <- function(., data, plot) {
     if (is.null(data) || length(data) == 0 || nrow(data) == 0) return()
+
     aesthetics <- defaults(.$mapping, 
       defaults(plot$mapping, .$stat$default_aes()))
 
@@ -170,6 +176,7 @@ Layer <- proto(expr = {
   }
 
   reparameterise <- function(., data) {
+    if (is.null(data)) stop("No data to plot", call. = FALSE)
     gg_apply(data, function(df) {
       if (!is.null(df)) {
         .$geom$reparameterise(df, .$geom_params) 

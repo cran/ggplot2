@@ -28,8 +28,10 @@ theme_update <- function(...) {
   if (length(args) == 1 && is.list(elements[[1]])) {
     elements <- elements[[1]]
   }
+  theme <- defaults(elements, theme_get())
+  class(theme) <- c("options")
   
-  theme_set(defaults(elements, theme_get()))  
+  theme_set(theme)  
 }
 
 .theme <- (function() {
@@ -38,6 +40,12 @@ theme_update <- function(...) {
   list(
     get = function() theme,
     set = function(new) {
+      missing <- setdiff(names(theme_gray()), names(new))
+      if (length(missing) > 0) {
+        warning("New theme missing the following elements: ", 
+          paste(missing, collapse = ", "), call. = FALSE)
+      }
+      
       old <- theme
       theme <<- new
       invisible(old)

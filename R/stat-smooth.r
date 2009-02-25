@@ -2,7 +2,7 @@ StatSmooth <- proto(Stat, {
   calculate_groups <- function(., data, scales, ...) {
     rows <- daply(data, .(group), function(df) length(unique(df$x)))
     
-    if (all(rows == 1)) {
+    if (all(rows == 1) && length(rows) > 1) {
       message("geom_smooth: Only one unique x value each group.", 
         "Maybe you want aes(group = 1)?")
       return(data.frame())
@@ -84,9 +84,7 @@ StatSmooth <- proto(Stat, {
   seealso <- list(
     lm = "for linear smooths",
     glm = "for generalised linear smooths",
-    loess = "for local smooths",
-    rlm = "for robust smooths",
-    gam = "for smooth smooths"
+    loess = "for local smooths"
   )
   
   
@@ -101,8 +99,8 @@ StatSmooth <- proto(Stat, {
 
     c + stat_smooth(span = 0.9) + geom_point()  
     c + stat_smooth(method = "lm") + geom_point()  
-    c + stat_smooth(method = lm, formula= y ~ ns(x,3)) + geom_point()  
-    c + stat_smooth(method = rlm, formula= y ~ ns(x,3)) + geom_point()  
+    c + stat_smooth(method = lm, formula = y ~ ns(x,3)) + geom_point()  
+    c + stat_smooth(method = MASS::rlm, formula= y ~ ns(x,3)) + geom_point()  
     
     # The default confidence band uses a transparent colour. 
     # This currently only works on a limited number of graphics devices 
