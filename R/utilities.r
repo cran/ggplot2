@@ -1,3 +1,12 @@
+
+# Null default
+# Analog of || from ruby
+# 
+# @keywords internal
+"%||%" <- function(a, b) {
+  if (!is.null(a)) a else b
+}
+
 # Check required aesthetics are present
 # This is used by geoms and stats to give a more helpful error message
 # when required aesthetics are missing.
@@ -149,4 +158,13 @@ invert <- function(L) {
 # @keywords internal
 "%inside%" <- function(x, interval) {
   x >= interval[1] & x <= interval[2]
+}
+
+# Check if a data frame is empty
+# Empty if it's null or it has 0 rows or columns
+# 
+# @arguments data frame to check
+# @keyword internal
+empty <- function(df) {
+  (is.null(df) || nrow(df) == 0 || ncol(df) == 0)
 }

@@ -96,34 +96,34 @@ Scales <- proto(Scale, expr={
   }
   
   # Train scale from a data frame
-  train_df <- function(., df) {
-    if (is.null(df)) return()
+  train_df <- function(., df, drop = FALSE) {
+    if (empty(df)) return() 
 
     lapply(.$.scales, function(scale) {
-      scale$train_df(df)
+      scale$train_df(df, drop)
     })
-  }
-  
-  train_position <- function(., df) {
-    pos_df <- df[is_position_aes(names(df))]
-    .$train_df(pos_df)
   }
   
   # Map values from a data.frame. Returns data.frame
   map_df <- function(., df) {
     if (length(.$.scales) == 0) return(df)
     
+    oldcols <- df[!(names(df) %in% .$input())]
+    
     mapped <- lapply(.$.scales, function(scale) scale$map_df(df))
-    do.call("data.frame",
-      c(mapped[sapply(mapped, nrow) > 0], 
-      df[!(names(df) %in% .$input())])
-    )
+    mapped <- mapped[!sapply(mapped, empty)]
+    
+    if (length(mapped) > 0) {
+      data.frame(mapped, oldcols)
+    } else {
+      oldcols
+    }
   }
   
   # Transform values to cardinal representation
   transform_df <- function(., df) {
     if (length(.$.scales) == 0) return(df)
-    if (is.null(df) || nrow(df) == 0) return(df)
+    if (empty(df)) return(data.frame())
     transformed <- compact(lapply(.$.scales, function(scale) {
       scale$transform_df(df)
     }))
@@ -138,7 +138,7 @@ Scales <- proto(Scale, expr={
   # scales are always available for modification.   The type of a scale is
   # fixed by the first use in a layer.
   add_defaults <- function(., data, aesthetics, env) {
-    if (is.null(data)) return()
+    if (is.null(aesthetics)) return()
     names(aesthetics) <- laply(names(aesthetics), aes_to_scale)
     
     new_aesthetics <- setdiff(names(aesthetics), .$input())
@@ -148,7 +148,6 @@ Scales <- proto(Scale, expr={
     
     # Compute default scale names
     names <- as.vector(sapply(aesthetics[new_aesthetics], deparse))
-
 
     # Determine variable type for each column -------------------------------
     vartype <- function(x) {

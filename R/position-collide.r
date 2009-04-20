@@ -30,7 +30,7 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
   # Check for overlap
   data <- data[order(data$xmin), ]
   intervals <- as.numeric(t(unique(data[c("xmin", "xmax")])))
-  intervals <- intervals[!is.na(intervals)]
+  intervals <- intervals[!is.na(intervals)] / max(intervals)
   if (any(diff(intervals) < -1e-6)) {
     stop(name, " requires non-overlapping x intervals", call. = FALSE)
     # This is where the algorithm from [L. Wilkinson. Dot plots. 
@@ -45,6 +45,8 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
 # 
 # @keywords internal
 pos_stack <- function(df, width) {
+  if (nrow(df) == 1) return(df)
+  
   n <- nrow(df) + 1
   y <- with(df, ifelse(is.na(y), 0, y))
   heights <- c(0, cumsum(y))

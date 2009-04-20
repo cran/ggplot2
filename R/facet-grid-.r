@@ -1,5 +1,5 @@
 FacetGrid <- proto(Facet, {
-  new <- function(., facets = . ~ ., margins = FALSE, scales = "fixed", space = "fixed") {
+  new <- function(., facets = . ~ ., margins = FALSE, scales = "fixed", space = "fixed", labeller = "label_value", as.table = TRUE) {
     scales <- match.arg(scales, c("fixed", "free_x", "free_y", "free"))
     free <- list(
       x = any(scales %in% c("free_x", "free")),
@@ -11,7 +11,7 @@ FacetGrid <- proto(Facet, {
     .$proto(
       facets = facets, margins = margins,
       free = free, space_is_free = (space == "free"),
-      scales = NULL
+      scales = NULL, labeller = list(labeller), as.table = as.table
     )
   }
   
@@ -20,11 +20,23 @@ FacetGrid <- proto(Facet, {
     setdiff(vars, c(".", "..."))
   }
   
+  
+  # Initialisation  
+  initialise <- function(., data) {
+    .$facet_levels <- unique(
+      ldply(data, failwith(NULL, "[", quiet = TRUE), .$conditionals()))
+    
+    .$shape <- stamp(.$facet_levels, .$facets, margins = .$margins,
+      function(x) 0)
+  }
+
+  
   stamp_data <- function(., data) {
-    data <- add_missing_levels(data, .$conditionals())
+    data <- add_missing_levels(data, .$facet_levels)
     data <- lapply(data, function(df) {
+      if (empty(df)) return(force_matrix(data.frame()))
       df <- stamp(add_group(df), .$facets, force, 
-        margins=.$margins, fill = list(NULL), add.missing = TRUE)
+        margins=.$margins, fill = list(data.frame()), add.missing = TRUE)
       force_matrix(df)
     })
   }
@@ -32,7 +44,12 @@ FacetGrid <- proto(Facet, {
   # Create grobs for each component of the panel guides
   add_guides <- function(., data, panels_grob, coord, theme) {
     aspect_ratio <- theme$aspect.ratio
-    if (is.null(aspect_ratio)) aspect_ratio <- 1
+    if (is.null(aspect_ratio)) {
+      aspect_ratio <- 1
+      respect <- FALSE
+    } else {
+      respect <- TRUE
+    }
 
     nr <- nrow(panels_grob)
     nc <- ncol(panels_grob)
@@ -48,18 +65,48 @@ FacetGrid <- proto(Facet, {
       }
     }
     
-    axes_h <- matrix(list(), nrow = 1, ncol = nc)
+    # Horizontal axes
+    axes_h <- list()
     for(i in seq_along(.$scales$x)) {
-      axes_h[[1, i]] <- coord$guide_axis_h(coord_details[[1, i]], theme)
+      axes_h[[i]] <- coord$guide_axis_h(coord_details[[1, i]], theme)
     }
+    axes_h_height <- do.call("max2", llply(axes_h, grobHeight))
+    axeshGrid <- grobGrid(
+      "axis_h", axes_h, nrow = 1, ncol = nc,
+      heights = axes_h_height, clip = "off"
+    )
     
-    axes_v <- matrix(list(), nrow = nr, ncol = 1)
+    
+    # Vertical axes
+    axes_v <- list()
     for(i in seq_along(.$scales$y)) {
-      axes_v[[i, 1]] <- coord$guide_axis_v(coord_details[[i, 1]], theme)
+      axes_v[[i]] <- coord$guide_axis_v(coord_details[[i, 1]], theme)
     }    
+    axes_v_width <- do.call("max2", llply(axes_v, grobWidth))
+    axesvGrid <- grobGrid(
+      "axis_v", axes_v, nrow = nr, ncol = 1,
+      widths = axes_v_width, as.table = .$as.table, clip = "off"
+    )
     
+    # Strips
     labels <- .$labels_default(.$shape, theme)
-
+    
+    strip_widths <- llply(labels$v, grobWidth)
+    strip_widths <- do.call("unit.c", llply(1:ncol(strip_widths), 
+      function(i) do.call("max2", strip_widths[, i])))
+    stripvGrid <- grobGrid(
+      "strip_v", labels$v, nrow = nrow(labels$v), ncol = ncol(labels$v),
+      widths = strip_widths, as.table = .$as.table
+    )
+      
+    strip_heights <- llply(labels$h, grobHeight)
+    strip_heights <- do.call("unit.c", llply(1:nrow(strip_heights),
+       function(i) do.call("max2", strip_heights[i, ])))
+    striphGrid <- grobGrid(
+      "strip_h", labels$h, nrow = nrow(labels$h), ncol = ncol(labels$h),
+      heights = strip_heights
+    )
+      
     # Add background and foreground to panels
     panels <- matrix(list(), nrow=nr, ncol = nc)
     for(i in seq_len(nr)) {
@@ -67,104 +114,65 @@ FacetGrid <- proto(Facet, {
         fg <- coord$guide_foreground(coord_details[[i, j]], theme)
         bg <- coord$guide_background(coord_details[[i, j]], theme)
 
-        name <- paste("panel", i, j, sep = "_")
-        panels[[i,j]] <- ggname(name, grobTree(bg, panels_grob[[i, j]], fg))
+        panels[[i,j]] <- grobTree(bg, panels_grob[[i, j]], fg)
       }
     }
-    
-    # Add gaps and compute widths and heights
 
-    gap <- matrix(list(nullGrob()), ncol = nc, nrow = nr)
-    panels <- cweave(
-      rweave(panels, gap),
-      rweave(gap,    gap)
-    )
-    panels <- panels[-nrow(panels), -ncol(panels), drop = FALSE]
-    
-    axes_v <- rweave(axes_v, gap[, 1, drop = FALSE])
-    strip_v <- rweave(labels$v, gap[, rep(1, ncol(labels$v)), drop = FALSE])
-
-    axes_h <- cweave(axes_h, gap[1, , drop = FALSE])
-    strip_h <- cweave(labels$h, gap[rep(1, nrow(labels$h)), , drop = FALSE])
-    
     if(.$space_is_free) {
       size <- function(y) unit(diff(y$output_expand()), "null")
-      panel_widths <- llply(.$scales$x, size)
-      panel_heights <- llply(.$scales$y, size)
+      panel_widths <- do.call("unit.c", llply(.$scales$x, size))
+      panel_heights <- do.call("unit.c", llply(.$scales$y, size))
     } else {
-      panel_widths <- rep(list(unit(1, "null")), nc)
-      panel_heights <- rep(list(unit(1 * aspect_ratio, "null")), nr)
+      panel_widths <- unit(1, "null")
+      panel_heights <- unit(1 * aspect_ratio, "null")
     }
-    margin <- list(theme$panel.margin)
-    panel_widths <- do.call("unit.c", interleave(panel_widths, margin))
-    panel_widths[length(panel_widths)] <- unit(0, "cm")
-    
-    panel_heights <- do.call("unit.c", interleave(panel_heights, margin))
-    panel_heights[length(panel_heights)] <- unit(0, "cm")
 
-    list(
-      panel     = panels, 
-      axis_v    = axes_v,
-      strip_v   = strip_v,
-      axis_h    = axes_h,
-      strip_h   = strip_h,
-      widths    = panel_widths,
-      heights   = panel_heights
-    )
-  }
-  
-  create_viewports <- function(., guides, theme) {
-    aspect_ratio <- theme$aspect.ratio
-    respect <- !is.null(aspect_ratio)
-    if (is.null(aspect_ratio)) aspect_ratio <- 1
-    
-    strip_widths <- llply(guides$strip_v, grobWidth)
-    strip_widths <- llply(1:ncol(strip_widths), function(i) 
-      do.call("max", strip_widths[, i]))
-    
-    widths <- unit.c(
-      do.call("max", llply(guides$axis_v, grobWidth)),
-      guides$widths,
-      do.call("unit.c", strip_widths)
-    )
-    
-    strip_heights <- llply(guides$strip_h, grobHeight)
-    strip_heights <- llply(1:nrow(strip_heights), function(i) 
-      do.call("max", strip_heights[i, ]))
-    
-    heights <- unit.c(
-      do.call("unit.c", strip_heights),
-      guides$heights,
-      do.call("max", llply(guides$axis_h, grobHeight))
-    )
-    
-    layout <- grid.layout(
-      ncol = length(widths), widths = widths,
-      nrow = length(heights), heights = heights,
+    panelGrid <- grobGrid(
+      "panel", t(panels), ncol = nc, nrow = nr,
+      widths = panel_widths, heights = panel_heights, as.table = .$as.table,
       respect = respect
     )
-    layout_vp <- viewport(layout=layout, name="panels")
+       
+    # Add gaps and compute widths and heights
+    fill <- spacer(nrow = 1, ncol = 1, 1, 1, "null")    
+    all <- rbind(
+      cbind(fill,      striphGrid, fill      ),
+      cbind(axesvGrid, panelGrid,  stripvGrid),
+      cbind(fill,      axeshGrid,  fill      ) 
+    )
+    # theme$panel.margin, theme$panel.margin
     
-    strip_rows <- nrow(guides$strip_h)
-    panel_rows <- nrow(guides$panel) + 1
-    panel_cols <- ncol(guides$panel) + 1
+    # from left to right
+    hgap_widths <- do.call("unit.c", compact(list(
+      unit(0, "cm"), # no gap after axis
+      rep.unit2(theme$panel.margin, nc - 1), # gap after all panels except last
+      unit(rep(0, ncol(stripvGrid) + 1), "cm") # no gap after strips 
+    )))
+    hgap <- grobGrid("hgap", 
+      ncol = ncol(all), nrow = nrow(all),
+      widths = hgap_widths, 
+    )
     
-    children_vp <- do.call("vpList", c(
-      setup_viewports("strip_h", guides$strip_h, c(0,1)),
-      
-      setup_viewports("axis_v",  guides$axis_v,  c(strip_rows, 0), "off"),
-      setup_viewports("panel",   guides$panel,   c(strip_rows, 1)),
-      setup_viewports("strip_v", guides$strip_v, c(strip_rows, 1 + panel_cols)),
-      
-      setup_viewports("axis_h",  guides$axis_h, c(strip_rows + panel_rows, 1), "off")
-    ))
+    # from top to bottom
+    vgap_heights <- do.call("unit.c", compact(list(
+      unit(rep(0, nrow(striphGrid) + 1), "cm"), # no gap after strips 
+      rep.unit2(theme$panel.margin, nr - 1), # gap after all panels except last
+      unit(0, "cm") # no gap after axis
+    )))
     
-    vpTree(layout_vp, children_vp)
+    vgap <- grobGrid("vgap",
+      nrow = nrow(all), ncol = ncol(all) * 2,
+      heights = vgap_heights
+    )
+    
+    rweave(cweave(all, hgap), vgap)
   }
 
+
   labels_default <- function(., gm, theme) {
+    labeller <- match.fun(.$labeller[[1]])
     add.names <- function(x) {
-      for(i in 1:ncol(x)) x[[i]] <- theme$strip.label(colnames(x)[i], x[,i])
+      for(i in 1:ncol(x)) x[[i]] <- labeller(colnames(x)[i], x[,i])
       x
     }
 
@@ -181,12 +189,6 @@ FacetGrid <- proto(Facet, {
       v = strip_v
     )
   }
-
-  # Initialisation
-  
-  initialise <- function(., data) {
-    .$shape <- stamp(data[[1]], .$facets, function(x) 0, margins=.$margins)
-  }
   
   # Position scales ----------------------------------------------------------
   
@@ -202,10 +204,10 @@ FacetGrid <- proto(Facet, {
     
     lapply(data, function(l) {
       for(i in seq_along(.$scales$x)) {
-        lapply(l[, i], .$scales$x[[i]]$train_df)
+        lapply(l[, i], .$scales$x[[i]]$train_df, drop = .$free$x)
       }
       for(i in seq_along(.$scales$y)) {
-        lapply(l[i, ], .$scales$y[[i]]$train_df)
+        lapply(l[i, ], .$scales$y[[i]]$train_df, drop = .$free$y)
       }
     })
   }
@@ -321,7 +323,7 @@ FacetGrid <- proto(Facet, {
     # If you combine a facetted dataset with a dataset that lacks those
     # facetting variables, the data will be repeated across the missing
     # combinations:
-    p <- qplot(mpg, wt, data=mtcars, facets = vs ~ am)
+    p <- qplot(mpg, wt, data=mtcars, facets = vs ~ cyl)
 
     df <- data.frame(mpg = 22, wt = 3)
     p + geom_point(data = df, colour="red", size = 2)
@@ -329,8 +331,8 @@ FacetGrid <- proto(Facet, {
     df2 <- data.frame(mpg = c(19, 22), wt = c(2,4), vs = c(0, 1))
     p + geom_point(data = df2, colour="red", size = 2)
 
-    df2 <- data.frame(mpg = c(19, 22), wt = c(2,4), vs = c(1, 1))
-    p + geom_point(data = df2, colour="red", size = 2)
+    df3 <- data.frame(mpg = c(19, 22), wt = c(2,4), vs = c(1, 1))
+    p + geom_point(data = df3, colour="red", size = 2)
 
     
     # You can also choose whether the scales should be constant

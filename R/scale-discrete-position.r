@@ -16,9 +16,9 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
 
   cont_domain <- c(NA, NA)
   
-  train <- function(., x) {
+  train <- function(., x, drop = .$drop) {
     if (plyr::is.discrete(x)) {
-      .$.domain <- discrete_range(.$.domain, x)
+      .$.domain <- discrete_range(.$.domain, x, drop = drop)
     } else {
       .$cont_domain <- range(.$cont_domain, x, na.rm = TRUE)
     }
@@ -81,24 +81,3 @@ ScaleDiscretePosition <- proto(ScaleDiscrete, {
   
 })
 
-# Calculate range for discrete position variables
-# This is the equivalent of range for discrete variables 
-# 
-# @keywords internal
-discrete_range <- function(..., drop = TRUE) {
-  pieces <- list(...)
-  
-  clevels <- function(x) {
-    if (is.null(x)) return(character())
-    
-    if (!drop && is.factor(x)) {
-      values <- levels(x)
-    } else {
-      values <- as.character(unique(x)) 
-    }
-    if (any(is.na(x))) values <- c(values, NA)
-    values
-  }
-  
-  unique(unlist(lapply(pieces, clevels)))
-}

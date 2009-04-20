@@ -7,7 +7,8 @@ StatSummary <- proto(Stat, {
   default_geom <- function(.) GeomPointrange
   required_aes <- c("x", "y")
    
-  calculate <- function(., data, scales, fun.data = NULL, fun.y = NULL, fun.ymax = NULL, fun.ymin = NULL, ...) {
+  calculate_groups <- function(., data, scales, fun.data = NULL, fun.y = NULL, fun.ymax = NULL, fun.ymin = NULL, na.rm = FALSE, ...) {
+    data <- remove_missing(data, na.rm, c("x", "y"), name = "stat_summary")
     
     if (!missing(fun.data)) {
       # User supplied function that takes complete data frame as input
@@ -49,8 +50,16 @@ StatSummary <- proto(Stat, {
   examples <- function(.) {
     # Basic operation on a small dataset
     c <- qplot(cyl, mpg, data=mtcars)
-    c + stat_summary()
+    c + stat_summary(fun.data = "mean_cl_boot", colour = "red")
 
+    p <- qplot(cyl, mpg, data = mtcars, stat="summary", fun.y = "mean")
+    p
+    # Don't use ylim to zoom into a summary plot - this throws the
+    # data away
+    p + ylim(15, 30)
+    # Instead use coord_cartesian
+    p + coord_cartesian(ylim = c(15, 30))
+    
     # You can supply individual functions to summarise the value at 
     # each x:
     
@@ -66,6 +75,8 @@ StatSummary <- proto(Stat, {
     c + stat_summary(fun.y = mean, fun.ymin = min, fun.ymax = max, 
       colour = "red")
     
+    c + aes(colour = factor(vs)) + stat_summary(fun.y = mean, geom="line")
+    
     # Alternatively, you can supply a function that operates on a data.frame.
     # A set of useful summary functions is provided from the Hmisc package:
     
@@ -80,10 +91,10 @@ StatSummary <- proto(Stat, {
 
     # There are lots of different geoms you can use to display the summaries
         
-    c + stat_sum_df(fun.data="mean_cl_normal")
-    c + stat_sum_df(fun.data="mean_cl_normal", geom = "errorbar")
-    c + stat_sum_df(fun.data="mean_cl_normal", geom = "pointrange")
-    c + stat_sum_df(fun.data="mean_cl_normal", geom = "smooth")
+    c + stat_sum_df("mean_cl_normal")
+    c + stat_sum_df("mean_cl_normal", geom = "errorbar")
+    c + stat_sum_df("mean_cl_normal", geom = "pointrange")
+    c + stat_sum_df("mean_cl_normal", geom = "smooth")
         
     # Summaries are much more useful with a bigger data set:
     m <- ggplot(movies, aes(x=round(rating), y=votes)) + geom_point()
@@ -120,41 +131,36 @@ StatSummary <- proto(Stat, {
 # @argument other arguments passed on to summary function
 # @keyword internal
 summarise_by_x <- function(data, summary, ...) {
-  summary <- ddply(data, .(x), summary)
-  unique <- ddply(data, .(x), uniquecols)
+  summary <- ddply(data, .(group, x), summary, ...)
+  unique <- ddply(data, .(group, x), uniquecols)
   unique$y <- NULL
   
-  merge(summary, unique, by = "x")
+  merge(summary, unique, by = c("x", "group"))
 }
 
 # Wrap Hmisc summary functions 
-# Wrap up a selection of Hmisc to make it easy to use them with \code{\link{stat_summary}}
+# Wrap up a selection of Hmisc to make it easy to use with \code{\link{stat_summary}}
 # 
-# @alias sum_mean_cl_boot
-# @alias sum_mean_cl_normal
-# @alias sum_mean_sdl
-# @alias sum_median_hilow
-# @alias sum_range
+# See the Hmisc documentation for details of their options.
+# 
+# @seealso \code{\link[Hmisc]{smean.cl.boot}}, \code{\link[Hmisc]{smean.cl.normal}}, \code{\link[Hmisc]{smean.sdl}}, \code{\link[Hmisc]{smedian.hilon}}
 # @alias mean_cl_boot
 # @alias mean_cl_normal
 # @alias mean_sdl
 # @alias median_hilow
 # @keyword internal
-wrap_hmisc <- function(x, fun, ...) {
-  try_require("Hmisc")
-
-  result <- safe.call(fun, list(x = x, ...))
-  rename(
-    data.frame(t(result)), 
-    c(Median = "y", Mean = "y", Lower = "ymin", Upper = "ymax")
-  )
+wrap_hmisc <- function(fun) {
+  function(x, ...) {
+    try_require("Hmisc")
+  
+    result <- safe.call(fun, list(x = x, ...))
+    rename(
+      data.frame(t(result)), 
+      c(Median = "y", Mean = "y", Lower = "ymin", Upper = "ymax")
+    )    
+  }
 }
-
-mean_cl_boot <- function(x, ...) 
-  wrap_hmisc(x, fun = smean.cl.boot, ...)
-mean_cl_normal <- function(x, ...) 
-  wrap_hmisc(x, fun = smean.cl.normal, ...)
-mean_sdl <- function(x, ...) 
-  wrap_hmisc(x, fun = smean.sdl, ...)
-median_hilow <- function(x, ...) 
-  wrap_hmisc(x, fun = smedian.hilow, ...)
+mean_cl_boot <- wrap_hmisc("smean.cl.boot")
+mean_cl_normal <- wrap_hmisc("smean.cl.normal")
+mean_sdl <- wrap_hmisc("smean.sdl")
+median_hilow <- wrap_hmisc("smedian.hilow")

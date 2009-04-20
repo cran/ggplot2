@@ -19,13 +19,13 @@ Layer <- proto(expr = {
   mapping <- NULL
   position <- NULL
   params <- NULL
-  ignore.extra <- FALSE
+  inherit.aes <- FALSE
   
-  new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ..., ignore.extra = FALSE, legend = NA) {
+  new <- function (., geom=NULL, geom_params=NULL, stat=NULL, stat_params=NULL, data=NULL, mapping=NULL, position=NULL, params=NULL, ..., inherit.aes = TRUE, legend = NA, subset = NULL) {
     
     if (is.null(geom) && is.null(stat)) stop("Need at least one of stat and geom")
     
-    if (!is.null(data) && !is.data.frame(data)) stop("Data needs to be a data.frame")
+    data <- fortify(data)
     if (!is.null(mapping) && !inherits(mapping, "uneval")) stop("Mapping should be a list of unevaluated mappings created by aes or aes_string")
     
     if (is.character(geom)) geom <- Geom$find(geom)
@@ -43,20 +43,25 @@ Layer <- proto(expr = {
         params[match(names(possible), names(params), nomatch=0)]
       }
     }
-    
+
     if (is.null(geom_params) && is.null(stat_params)) {
       params <- c(params, list(...))
+      params <- rename_aes(params) # Rename American to British spellings etc
+      
       geom_params <- match.params(geom$parameters(), params)
       stat_params <- match.params(stat$parameters(), params)
-      stat_params <- stat_params[setdiff(names(stat_params), names(geom_params))]
+      stat_params <- stat_params[setdiff(names(stat_params),
+        names(geom_params))]
+    } else {      
+      geom_params <- rename_aes(geom_params)
     }
     
     proto(., 
       geom=geom, geom_params=geom_params, 
       stat=stat, stat_params=stat_params, 
-      data=data, mapping=mapping, 
+      data=data, mapping=mapping, subset=subset,
       position=position,
-      ignore.extra = ignore.extra,
+      inherit.aes = inherit.aes,
       legend = legend
     )
   }
@@ -105,10 +110,22 @@ Layer <- proto(expr = {
   # and overrides for a given geom.
   #
   make_aesthetics <- function(., plot) {
-    data <- nulldefault(.$data, plot$data)
-    if (is.null(data)) stop("No data for layer", call.=FALSE)
+    data <- if(empty(.$data)) plot$data else .$data
 
-    aesthetics <- compact(defaults(.$mapping, plot$mapping))
+    # Apply subsetting, if used
+    if (!is.null(.$subset)) {
+      include <- data.frame(eval.quoted(.$subset, data))
+      data <- data[rowSums(include) == ncol(include), ]
+    }
+    
+    # For certain geoms, it is useful to be able to ignore the default
+    # aesthetics and only use those set in the layer
+    if (.$inherit.aes) {
+      aesthetics <- compact(defaults(.$mapping, plot$mapping))      
+    } else {
+      aesthetics <- .$mapping
+    }
+
     # Override grouping if specified in layer
     if (!is.null(.$geom_params$group)) {
       aesthetics["group"] <- .$geom_params$group
@@ -118,7 +135,29 @@ Layer <- proto(expr = {
     aesthetics <- aesthetics[setdiff(names(aesthetics), names(.$geom_params))]
     plot$scales$add_defaults(plot$data, aesthetics, plot$plot_env)
     
-    calc_aesthetics(plot, data, aesthetics, .$ignore.extra)
+    # Evaluate aesthetics in the context of their data frame
+    eval.each <- function(dots) 
+      compact(lapply(dots, function(x.) eval(x., data, plot$plot_env)))
+
+    aesthetics <- aesthetics[!is_calculated_aes(aesthetics)]
+    evaled <- eval.each(aesthetics)
+    if (length(evaled) == 0) return(data.frame())
+
+    evaled <- evaled[sapply(evaled, is.atomic)]
+    df <- data.frame(evaled)
+
+    # Add Conditioning variables needed for facets
+    cond <- plot$facet$conditionals()
+    facet_vars <- data[, intersect(names(data), cond), drop=FALSE]
+    if (nrow(facet_vars) > 0) {
+      df <- cbind(df, facet_vars)  
+    }
+
+    if (empty(plot$data)) return(df)
+    facet_vars <- unique(plot$data[, setdiff(cond, names(df)), drop=FALSE])
+    
+    if (empty(data)) return(facet_vars)
+    expand.grid.df(df, facet_vars, unique = FALSE)
   }
 
   calc_statistics <- function(., data, scales) {
@@ -126,7 +165,7 @@ Layer <- proto(expr = {
   }
   
   calc_statistic <- function(., data, scales) {
-    if (is.null(data) || nrow(data) == 0) return(data.frame())
+    if (empty(data)) return(data.frame())
     
     check_required_aesthetics(.$stat$required_aes, 
       c(names(data), names(.$stat_params)), 
@@ -156,7 +195,7 @@ Layer <- proto(expr = {
   }
   
   map_statistic <- function(., data, plot) {
-    if (is.null(data) || length(data) == 0 || nrow(data) == 0) return()
+    if (empty(data)) return(data.frame())
 
     aesthetics <- defaults(.$mapping, 
       defaults(plot$mapping, .$stat$default_aes()))
@@ -176,13 +215,10 @@ Layer <- proto(expr = {
   }
 
   reparameterise <- function(., data) {
-    if (is.null(data)) stop("No data to plot", call. = FALSE)
     gg_apply(data, function(df) {
-      if (!is.null(df)) {
-        .$geom$reparameterise(df, .$geom_params) 
-      } else {
-        data.frame()
-      }
+      if (empty(df)) return(data.frame())
+
+      .$geom$reparameterise(df, .$geom_params) 
     })
   }
 
@@ -193,13 +229,20 @@ Layer <- proto(expr = {
   }
   
   make_grob <- function(., data, scales, cs) {
-    if (is.null(data) || nrow(data) == 0) return(nullGrob())
+    if (empty(data)) return(nullGrob())
     data <- .$use_defaults(data)
     
     check_required_aesthetics(.$geom$required_aes, c(names(data), names(.$geom_params)), paste("geom_", .$geom$objname, sep=""))
     
-    if (is.null(data$order)) data$order <- data$group
-    data <- data[order(data$order), ]
+    if (is.null(data$group)) data$group <- 1
+    
+    # If ordering is set, modify group variable according to this order
+    if (!is.null(data$order)) {
+      data$group <- ninteraction(list(data$group, data$order))
+      data$order <- NULL
+    }
+    
+    data <- data[order(data$group), ]
     
     do.call(.$geom$draw_groups, c(
       data = list(as.name("data")), 
@@ -242,52 +285,7 @@ gg_apply <- function(gg, f, ...) {
 }
 layer <- Layer$new
 
-# Build data frame
-# Build data frome for a plot with given data and ... (dots) arguments
-#
-# Depending on the layer, we need
-# to stitch together a data frame using the defaults from plot\$mapping 
-# and overrides for a given geom.
-#
-# Arguments in dots are evaluated in the context of \\code{data} so that
-# column names can easily be references. 
-#
-# Also makes sure that it contains all the columns required to correctly
-# place the output into the row+column structure defined by the formula,
-# by using \\code{\\link[reshape]{expand.grid.df}} to add in extra columns if needed.
-#
-# @arguments plot object
-# @arguments data frame to use
-# @arguments extra arguments supplied by user that should be used first
-# @keyword hplot
-# @keyword internal
-calc_aesthetics <- function(plot, data = plot$data, aesthetics, ignore.extra = FALSE, env = plot$plot_env) {
-  if (is.null(data)) data <- plot$data
-  
-  if (!is.data.frame(data)) {
-    data <- fortify(data)
-  }
-  
-  err <- if (ignore.extra) tryNULL else force
-  eval.each <- function(dots) compact(lapply(dots, function(x.) err(eval(x., data, env))))
-  # Conditioning variables needed for facets
-  cond <- plot$facet$conditionals()
-  
-  aesthetics <- aesthetics[!is_calculated_aes(aesthetics)]
-  evaled <- eval.each(aesthetics)
-  if (length(evaled) == 0) return(data.frame())
-  
-  evaled <- evaled[sapply(evaled, is.atomic)]
-  
-  df <- data.frame(evaled)
-  facet_vars <- data[, intersect(names(data), cond), drop=FALSE]
-  if (nrow(facet_vars) > 0) {
-    df <- cbind(df, facet_vars)  
-  }
-  
-  if (is.null(plot$data)) return(df)
-  expand.grid.df(df, unique(plot$data[, setdiff(cond, names(df)), drop=FALSE]), unique=FALSE)
-}
+
 
 # Is calculated aesthetic?
 # Determine if aesthetic is calculated from the statistic

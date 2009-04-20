@@ -3,7 +3,8 @@ GeomSegment <- proto(Geom, {
     if (!coordinates$muncher()) {
       return(with(coordinates$transform(data, scales), 
         segmentsGrob(x, y, xend, yend, default.units="native",
-        gp = gpar(col=colour, fill=colour, lwd=size * .pt, lty=linetype, lineend = "butt"), 
+        gp = gpar(col=alpha(colour, alpha), lwd=size * .pt, 
+          lty=linetype, lineend = "butt"), 
         arrow = arrow)
       ))
     }
@@ -34,7 +35,7 @@ GeomSegment <- proto(Geom, {
 
   default_stat <- function(.) StatIdentity
   required_aes <- c("x", "y", "xend", "yend")
-  default_aes <- function(.) aes(colour="black", size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour="black", size=0.5, linetype=1, alpha = 1)
   guide_geom <- function(.) "path"
   
   examples <- function(.) {
@@ -51,6 +52,15 @@ GeomSegment <- proto(Geom, {
     p <- ggplot(seals, aes(x = long, y = lat))
     (p <- p + geom_segment(aes(xend = long + delta_long, yend = lat + delta_lat), arrow=arrow(length=unit(0.1,"cm"))))
     p + geom_path(data = usamap) + scale_x_continuous(limits=xlim)
+    
+    # You can also use geom_segment to recreate plot(type = "h") : 
+    counts <- as.data.frame(table(x = rpois(100,5)))
+    counts$x <- as.numeric(as.character(counts$x))
+    with(counts, plot(x, Freq, type = "h", lwd = 10))
+
+    qplot(x, Freq, data = counts, geom="segment", 
+      yend = 0, xend = x, size = I(10))
+    
     
   }
   

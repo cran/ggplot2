@@ -8,26 +8,20 @@
 panelGrob <- function(plot, pieces = ggplot_build(plot)) {
   theme <- plot_theme(plot)
 
-  grobs <- pieces$facet$add_guides(plot$data, pieces$panels, pieces$cs, theme)
-  viewports <- pieces$facet$create_viewports(grobs, theme)
-
-  grobs <- assign_viewports(grobs[setdiff(names(grobs), c("widths", "heights")), drop = FALSE])
-  
-  ggname("plot", 
-    gTree(
-      children = do.call("gList", grobs), 
-      childrenvp = viewports
-    )
-  )
+  grid <- pieces$facet$add_guides(plot$data, pieces$panels, pieces$cs, theme)
+  gTree.gridGrob(grid)
 }
 
 # Pretty plot
 # Build a plot with all the usual bits and pieces.
 # 
-# As well as the plotting area, a plot need:
+# As well as the plotting area, a plot needs:
+# 
+# \itemize{
 #  \item main title
 #  \item x and y axis labels
 #  \item space for legends (currently on the right hand side)
+# }
 # 
 # These are stored as options in the plot object.
 # 
@@ -38,7 +32,7 @@ panelGrob <- function(plot, pieces = ggplot_build(plot)) {
 # @arguments plot
 # @arguments plot grob
 # @keyword hplot 
-ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep) {
+ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep, ...) {
   pieces <- ggplot_build(plot)
   
   panels <- panelGrob(plot, pieces)
@@ -89,7 +83,7 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep)
   # Calculate sizes ----------------------------------------------------------
   if (is.null(legend_box)) position <- "none"
     
-  ylab_width <- grobWidth(grobs$ylabel) + unit(0.25, "lines")
+  ylab_width <- grobWidth(grobs$ylabel) + unit(0.5, "lines")
   legend_width <- grobWidth(grobs$legend_box)
 
   widths <- switch(position, 
@@ -212,7 +206,7 @@ surround_viewports <- function(position, widths, heights, legend_vp) {
 # @arguments plot to display
 # @arguments draw new (empty) page first?
 # @arguments viewport to draw plot in
-# @arguments other arguments passed on to \\code{\\link{ggplotGrob}}
+# @arguments other arguments passed on to \code{\link{ggplotGrob}}
 # @keyword hplot
 # @keyword internal 
 print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...) {

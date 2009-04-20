@@ -59,12 +59,13 @@ Scale <- proto(TopLevel, expr={
   }
   
   # Train scale from a data frame
-  train_df <- function(., df) {
+  train_df <- function(., df, drop = FALSE) {
+    if (empty(df)) return() 
     # Don't train if limits have already been set
     if (!is.null(.$limits)) return()
     
     input <- .$input_aesthetics(df)
-    l_ply(input, function(var) .$train(df[[var]]))
+    l_ply(input, function(var) .$train(df[[var]], drop))
   }
 
   # Map values from a data.frame.   Returns data.frame

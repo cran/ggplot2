@@ -1,10 +1,11 @@
 GeomAbline <- proto(Geom, {
-  new <- function(., ...) {
-    .super$new(., ..., ignore.extra = TRUE)
+  new <- function(., mapping = NULL, ...) {
+    mapping <- compact(defaults(mapping, aes(group = 1)))
+    class(mapping) <- "uneval"
+    .super$new(., ..., mapping = mapping, inherit.aes = FALSE)
   }
   
   draw <- function(., data, scales, coordinates, ...) {
-        
     xrange <- scales$x.range
     
     data <- transform(data,
@@ -32,14 +33,15 @@ GeomAbline <- proto(Geom, {
   guide_geom <- function(.) "abline"
 
   default_stat <- function(.) StatAbline
-  default_aes <- function(.) aes(colour="black", size=0.5, linetype=1)
+  default_aes <- function(.) aes(colour="black", size=0.5, linetype=1, alpha=1)
   
   draw_legend <- function(., data, ...) {
     data <- aesdefaults(data, .$default_aes(), list(...))
 
     with(data, 
       ggname(.$my_name(), segmentsGrob(0, 0, 1, 1, default.units="npc",
-      gp=gpar(col=colour, lwd=size * .pt, lty=linetype, lineend="butt")))
+      gp=gpar(col=alpha(colour, alpha), lwd=size * .pt, lty=linetype,
+        lineend="butt")))
     )
   }
   
@@ -48,13 +50,13 @@ GeomAbline <- proto(Geom, {
     p <- qplot(wt, mpg, data = mtcars)
 
     # Fixed slopes and intercepts
-    p + geom_abline()
+    p + geom_abline() # Can't see it - outside the range of the data
     p + geom_abline(intercept = 20)
 
     # Calculate slope and intercept of line of best fit
     coef(lm(mpg ~ wt, data = mtcars))
     p + geom_abline(intercept = 37, slope = -5)
-    p + geom_abline(intercept=10, colour="red", size=2)
+    p + geom_abline(intercept = 10, colour = "red", size = 2)
     
     # See ?stat_smooth for fitting smooth models to data
     p + stat_smooth(method="lm", se=FALSE)

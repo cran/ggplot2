@@ -3,12 +3,11 @@ GeomPoint <- proto(Geom, {
   draw <- function(., data, scales, coordinates, na.rm = FALSE, ...) {    
     data <- remove_missing(data, na.rm, 
       c("x", "y", "size", "shape"), name = "geom_point")
-    if (nrow(data) == 0) return(nullGrob())
-    
-    
+    if (empty(data)) return(nullGrob())
+
     with(coordinates$transform(data, scales), 
       ggname(.$my_name(), pointsGrob(x, y, size=unit(size, "mm"), pch=shape, 
-      gp=gpar(col=colour, fill = fill, fontsize = size * .pt)))
+      gp=gpar(col=alpha(colour, alpha), fill = fill, fontsize = size * .pt)))
     )
   }
 
@@ -16,7 +15,7 @@ GeomPoint <- proto(Geom, {
     data <- aesdefaults(data, .$default_aes(), list(...))
     with(data,
       pointsGrob(0.5, 0.5, size=unit(size, "mm"), pch=shape, 
-      gp=gpar(col=colour, fill=fill, fontsize = size * .pt))
+      gp=gpar(col=alpha(colour, alpha), fill=fill, fontsize = size * .pt))
     )
   }
 
@@ -33,7 +32,7 @@ GeomPoint <- proto(Geom, {
   
   default_stat <- function(.) StatIdentity
   required_aes <- c("x", "y")
-  default_aes <- function(.) aes(shape=16, colour="black", size=2, fill = NA)
+  default_aes <- function(.) aes(shape=16, colour="black", size=2, fill = NA, alpha = 1)
 
   seealso <- list(
     scale_size = "To see how to scale area of points, instead of radius",
@@ -46,19 +45,25 @@ GeomPoint <- proto(Geom, {
 
     # Add aesthetic mappings
     p + geom_point(aes(colour = qsec))
-    p + geom_point(aes(colour = cyl))
+    p + geom_point(aes(alpha = qsec))
     p + geom_point(aes(colour = factor(cyl)))
     p + geom_point(aes(shape = factor(cyl)))
     p + geom_point(aes(size = qsec))
 
     # Change scales
-    p + geom_point(aes(colour = cyl)) + scale_colour_gradient(low = "red")
+    p + geom_point(aes(colour = cyl)) + scale_colour_gradient(low = "blue")
     p + geom_point(aes(size = qsec)) + scale_area()
     p + geom_point(aes(shape = factor(cyl))) + scale_shape(solid = FALSE)
     
     # Set aesthetics to fixed value
     p + geom_point(colour = "red", size = 3)
     qplot(wt, mpg, data = mtcars, colour = I("red"), size = I(3))
+    
+    # Varying alpha is useful for large datasets
+    d <- ggplot(diamonds, aes(carat, price))
+    d + geom_point(alpha = 1/10)
+    d + geom_point(alpha = 1/20)
+    d + geom_point(alpha = 1/100)
     
     # You can create interesting shapes by layering multiple points of
     # different sizes
@@ -78,8 +83,7 @@ GeomPoint <- proto(Geom, {
       geom_point(aes(shape = factor(cyl)))  
         
     # Transparent points:
-    qplot(mpg, wt, data = mtcars, size = I(5), 
-      colour=I(alpha("black", 0.2)))
+    qplot(mpg, wt, data = mtcars, size = I(5), alpha = I(0.2))
     
     # geom_point warns when missing values have been dropped from the data set
     # and not plotted, you can turn this off by setting na.rm = TRUE

@@ -8,7 +8,8 @@ StatSum <- proto(Stat, {
     if (is.null(data$weight)) data$weight <- 1
     
     counts <- ddply(data, .(x, y, group), function(df) {
-      data.frame(n = sum(df$weight), uniquecols(df))
+      cols <- names(df)[sapply(df, function(x) length(unique(x)) == 1)]
+      data.frame(n = sum(df$weight), df[1, cols, drop = FALSE])
     })
     counts <- ddply(counts, .(group), transform, prop = n / sum(n))
     counts$group <- 1
@@ -36,10 +37,10 @@ StatSum <- proto(Stat, {
     d + stat_sum(aes(group = 1)) + scale_area(to = c(3, 10))
     # by cut
     d + stat_sum(aes(group = cut))
-    d + stat_sum(aes(group = clarity, colour = cut))
+    d + stat_sum(aes(group = cut, colour = cut))
     # by clarity
     d + stat_sum(aes(group = clarity))
-    d + stat_sum(aes(group = clarity, colour = clarity))
+    d + stat_sum(aes(group = clarity, colour = cut))
     
     # Instead of proportions, can also use sums
     d + stat_sum(aes(size = ..n..))
