@@ -28,6 +28,7 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
   
   # Transform each 
   transform_df <- function(., df) {
+    if (empty(df)) return(data.frame())
     input <- .$input()
     output <- .$output()
     
@@ -43,7 +44,8 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
     df
   }
   
-  train <- function(., x) {
+  train <- function(., x, drop = FALSE) {
+    if (!is.null(.$limits)) return()
     if (is.null(x)) return()
     if (!is.numeric(x)) {
       stop(
@@ -52,7 +54,6 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
       )
     }
     if (all(is.na(x))) return()
-    
     .$.domain <- range(x, .$.domain, na.rm=TRUE, finite=TRUE)
   }
     

@@ -5,22 +5,26 @@ ScaleColour <- proto(ScaleDiscrete, expr={
 })
 
 ScaleHue <- proto(ScaleColour, expr={
-  aliases <- c("scale_colour_discrete", "scale_fill_discrete")
+  aliases <- c("scale_colour_discrete", "scale_fill_discrete", "scale_color_hue")
   
-  new <- function(., name=NULL, h=c(0,360), l=65, c=100, alpha=1, limits=NULL, breaks = NULL, labels=NULL, h.start = 0, direction = 1,  formatter = identity, variable) {
-    .$proto(name=name, h=h, l=l, c=c, alpha=alpha, .input=variable, .output=variable, .labels = labels, breaks = breaks, direction = direction, start  = h.start, limits = limits, formatter = formatter)
+  new <- function(., name=NULL, h=c(0,360) + 15, l=65, c=100, limits=NULL, breaks = NULL, labels=NULL, h.start = 0, direction = 1,  formatter = identity, variable) {
+    .$proto(name=name, h=h, l=l, c=c, .input=variable, .output=variable, .labels = labels, breaks = breaks, direction = direction, start  = h.start, limits = limits, formatter = formatter)
   }
   
   output_set <- function(.) {
+    
     rotate <- function(x) (x + .$start) %% 360 * .$direction
 
     n <- length(.$input_set())
+    if ((diff(.$h) %% 360) < 1) {
+      .$h[2] <- .$h[2] - 360 / n
+    }
+
     grDevices::hcl(
-      h = rotate(seq(.$h[1], .$h[2], length = n+1)), 
+      h = rotate(seq(.$h[1], .$h[2], length = n)), 
       c =.$c, 
-      l =.$l, 
-      alpha=.$alpha
-    )[-(n+1)]
+      l =.$l
+    )
   }
   max_levels <- function(.) Inf
 
@@ -40,7 +44,6 @@ ScaleHue <- proto(ScaleColour, expr={
     h = "range of hues to use, in [0, 360]", 
     l = "luminance (lightness), in [0, 100]",
     c = "chroma (intensity of colour)",
-    alpha = "alpha",
     h.start = "hue to start at",
     direction = "direction to travel around the colour wheel, 1 = clockwise, -1 = counter-clockwise"
   )
@@ -68,9 +71,10 @@ ScaleHue <- proto(ScaleColour, expr={
     
     # Vary opacity
     # (only works with pdf, quartz and cairo devices)
-    d + scale_colour_hue(alpha = 0.9)
-    d + scale_colour_hue(alpha = 0.5)
-    d + scale_colour_hue(alpha = 0.2)
+    d <- ggplot(dsamp, aes(carat, price, colour = clarity))
+    d + geom_point(alpha = 0.9)
+    d + geom_point(alpha = 0.5)
+    d + geom_point(alpha = 0.2)
   }
 })
 
@@ -79,14 +83,14 @@ ScaleHue <- proto(ScaleColour, expr={
 ScaleBrewer <- proto(ScaleColour, expr={
   doc <- TRUE
 
-  new <- function(., name=NULL, palette=1, type="qual", alpha=1, limits=NULL, breaks = NULL, labels=NULL, formatter = identity, variable) {
-    .$proto(name=name, palette=palette, type=type, .input=variable, .output=variable, .alpha=alpha, .labels = labels, breaks = breaks, limits= limits, formatter = formatter)
+  new <- function(., name=NULL, palette=1, type="qual", limits=NULL, breaks = NULL, labels=NULL, formatter = identity, variable) {
+    .$proto(name=name, palette=palette, type=type, .input=variable, .output=variable, .labels = labels, breaks = breaks, limits= limits, formatter = formatter)
   }
+  aliases <- c("scale_color_brewer")
 
   output_set <- function(.) {
     n <- length(.$input_set())
-    pal <- RColorBrewer::brewer.pal(n, .$pal_name())[1:n]
-    alpha(pal, .$.alpha)
+    RColorBrewer::brewer.pal(n, .$pal_name())[1:n]
   }
 
   pal_name <- function(.) {
@@ -113,6 +117,12 @@ ScaleBrewer <- proto(ScaleColour, expr={
 
   objname <- "brewer"
   desc <- "Sequential, diverging and qualitative colour scales from colorbrewer.org"
+  
+  desc_params <- list(
+    palette = "Either numeric or character.  If numeric, selects the nth palette of type type.  If character, selects the named palette.  Get a complete list of all parameters by running \\code{RColorBrewer::display.brewer.all(n=8, exact.n=FALSE)}",
+    type = "Type of scale.  One of 'div' (diverging), 'qual' (qualitative, the default), 'seq' (sequential), or 'all' (all).  Only used when palette is numeric." 
+  )
+  
   details <- "<p>See <a href='http://colorbrewer.org'>colorbrewer.org</a> for more info</p>"
   common <- c("colour", "fill")
 
@@ -140,11 +150,6 @@ ScaleBrewer <- proto(ScaleColour, expr={
     d + scale_colour_brewer(palette="Blues")
     d + scale_colour_brewer(palette="Set1")
     
-    # One way to deal with overplotting - use transparency
-    # (only works with pdf, quartz and cairo devices)
-    d + scale_colour_brewer(alpha = 0.5)
-    d + scale_colour_brewer(alpha = 0.2)
-      
     # scale_fill_brewer works just the same as 
     # scale_colour_brewer but for fill colours
     ggplot(diamonds, aes(x=price, fill=cut)) + 

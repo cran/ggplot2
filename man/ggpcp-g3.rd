@@ -16,7 +16,7 @@ Generate a plot ``template'' for a parallel coordinates plot.
 
 \details{One way to think about a parallel coordinates plot, is as plotting
 the data after it has transformation been transformed to gain a new
-variable.  This function does this using \\code{\\link[reshape]{melt}}.
+variable.  This function does this using \code{\link[reshape]{melt}}.
 
 This gives us enormous flexibility as we have separated out the
 type of drawing (lines by tradition) and can now use any of the existing
@@ -28,7 +28,7 @@ ggpcp(mtcars, scale="var") + geom_line()
 ggpcp(mtcars, vars=names(mtcars)[3:6], formula= . ~cyl, scale="I") + geom_line()
 ggpcp(mtcars, scale="I") + geom_boxplot(aes(group=variable))
 ggpcp(mtcars, vars=names(mtcars[2:6])) + geom_line()
-p <- ggpcp(mtcars, vars=names(mtcars[2:6]), formula=.~vs)
+p <- ggpcp(mtcars, vars=names(mtcars[2:6]))
 p + geom_line()
 p + geom_line(aes(colour=mpg)) }
 \keyword{hplot}

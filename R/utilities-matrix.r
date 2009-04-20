@@ -9,7 +9,9 @@
 #X a <- matrix(1:10 * 2, ncol = 2)
 #X b <- matrix(1:10 * 3, ncol = 2)
 #X c <- matrix(1:10 * 5, ncol = 2)
-rweave <- function(...) {
+rweave <- function(...) UseMethod("rweave")
+rweave.list <- function(...) do.call("rweave", ...)
+rweave.matrix <- function(...) {
   matrices <- list(...)
   stopifnot(equal_dims(matrices))
   
@@ -40,7 +42,9 @@ cunion <- function(a, b) {
 # 
 # @arguments matrices to weave together
 # @keywords internal
-cweave <- function(...) {
+cweave <- function(...) UseMethod("cweave")
+cweave.list <- function(...) do.call("cweave", ...)
+cweave.matrix <- function(...) {
   matrices <- list(...)
   stopifnot(equal_dims(matrices))
   
@@ -56,7 +60,12 @@ cweave <- function(...) {
 # 
 # @arguments vectors to interleave
 # @keywords internal
-interleave <- function(...) {
+interleave <- function(...) UseMethod("interleave")
+interleave.list <- function(...) do.call("interleave", ...)
+interleave.unit <- function(...) {
+  do.call("unit.c", do.call("interleave.default", llply(list(...), as.list)))
+}
+interleave.default <- function(...) {
   vectors <- list(...)
   
   # Check lengths 

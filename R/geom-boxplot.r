@@ -9,10 +9,10 @@ GeomBoxplot <- proto(Geom, {
     )
   }
   
-  draw <- function(., data, ..., outlier.colour = "black", outlier.shape = 16, outlier.size = 1) {    
+  draw <- function(., data, ..., outlier.colour = "black", outlier.shape = 16, outlier.size = 2) { 
     defaults <- with(data, data.frame(
       x = x, xmin = xmin, xmax = xmax, 
-      colour = colour, size = size, 
+      colour = colour, alpha = alpha, size = size, 
       linetype = 1, group = 1, fill = fill,  
       stringsAsFactors = FALSE
     ))
@@ -22,7 +22,7 @@ GeomBoxplot <- proto(Geom, {
       outliers_grob <- with(data,
         GeomPoint$draw(data.frame(
           y = outliers[[1]], x = x[rep(1, length(outliers[[1]]))],
-          colour=I(outlier.colour), shape = outlier.shape, 
+          colour=I(outlier.colour), shape = outlier.shape, alpha = 1, 
           size = outlier.size, fill = NA), ...
         )
       )
@@ -63,7 +63,7 @@ GeomBoxplot <- proto(Geom, {
   
   default_stat <- function(.) StatBoxplot
   default_pos <- function(.) PositionDodge
-  default_aes <- function(.) aes(weight=1, colour="grey20", fill="white", size=0.5)
+  default_aes <- function(.) aes(weight=1, colour="grey20", fill="white", size=0.5, alpha = 1)
   required_aes <- c("x", "lower", "upper", "middle", "ymin", "ymax")
   seealso <- list(
     stat_quantile = "View quantiles conditioned on a continuous variable",

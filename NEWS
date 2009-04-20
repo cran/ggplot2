@@ -1,39 +1,44 @@
-ggplot2 0.8.2  (2008-02-23)
+ggplot2 0.8.3  (2008-XX-XX)
 ----------------------------------------
 
 New features
 
-* borders, fortify.map and map_data to make it easier to draw map borders and choropleth maps
+* alpha: new aesthetic, with scale alpha.  Where a geom has both fill and colour, alpha affects the fill.
+* annotate: new annotate function to make it easier to add annotations to plots
+* facet_grid now takes strip label function from parameter labeller, not theme setting
+* facet_grid: gains as.table argument to control direction of horizontal facets
+* fortify: full set of methods for turning data from the sp package into data frames that can be plotted with ggplot2
+* geom_errorbarh: new geom for horizontal error bars
+* labels_parsed and labels_bquote functions to make it easier to display expressions on facet labels
+* scale_manual now supports breaks and limits 
+* subset: experimental new feature.  Layers now have a subset argument, which takes subsets formatted like .(var1 < 5, var2 == 3) etc.
+* xlim and ylim now work recognise Date and POSIXct classes to create date and date_time scales respectively
 
-* cut_interval and cut_number utility functions to discretise continuous variables
+Dealing with missing values
 
-* stat_summary has reparameterised to make it easier to specify different summary functions.  It now has four parameters: fun.y, fun.ymin and fun.ymax; and fun.data.  See the documentation for stat_summary for more details
-
-Minor improvements
-
-* ggfluctuation: default to aspect ratio that produces squares
-* ggsave: filename now first parameter, not second
-* qplot: if sample aesthetic is used, stat automatically set to qq
-* scale_datetime: improved breaks calculation
-* scale_gradient: better default colour scheme from red to blue (thanks to Charlotte Wickham for providing the Munsell colours)
-* scale_size and scale_area: increased default size range
-* stats: all give useful error message if missing a required aesthetic
-* theme_set warns if missing needed theme elements
-* theme_text: now possible to right and left align text with hjust=0 and hjust=1 respectively
+* facet_wrap: add drop argument to control whether or not panels for non-existent combinations of facetting variables should be dropped or not.  Defaults to TRUE
+* scale_discrete: empty factor levels will be preserved, unless drop = TRUE
 
 Bug fixes
 
-* be explicit about plyr::is.discrete to avoid clash with Hmisc
-* facet_wrap: work around R bug so no longer crashers when ncol = 1
-* geom_errorbar now works correctly with dashed lines
-* geom_path will now silently ignore lines with less than 2 points (instead of throwing a mysterious error as before)
-* geom_polygon etc now correctly displays linetype on legends
-* geom_step now works with multiple groups
-* geom_vline and geom_hline: fix bug when mapping intercept to variable in data frame
-* ggsave: path parameter correctly sets path
-* guides: fix broken legend from default stat aesthetics (e.g. for stat_sum)
-* scale_manual now works better with missing values
-* scale_manual: labels now correctly sets legend labels.
-* stat_density_2d: no longer passes unnecessary parameters to kde2d causing an error message (seen when setting aesthetics with qplot)
-* stat_pointrange: better relationship between point and line widths
-* stat_sum now correctly preserves other aesthetic columns (should be a bit faster too)
+* added presidents dataset from book to package
+* American spelling of color accepted in as geom parameter, and all colour scales have alias spelled color (e.g. scale_color_hue)
+* facet_wrap: contents guaranteed to be clipped to panel
+* facet_wrap: corrected labelling when facetting by multiple variables (thank to Charlotte Wickham for a clear test case)
+* geom_histogram now works with negative weights (provided position = "identity").  This is useful for creating back to back histograms.
+* geom_step: improve legend
+* geom_text: better legend
+* geom_vline, geom_hline, geom_abline: should work in yet more situations
+* resolution: fixed bug in computation of resolution that lead to (e.g.) incorrect boxplot widths when there was only a single x value in a group.
+* position_stack: fixed bug in detection of overlap for very large bins
+* scale_discrete: factor levels no longer mistakenly reordered
+* scale_hue: now spans full range of hue if it less than 360 degrees
+* scale_hue: rotated default hue range by 15 degrees to avoid unfortunate red-green contrast in two colour case
+* show now works with ggplot objects
+* stat_sum: fixed bug which resulted in dropped aesthetics
+* stat_summary: now warns when dropping records with missing values
+* stat_summary: should be a little faster
+* stat_summary: correctly passes ... arguments on fun.data
+* theme_bw: corrected justification of axis.text.y
+* trans: bug fixes to logistic transformation
+* order aesthetic should work again

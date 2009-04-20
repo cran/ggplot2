@@ -34,6 +34,7 @@
 # @keyword internal
 # @alias str.uneval
 # @alias print.uneval
+# @alias [.uneval
 # @seealso \code{\link{aes_string}}
 #X aes(x = mpg, y = wt)
 #X aes(x = mpg ^ 2, y = wt / cyl)
@@ -95,8 +96,27 @@ aes_string <- function(...) {
 class="uneval")
 }
 
+# Generate identity mappings
+# Given a character vector, create a set of identity mappings
+# 
+# @arguments vector of variable names
+# @keyword internal
+#X aes_all(names(mtcars))
+#X aes_all(c("x", "y", "col", "pch"))
+aes_all <- function(vars) {
+  names(vars) <- vars
+  vars <- rename_aes(vars)
+  
+  structure(
+    lapply(vars, function(x) parse(text=x)[[1]]),
+    class = "uneval"
+  )
+  
+}
+
 print.uneval <- function(x, ...) str(unclass(x))
 str.uneval <- function(object, ...) str(unclass(object), ...)
+"[.uneval" <- function(x, i, ...) structure(unclass(x)[i], class = "uneval") 
 
 # Aesthetic defaults
 # Convenience method for setting aesthetic defaults
@@ -112,7 +132,7 @@ aesdefaults <- function(data, y., params.) {
   cols <- tryapply(defaults(data, updated), function(x) eval(x, data, globalenv()))
   
   cols <- cols[unlist(llply(cols, function(x) is.atomic(x) || is.list(x)))]
-  df <- as.data.frame(cols)
+  df <- as_df(cols)
   
   factors <- sapply(df, is.factor)
   df[factors] <- lapply(df[factors], as.character)

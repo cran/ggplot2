@@ -76,8 +76,8 @@ StatSmooth <- proto(Stat, {
   )
   desc_outputs <- list(
     "y" = "predicted value",
-    "min" = "lower pointwise confidence interval around the mean",
-    "max" = "upper pointwise confidence interval around the mean",
+    "ymin" = "lower pointwise confidence interval around the mean",
+    "ymax" = "upper pointwise confidence interval around the mean",
     "se" = "standard error"
   )
   
@@ -87,10 +87,8 @@ StatSmooth <- proto(Stat, {
     loess = "for local smooths"
   )
   
-  
-  
   examples <- function(.) {
-    c <- ggplot(mtcars, aes(y=wt, x=qsec))
+    c <- ggplot(mtcars, aes(qsec, wt))
     c + stat_smooth() 
     c + stat_smooth() + geom_point()
 
@@ -98,21 +96,25 @@ StatSmooth <- proto(Stat, {
     c + stat_smooth(se = FALSE) + geom_point()
 
     c + stat_smooth(span = 0.9) + geom_point()  
-    c + stat_smooth(method = "lm") + geom_point()  
-    c + stat_smooth(method = lm, formula = y ~ ns(x,3)) + geom_point()  
+    c + stat_smooth(method = "lm") + geom_point() 
+    
+    library(splines)
+    c + stat_smooth(method = "lm", formula = y ~ ns(x,3)) +
+      geom_point()  
     c + stat_smooth(method = MASS::rlm, formula= y ~ ns(x,3)) + geom_point()  
     
     # The default confidence band uses a transparent colour. 
     # This currently only works on a limited number of graphics devices 
     # (including Quartz, PDF, and Cairo) so you may need to set the
     # fill colour to a opaque colour, as shown below
-    c + stat_smooth(fill="grey50", size=2)
-    c + stat_smooth(fill="blue", size=2)
+    c + stat_smooth(fill = "grey50", size = 2, alpha = 1)
+    c + stat_smooth(fill = "blue", size = 2, alpha = 1)
     
     # The colour of the line can be controlled with the colour aesthetic
     c + stat_smooth(fill="blue", colour="darkblue", size=2)
-    c + stat_smooth(fill=alpha("blue", 0.2), colour="darkblue", size=2)
-    c + geom_point() + stat_smooth(fill=alpha("blue", 0.2), colour="darkblue", size=2)
+    c + stat_smooth(fill="blue", colour="darkblue", size=2, alpha = 0.2)
+    c + geom_point() + 
+      stat_smooth(fill="blue", colour="darkblue", size=2, alpha = 0.2)
     
     # Smoothers for subsets
     c <- ggplot(mtcars, aes(y=wt, x=mpg)) + facet_grid(. ~ cyl)
@@ -122,7 +124,8 @@ StatSmooth <- proto(Stat, {
     # Geoms and stats are automatically split by aesthetics that are factors
     c <- ggplot(mtcars, aes(y=wt, x=mpg, colour=factor(cyl)))
     c + stat_smooth(method=lm) + geom_point() 
-    c + stat_smooth(method=lm, fullrange=TRUE, fill=alpha("black", 0.1)) + geom_point() 
+    c + stat_smooth(method=lm, aes(fill = factor(cyl))) + geom_point() 
+    c + stat_smooth(method=lm, fullrange=TRUE, alpha = 0.1) + geom_point() 
 
     # Use qplot instead
     qplot(qsec, wt, data=mtcars, geom=c("smooth", "point"))
