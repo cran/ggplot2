@@ -4,12 +4,12 @@
 \title{geom\_jitter}
 \description{Points, jittered to reduce overplotting}
 \details{
-The jitter geom is a convenient default for geom\_point + position\_jitter.  See position\_jitter for more details on adjusting the amount of jittering.
+The jitter geom is a convenient default for geom\_point with position = 'jitter'.  See position\_jitter for more details on adjusting the amount of jittering.
 
 This page describes geom\_jitter, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
 }
 \section{Aesthetics}{
-The following aesthetics can be used with geom\_jitter.  Aesthetics are mapped to variables in the data with the \code{\link{aes}} function: \code{geom\_jitter(\code{\link{aes}}(x = var))}
+The following aesthetics can be used with geom\_jitter.  Aesthetics are mapped to variables in the data with the aes function: \code{geom\_jitter(aes(x = var))}
 \itemize{
   \item \code{x}: x position (\strong{required}) 
   \item \code{y}: y position (\strong{required}) 

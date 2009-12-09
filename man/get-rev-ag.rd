@@ -7,11 +7,9 @@
 Developer use only
 }
 \usage{get_rev()}
-\arguments{
 
-}
 
-\details{}
 
-\examples{}
+
+
 \keyword{internal}

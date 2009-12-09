@@ -7,11 +7,9 @@
 Whenever a plot is created or modified, it is recorded.
 }
 \usage{last_plot()}
-\arguments{
 
-}
 
-\details{}
+
 \seealso{\code{\link{ggsave}}}
-\examples{}
+
 \keyword{hplot}

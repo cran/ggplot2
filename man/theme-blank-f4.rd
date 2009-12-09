@@ -7,11 +7,9 @@
 This theme element draws nothing, and assigns no space
 }
 \usage{theme_blank()}
-\arguments{
 
-}
 
-\details{}
 
-\examples{}
+
+
 

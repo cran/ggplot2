@@ -7,7 +7,7 @@
 This page describes stat\_density, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
 }
 \section{Aesthetics}{
-The following aesthetics can be used with stat\_density.  Aesthetics are mapped to variables in the data with the \code{\link{aes}} function: \code{stat\_density(\code{\link{aes}}(x = var))}
+The following aesthetics can be used with stat\_density.  Aesthetics are mapped to variables in the data with the aes function: \code{stat\_density(aes(x = var))}
 \itemize{
   \item \code{x}: x position (\strong{required}) 
   \item \code{y}: y position 
@@ -62,7 +62,12 @@ m + scale_x_log10() + coord_trans(x="log10")
 m + stat_bin()
 
 # Make a volcano plot
-ggplot(diamonds, aes(x = price)) + geom_density(aes(min = -..density.., adjust= 0.5),fill="grey50", colour=NA) + facet_grid(. ~ cut) + coord_flip() 
+ggplot(diamonds, aes(x = price)) + 
+  stat_density(aes(ymax = ..density..,  ymin = -..density..), 
+    fill = "grey50", colour = "grey50", 
+    geom = "ribbon", position = "identity") + 
+  facet_grid(. ~ cut) + 
+  coord_flip()
 
 # Stacked density plots
 # If you want to create a stacked density plot, you need to use

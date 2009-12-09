@@ -31,6 +31,8 @@ FacetWrap <- proto(Facet, {
   stamp_data <- function(., data) {
     lapply(data, function(df) {
       df <- data.frame(df, eval.quoted(.$facets, df))
+      # Note that this merge reorders the data.  This may be a potential
+      #  problem
       df <- merge(add_group(df), .$facet_levels, by = .$conditionals())
       out <- as.list(dlply(df, .(PANEL), .drop = FALSE))
       dim(out) <- c(1, nrow(.$facet_levels))
@@ -74,6 +76,9 @@ FacetWrap <- proto(Facet, {
     } else if (is.null(.$nrow)) {
       ncol <- .$ncol
       nrow <- ceiling(n / ncol)
+    } else {
+      ncol <- .$ncol
+      nrow <- .$nrow
     }
     stopifnot(nrow * ncol >= n)
 
@@ -99,7 +104,7 @@ FacetWrap <- proto(Facet, {
       axesvGrid <- grobGrid(
         "axis_v", axes_v, nrow = nrow, ncol = ncol, 
         widths = axis_widths, 
-        as.table = .$as.table
+        as.table = .$as.table, clip = "off"
       )
     } else { 
       # When scales are not free, there is only really one scale, and this
@@ -107,7 +112,7 @@ FacetWrap <- proto(Facet, {
       axesvGrid <- grobGrid(
         "axis_v", rep(axes_v[1], nrow), nrow = nrow, ncol = 1,
         widths = axis_widths[1], 
-        as.table = .$as.table)
+        as.table = .$as.table, clip = "off")
       if (ncol > 1) {
         axesvGrid <- cbind(axesvGrid, 
           spacer(nrow, ncol - 1, unit(0, "cm"), unit(1, "null")))
@@ -121,7 +126,7 @@ FacetWrap <- proto(Facet, {
       axeshGrid <- grobGrid(
         "axis_h", axes_h, nrow = nrow, ncol = ncol, 
         heights = axis_heights, 
-        as.table = .$as.table
+        as.table = .$as.table, clip = "off"
       )
     } else {
       # When scales are not free, there is only really one scale, and this
@@ -129,7 +134,7 @@ FacetWrap <- proto(Facet, {
       axeshGrid <- grobGrid(
         "axis_h", rep(axes_h[1], ncol), nrow = 1, ncol = ncol,
         heights = axis_heights[1], 
-        as.table = .$as.table)
+        as.table = .$as.table, clip = "off")
       if (nrow > 1) { 
         axeshGrid <- rbind(
           spacer(nrow - 1, ncol, unit(1, "null"), unit(0, "cm")),
@@ -222,16 +227,16 @@ FacetWrap <- proto(Facet, {
     lapply(seq_along(data), function(i) {
       layer <- layers[[i]]
       layerd <- data[[i]]
-      grobs <- matrix(list(), nrow = nrow(layerd), ncol = ncol(layerd))
+      data_out <- matrix(list(), nrow = nrow(layerd), ncol = ncol(layerd))
 
-      for(i in seq_along(.$scales$x)) {
+      for(j in seq_len(nrow(.$facet_levels))) {
         scales <- list(
-          x = .$scales$x[[i]], 
-          y = .$scales$y[[i]]
+          x = .$scales$x[[j]], 
+          y = .$scales$y[[j]]
         )
-        grobs[[1, i]] <- layer$calc_statistic(layerd[[1, i]], scales)
+        data_out[[1, j]] <- layer$calc_statistic(layerd[[1, j]], scales)
       }
-      grobs
+      data_out
     })
   }
   

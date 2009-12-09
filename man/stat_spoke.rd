@@ -7,7 +7,7 @@
 This page describes stat\_spoke, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
 }
 \section{Aesthetics}{
-The following aesthetics can be used with stat\_spoke.  Aesthetics are mapped to variables in the data with the \code{\link{aes}} function: \code{stat\_spoke(\code{\link{aes}}(x = var))}
+The following aesthetics can be used with stat\_spoke.  Aesthetics are mapped to variables in the data with the aes function: \code{stat\_spoke(aes(x = var))}
 \itemize{
   \item \code{x}: x position (\strong{required}) 
   \item \code{y}: y position (\strong{required}) 
@@ -35,6 +35,8 @@ df$angle <- runif(100, 0, 2*pi)
 df$speed <- runif(100, 0, 0.5)
 
 qplot(x, y, data=df) + stat_spoke(aes(angle=angle), radius = 0.5)
+last_plot() + scale_y_reverse()
+
 qplot(x, y, data=df) + stat_spoke(aes(angle=angle, radius=speed))
 }}
 \author{Hadley Wickham, \url{http://had.co.nz/}}

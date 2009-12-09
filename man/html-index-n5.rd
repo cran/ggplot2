@@ -7,11 +7,9 @@
 Static header template stored in templates/index.html
 }
 \usage{html_index()}
-\arguments{
 
-}
 
-\details{}
 
-\examples{}
+
+
 \keyword{internal}
