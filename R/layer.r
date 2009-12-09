@@ -209,7 +209,11 @@ Layer <- proto(expr = {
     
     # Add any new scales, if needed
     plot$scales$add_defaults(data, new, plot$plot_env)
-    stat_data <- plot$scales$transform_df(stat_data)
+    # Transform the values, if the scale say it's ok 
+    # (see stat_spoke for one exception)
+    if (.$stat$retransform) {
+      stat_data <- plot$scales$transform_df(stat_data)
+    }
     
     cunion(stat_data, data)
   }
@@ -229,7 +233,7 @@ Layer <- proto(expr = {
   }
   
   make_grob <- function(., data, scales, cs) {
-    if (empty(data)) return(nullGrob())
+    if (empty(data)) return(zeroGrob())
     data <- .$use_defaults(data)
     
     check_required_aesthetics(.$geom$required_aes, c(names(data), names(.$geom_params)), paste("geom_", .$geom$objname, sep=""))
@@ -294,7 +298,7 @@ layer <- Layer$new
 is_calculated_aes <- function(aesthetics) {
   match <- "\\.\\.([a-zA-z._]+)\\.\\."
   stats <- rep(F, length(aesthetics))
-  stats[grep(match, sapply(aesthetics, as.character))] <- TRUE
+  stats[grep(match, sapply(aesthetics, deparse))] <- TRUE
   stats
 }
 

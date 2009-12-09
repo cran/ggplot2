@@ -4,7 +4,8 @@
 # all <- sort(unique(c(names(.base_to_ggplot), geom_aes, stat_aes)))
 # dput(all)
 
-.all_aesthetics <- c("alpha", "angle", "colour", "fill", "group", "hjust", "label", "linetype", "lower", "middle", "order", "radius", "sample", "shape", "size", "upper", "vjust", "weight", "width", "x", "xend", "xmax", "xmin", "y", "yend", "ymax", "ymin", "z")
+.all_aesthetics <- c("adj", "alpha", "angle", "bg", "cex", "col", "color", "colour", "fg", "fill", "group", "hjust", "label", "linetype", "lower", "lty", "lwd", "max", "middle", "min", "order", "pch", "radius", "sample", "shape", "size", "srt", "upper", "vjust", "weight", "width", "x", "xend", "xmax", "xmin", "y", "yend", "ymax", "ymin", "z")
+
 
 .base_to_ggplot <- c(
   "col"   = "colour",
@@ -40,15 +41,7 @@
 #X aes(x = mpg ^ 2, y = wt / cyl)
 aes <- function(x, y, ...) {
   aes <- structure(as.list(match.call()[-1]), class="uneval")
-  aes <- rename_aes(aes)
-  
-  new_names <- lapply(names(aes), function(x) {
-    m <- charmatch(x, .all_aesthetics)
-    if (is.na(m) || m == 0) x else .all_aesthetics[m]
-  })
-  
-  names(aes) <- new_names
-  aes
+  rename_aes(aes)
 }
 
 # Rename aesthetics
@@ -56,6 +49,10 @@ aes <- function(x, y, ...) {
 # 
 # @keywords internal
 rename_aes <- function(x) {
+  # Convert prefixes to full names
+  full <- charmatch(names(x), .all_aesthetics)
+  names(x)[!is.na(full)] <- .all_aesthetics[full[!is.na(full)]]
+  
   rename(x, .base_to_ggplot)
 }
 
@@ -92,8 +89,11 @@ is_position_aes <- function(vars) {
 #X aes_string(x = "mpg", y = "wt")
 #X aes(x = mpg, y = wt)
 aes_string <- function(...) {
-  structure(rename_aes(lapply(list(...), function(x) parse(text=x)[[1]])),
-class="uneval")
+  mapping <- list(...)
+  mapping[sapply(mapping, is.null)] <- "NULL"
+  
+  parsed <- lapply(mapping, function(x) parse(text = x)[[1]])
+  structure(rename_aes(parsed), class = "uneval")
 }
 
 # Generate identity mappings

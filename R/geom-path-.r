@@ -7,13 +7,13 @@ GeomPath <- proto(Geom, {
     # Silently drop lines with less than two points, preserving order
     rows <- ave(seq_len(nrow(munched)), munched$group, FUN = length)
     munched <- munched[rows >= 2, ]
-    if (nrow(munched) < 2) return(nullGrob())
+    if (nrow(munched) < 2) return(zeroGrob())
 
     # Work out whether we should use lines or segments
     attr <- ddply(munched, .(group), function(df) {
       data.frame(
         solid = identical(unique(df$linetype), 1),
-        constant = nrow(unique(df[, c("colour","size", "linetype")])) == 1
+        constant = nrow(unique(df[, c("alpha", "colour","size", "linetype")])) == 1
       )
     })
     solid_lines <- all(attr$solid)

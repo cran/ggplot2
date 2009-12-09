@@ -5,7 +5,7 @@ GeomSmooth <- proto(Geom, {
     
     gList(
       tryNULL(GeomRibbon$draw(ribbon, scales, coordinates)),
-      GeomPath$draw(path, scales, coordinates)
+      GeomLine$draw(path, scales, coordinates)
     )
   }
 
@@ -28,6 +28,7 @@ GeomSmooth <- proto(Geom, {
   draw_legend <- function(., data, params, ...) {
     data <- aesdefaults(data, .$default_aes(), list(...))
     data$fill <- alpha(data$fill, data$alpha)
+    data$alpha <- 1
     
     if (is.null(params$se) || params$se) {
       gTree(children = gList(

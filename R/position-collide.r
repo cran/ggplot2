@@ -16,21 +16,26 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
     }
   } else {
     if (!(all(c("xmin", "xmax") %in% names(data)))) {
-      return(ddply(data, .(x), function(df) strategy(df, width = 0)))
+      data <- ddply(data, .(x), function(df) strategy(df, width = 0))
+      data <- data[order(data$x, data$group), ]
+      return(data)
     }
     
     # Width determined from data, must be floating point constant 
     widths <- unique(with(data, xmax - xmin))
+    widths <- widths[!is.na(widths)]
     if (check.width && length(widths) > 1 && sd(widths) > 1e-6) {
       stop(name, " requires constant width", call. = FALSE)
     }
     width <- widths[1]
   }
-  
+
+  # Reorder by x position, preserving order of group
+  data <- data[order(data$xmin, data$group), ]
+
   # Check for overlap
-  data <- data[order(data$xmin), ]
   intervals <- as.numeric(t(unique(data[c("xmin", "xmax")])))
-  intervals <- intervals[!is.na(intervals)] / max(intervals)
+  intervals <- scale(intervals[!is.na(intervals)])
   if (any(diff(intervals) < -1e-6)) {
     stop(name, " requires non-overlapping x intervals", call. = FALSE)
     # This is where the algorithm from [L. Wilkinson. Dot plots. 
