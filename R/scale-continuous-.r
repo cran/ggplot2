@@ -7,8 +7,7 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
   
   tr_default <- "identity"
 
-  new <- function(., name=NULL, limits=NULL, breaks=NULL, labels=NULL, variable, trans = NULL, expand=c(0.05, 0), minor_breaks = NULL, formatter = "scientific", ...) {
-    if (is.null(breaks) && !is.null(labels)) stop("Labels can only be specified in conjunction with breaks")
+  new <- function(., name=NULL, limits=NULL, breaks=NULL, labels=NULL, variable, trans = NULL, expand=c(0.05, 0), minor_breaks = NULL, formatter = "scientific", legend = TRUE, ...) {
     
     if (is.null(trans))      trans <- .$tr_default
     if (is.character(trans)) trans <- Trans$find(trans)
@@ -18,7 +17,9 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
     breaks <- trans$transform(breaks)
     minor_breaks <- trans$transform(minor_breaks)
     
-    .$proto(name=name, .input=variable, .output=variable, limits=limits, breaks = breaks, .labels = labels, .expand=expand, .tr = trans, minor_breaks = minor_breaks, formatter = formatter, ...)
+    b_and_l <- check_breaks_and_labels(breaks, labels)
+    
+    .$proto(name=name, .input=variable, .output=variable, limits=limits, breaks = b_and_l$breaks, .labels = b_and_l$labels, .expand=expand, .tr = trans, minor_breaks = minor_breaks, formatter = formatter, legend = legend, ...)
   }
   
   set_limits <- function(., limits) {
@@ -60,7 +61,8 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
   # By default, a continuous scale does no transformation in the mapping stage
   # See scale_size for an exception
   map <- function(., values) {
-    as.numeric(ifelse(values %inside% .$output_set(), values, NA))
+    trunc <- !is.finite(values) | values %inside% .$output_set()
+    as.numeric(ifelse(trunc, values, NA))
   }
 
   # By default, the range of a continuous scale is the same as its
@@ -163,3 +165,22 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
   }
 })
 
+
+# Check breaks and labels.
+# Ensure that breaks and labels are of the correct form
+# @keyword internal
+check_breaks_and_labels <- function(breaks = NULL, labels = NULL) {
+  if (is.null(breaks) && is.null(labels)) {
+  } else if (is.null(breaks)) {
+    stop("Labels can only be specified in conjunction with breaks", 
+      call. = FALSE)
+  } else if (is.null(labels)) {
+    labels <- names(breaks)
+  } else { 
+    if (length(labels) != length(breaks)) {
+      stop("Labels and breaks must be same length", call. = FALSE)
+    }
+  }
+  
+  list(breaks = breaks, labels = labels)  
+}

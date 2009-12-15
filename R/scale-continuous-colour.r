@@ -1,25 +1,21 @@
 ScaleGradient <- proto(ScaleContinuous, expr={
   aliases <- c("scale_colour_continuous", "scale_fill_continuous", "scale_color_continuous", "scale_color_gradient")
 
-  new <- function(., name=NULL, low="#3B4FB8", high="#B71B1A", space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", ..., variable) {
-    if (is.character(trans)) trans <- Trans$find(trans)
-    .$proto(name=name, low=low, high=high, space=space, .input=variable, .output=variable, .tr = trans, limits=limits, breaks = breaks, .labels = labels, ...)
+  new <- function(., name = NULL, low = "#3B4FB8", high = "#B71B1A", space = "rgb", ...) {
+
+    .super$new(., name = name, low = low, high = high, space = space, ...)
   }
   
   map <- function(., x) {
+    ramp  <- colorRamp(c(.$low, .$high),  space=.$space, interpolate="linear")
+
     domain <- .$input_set()
     x[x < domain[1] | x > domain[2]] <- NA
-
-    ramp  <- colorRamp(c(.$low, .$high),  space=.$space, interpolate="linear")
-    
     x <- (x - domain[1]) / diff(domain)
     
     nice_ramp(ramp, x)
   }
     
-  labels <- function(.) {
-    nulldefault(.$.labels, .$.tr$label(.$input_breaks()))
-  }
   output_breaks <- function(.) {
     .$map(.$input_breaks()) 
   }
@@ -91,9 +87,9 @@ ScaleGradient <- proto(ScaleContinuous, expr={
 })
 
 ScaleGradient2 <- proto(ScaleContinuous, expr={  
-  new <- function(., name=NULL, low=muted("red"), mid="white", high=muted("blue"), midpoint=0, space="rgb", breaks = NULL, labels = NULL, limits=NULL, trans="identity", ..., variable) {
-    if (is.character(trans)) trans <- Trans$find(trans)
-    .$proto(name=name, low=low, mid=mid, high=high, midpoint=midpoint, space=space, ..., .input=variable, .output=variable, .tr=trans, limits=limits, breaks = breaks, .labels = labels)
+  new <- function(., name = NULL, low = muted("red"), mid = "white", high = muted("blue"), midpoint = 0, space = "rgb", ...) {
+    .super$new(., name = name, low = low, mid = mid, high = high,
+      midpoint = midpoint, space = space, ...)
   }
   
   aliases <- c("scale_color_gradient2")
@@ -117,9 +113,6 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
   desc <- "Smooth gradient between three colours (high, low and midpoints)"
 
   output_breaks <- function(.) .$map(.$input_breaks())
-  labels <- function(.) {
-    nulldefault(.$.labels, .$.tr$label(.$input_breaks()))
-  }
 
   icon <- function(.) {
     g <- scale_fill_gradient2()
@@ -186,16 +179,12 @@ ScaleGradient2 <- proto(ScaleContinuous, expr={
 
 
 ScaleGradientn <- proto(ScaleContinuous, expr={  
-  new <- function(., name=NULL, colours, values = NULL, rescale = TRUE, space="rgb", breaks = NULL, labels = NULL, limits = NULL, trans="identity",  ..., variable) {
-    if (is.character(trans)) trans <- Trans$find(trans)
-    if (!is.null(values)) limits <- range(values)
+  new <- function(., name=NULL, colours, values = NULL, rescale = TRUE, space="rgb", ...) {
     
-    .$proto(
+    .super$new(., 
       name = name, 
       colours = colours, values = values, rescale = rescale, 
       space = space,  ..., 
-      .input = variable, .output = variable, .tr = trans, 
-      limits = limits, breaks = breaks, .labels = labels
     )
   }
 
@@ -217,9 +206,6 @@ ScaleGradientn <- proto(ScaleContinuous, expr={
   desc <- "Smooth gradient between n colours"
 
   output_breaks <- function(.) .$map(.$input_breaks())
-  labels <- function(.) {
-    nulldefault(.$.labels, .$.tr$label(.$input_breaks()))
-  }
 
   icon <- function(.) {
     g <- scale_fill_gradientn(colours = rainbow(7))
