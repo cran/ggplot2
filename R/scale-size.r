@@ -1,12 +1,14 @@
-ScaleSize <- proto(ScaleContinuous, expr={
+ScaleSizeContinuous <- proto(ScaleContinuous, expr={
   doc <- TRUE
   common <- NULL
   .input <- .output  <- "size"
-  aliases <- c("scale_area")
+  aliases <- c("scale_area", "scale_size")
   
-  
-  new <- function(., name=NULL, limits=NULL, breaks=NULL, labels=NULL, trans = NULL, to = c(1, 6)) {
-    .super$new(., name=name, limits=limits, breaks=breaks, labels=labels, trans=trans, variable = "size", to = to)
+  new <- function(., name=NULL, limits=NULL, breaks=NULL, labels=NULL, trans = NULL, to = c(1, 6), legend = TRUE) {
+    
+    b_and_l <- check_breaks_and_labels(breaks, labels)
+    
+    .super$new(., name=name, limits=limits, breaks=b_and_l$breaks, labels=b_and_l$labels, trans=trans, variable = "size", to = to, legend = legend)
   }
   
   map <- function(., values) {
@@ -14,7 +16,7 @@ ScaleSize <- proto(ScaleContinuous, expr={
   }
   output_breaks <- function(.) .$map(.$input_breaks())
   
-  objname <- "size"
+  objname <- "size_continuous"
   desc <- "Size scale for continuous variable"
   seealso <- list(
     "scale_manual" = "for sizing discrete variables"

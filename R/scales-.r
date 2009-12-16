@@ -6,18 +6,17 @@ Scales <- proto(Scale, expr={
   objname <- "scales"
   
   .scales <- list()
+  # Should this scale produce a legend?
+  legend <- TRUE
   
   n <- function(.) length(.$.scales)
   
   add <- function(., scale) {
+    # Remove old scale if it exists
     old <- .$find(scale$output())
-
-    if (length(old) > 0 && sum(old) == 1 && is.null(scale$name)) {
-      scale <- scale$clone()
-      scale$name <- .$.scales[old][[1]]$name
-    }
-    
     .$.scales[old] <- NULL
+    
+    # Add new scale
     .$.scales <- append(.$.scales, scale)
   }
 
@@ -54,28 +53,35 @@ Scales <- proto(Scale, expr={
     Filter(function(x) x$trained(), .$.scales)
   }
   
-  get_scales_by_name <- function(., input) {
-    Filter(function(s) deparse(s$name) == input, .$get_trained_scales())
-  }
-  
-  variables <- function(.) {
-    unique(sapply(.$.scales, function(scale) deparse(scale$name)))
-  }
-  
-  legend_desc <- function(.) {
-    # For each input aesthetic, get breaks and labels
-    vars <- .$variables() 
-    names(vars) <- vars
-    compact(lapply(vars, function(var) {
-      scales <- .$get_scales_by_name(var)
-      if (length(scales) == 0) return()
+  legend_desc <- function(., theme) {
+    # Loop through all scales, creating a list of titles, and a list of keys
+    keys <- titles <- vector("list", .$n())
+    hash <- character(.$n())
+    
+    for(i in seq_len(.$n())) {
+      scale <- .$.scales[[i]]
+      if (!scale$legend) next
       
-      breaks <- as.data.frame(lapply(scales, function(s) s$output_breaks()))
-      names(breaks)  <- lapply(scales, function(s) s$output())
+      # Figure out legend title
+      output <- scale$output()
+      if (!is.null(scale$name)) {
+        titles[[i]] <- scale$name
+      } else {
+        titles[[i]] <- theme$labels[[output]]
+      }
       
-      breaks$.labels <- scales[[1]]$labels()
-      breaks
-    }))
+      key <- data.frame(
+        scale$output_breaks(), I(scale$labels()))
+      names(key) <- c(output, ".label")
+      
+      keys[[i]] <- key
+      hash[i] <- digest(list(titles[[i]], key$.label))
+    }
+    
+    empty <- sapply(titles, is.null)
+    
+    list(titles = titles[!empty], keys = keys[!empty], hash = hash[!empty])
+
   }
   
   position_scales <- function(.) {
@@ -134,9 +140,8 @@ Scales <- proto(Scale, expr={
   # Add default scales.
   # Add default scales to a plot.
   # 
-  # Called everytime a layer is added to the plot, so that default
-  # scales are always available for modification.   The type of a scale is
-  # fixed by the first use in a layer.
+  # Called during final construction to ensure that all aesthetics have 
+  # a scale
   add_defaults <- function(., data, aesthetics, env) {
     if (is.null(aesthetics)) return()
     names(aesthetics) <- laply(names(aesthetics), aes_to_scale)
@@ -146,9 +151,6 @@ Scales <- proto(Scale, expr={
     # No new aesthetics, so no new scales to add
     if(is.null(new_aesthetics)) return()
     
-    # Compute default scale names
-    names <- as.vector(sapply(aesthetics[new_aesthetics], deparse))
-
     # Determine variable type for each column -------------------------------
     vartype <- function(x) {
       if (inherits(x, "Date")) return("date")
@@ -169,22 +171,11 @@ Scales <- proto(Scale, expr={
     
     # Work out scale names
     scale_name_type <- paste("scale", new_aesthetics, vartypes, sep="_")
-    scale_name <- paste("scale", new_aesthetics, sep="_")
-    scale_name_generic <- paste("scale", vartypes, sep="_")
 
     for(i in 1:length(new_aesthetics)) {
-      s <- tryNULL(get(scale_name_type[i]))
-      if (!is.null(s)) {
-        .$add(s(name=names[i]))
-      } else {      
-        s <- tryNULL(get(scale_name[i]))
-        if (!is.null(s)) {
-          .$add(s(name=names[i]))
-        }
-        # } else {
-        #   s <- tryNULL(get(scale_name_generic[i]))
-        #   .$add(s(name=names[i], variable=new_aesthetics[i]))
-        # }
+      if (exists(scale_name_type[i])) {
+        scale <- get(scale_name_type[i])()
+        .$add(scale)
       }
     }
     

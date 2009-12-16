@@ -1,7 +1,29 @@
 GeomPath <- proto(Geom, {
   draw_groups <- function(., ...) .$draw(...)
 
-  draw <- function(., data, scales, coordinates, arrow = NULL, ...) {
+  draw <- function(., data, scales, coordinates, arrow = NULL, lineend = "butt", linejoin = "round", linemitre = 1, ..., na.rm = FALSE) {
+
+    keep <- function(x) {
+      # from first non-missing to last non-missing
+      first <- match(FALSE, x, nomatch = 1) - 1
+      last <- length(x) - match(FALSE, rev(x), nomatch = 1) + 1
+      c(
+        rep(FALSE, first), 
+        rep(TRUE, last - first), 
+        rep(FALSE, length(x) - last))
+    }    
+    # Drop missing values at the start or end of a line - can't drop in the 
+    # middle since you expect those to be shown by a break in the line
+    missing <- !complete.cases(data[c("x", "y", "size", "colour",
+      "linetype")])
+    kept <- ave(missing, data$group, FUN=keep)
+    data <- data[kept, ]
+    
+    if (!all(kept) && !na.rm) {
+      warning("Removed ", sum(!kept), " rows containing missing values", 
+        " (geom_path).", call. = FALSE)
+    }
+    
     munched <- coordinates$munch(data, scales)
 
     # Silently drop lines with less than two points, preserving order
@@ -37,7 +59,8 @@ GeomPath <- proto(Geom, {
           default.units="native", arrow = arrow, 
           gp = gpar(
             col = alpha(colour, alpha)[!end], 
-            lwd = size[!end] * .pt, lty = linetype[!end]
+            lwd = size[!end] * .pt, lty = linetype[!end], 
+            lineend = lineend, linejoin = linejoin, linemitre = linemitre
           )
         )
       )
@@ -48,7 +71,8 @@ GeomPath <- proto(Geom, {
           default.units = "native", arrow = arrow, 
           gp = gpar(
             col = alpha(colour, alpha)[start], 
-            lwd = size[start] * .pt, lty = linetype[start], lineend = "butt")
+            lwd = size[start] * .pt, lty = linetype[start], 
+            lineend = lineend, linejoin = linejoin, linemitre = linemitre)
         )
       )
     }
@@ -67,6 +91,14 @@ GeomPath <- proto(Geom, {
   
   objname <- "path"
   desc <- "Connect observations, in original order"
+
+  desc_params <- list(
+    lineend = "Line end style (round, butt, square)",
+    linejoin = "Line join style (round, mitre, bevel)",
+    linemitre = "Line mitre limit (number greater than 1)",
+    arrow = "Arrow specification, as created by ?arrow"
+  )
+  
 
   default_stat <- function(.) StatIdentity
   required_aes <- c("x", "y")
@@ -96,8 +128,15 @@ GeomPath <- proto(Geom, {
     # Set aesthetics to fixed value
     p + geom_path(colour = "green")
     
+    # Control line join parameters
+    df <- data.frame(x = 1:3, y = c(4, 1, 9))
+    base <- ggplot(df, aes(x, y))
+    base + geom_path(size = 10)
+    base + geom_path(size = 10, lineend = "round")
+    base + geom_path(size = 10, linejoin = "mitre", lineend = "butt")
+    
     # Use qplot instead
-    qplot(mean.length, mean.rating, data=myear, geom="path")
+    qplot(length, rating, data=myear, geom="path")
     
     # Using economic data:
     # How is unemployment and personal savings rate related?
@@ -114,6 +153,19 @@ GeomPath <- proto(Geom, {
     qplot(unemploy/pop, uempmed, data=economics, geom="path") +
       geom_text(data=head(economics, 1), label="1967", colour="blue") + 
       geom_text(data=tail(economics, 1), label="2007", colour="blue")
+    
+    # geom_path removes missing values on the ends of a line.
+    # use na.rm = T to suppress the warning message
+    df <- data.frame(
+      x = 1:5,
+      y1 = c(1, 2, 3, 4, NA),
+      y2 = c(NA, 2, 3, 4, 5),
+      y3 = c(1, 2, NA, 4, 5),
+      y4 = c(1, 2, 3, 4, 5))
+    qplot(x, y1, data = df, geom = c("point","line"))
+    qplot(x, y2, data = df, geom = c("point","line"))
+    qplot(x, y3, data = df, geom = c("point","line"))
+    qplot(x, y4, data = df, geom = c("point","line"))
     
     # Setting line type vs colour/size
     # Line type needs to be applied to a line as a whole, so it can

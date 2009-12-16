@@ -1,12 +1,16 @@
-ScaleShape <- proto(ScaleDiscrete, expr={
+ScaleShapeDiscrete <- proto(ScaleDiscrete, expr={
   doc <- TRUE
   common <- NULL
   .input <- .output <- "shape"
   desc <- "Point glyph shapes"
   solid <- TRUE
+  aliases <- c("scale_shape")
+  
 
-  new <- function(., name=NULL, solid=TRUE, limits = NULL, breaks = NULL, labels = NULL, formatter = identity) {
-    .$proto(name=name, solid=solid, limits = limits, breaks = breaks, .labels = labels, formatter = formatter)
+  new <- function(., name=NULL, solid=TRUE, limits = NULL, breaks = NULL, labels = NULL, formatter = identity, legend = TRUE) {
+    
+    b_and_l <- check_breaks_and_labels(breaks, labels)
+    .$proto(name=name, solid=solid, limits = limits, breaks = b_and_l$breaks, .labels = b_and_l$labels, formatter = formatter, legend = legend)
   }
   
   output_set <- function(.) {
@@ -20,7 +24,7 @@ ScaleShape <- proto(ScaleDiscrete, expr={
   max_levels <- function(.) 6
   
   # Documentation -----------------------------------------------
-  objname <- "shape"
+  objname <- "shape_discrete"
   desc <- "Scale for shapes, aka glyphs"
   icon <- function(.) {
     gTree(children=gList(

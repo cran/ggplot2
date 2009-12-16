@@ -52,10 +52,10 @@ limits.numeric <- function(lims, var) {
   ScaleContinuous$new(var = var, limits = lims, trans = trans)  
 }
 limits.character <- function(lims, var) {
-  ScaleDiscrete$new(var = var, limits = lims)
+  ScaleDiscretePosition$new(var = var, limits = lims)
 }
 limits.factor <- function(lims, var) {
-  ScaleDiscrete$new(var = var, limits = as.character(lims))
+  ScaleDiscretePosition$new(var = var, limits = as.character(lims))
 }
 limits.Date <- function(lims, var) {
   stopifnot(length(lims) == 2)
@@ -68,4 +68,24 @@ limits.POSIXct <- function(lims, var) {
 limits.POSIXlt <- function(lims, var) {
   stopifnot(length(lims) == 2)
   ScaleDateTime$new(var = var, limits = as.POSIXct(lims))
+}
+
+# Expand the plot limits with data.
+# Some times you may want to ensure limits include a single value, for all panels or all plots.  This function is a thin wrapper around \code{\link{geom_blank}} that makes it easy to add such values.
+# 
+# @argument hplot
+# @argument named list of aesthetics specifying the value (or values that should be included.
+#X p <- qplot(mpg, wt, data = mtcars)
+#X p + expand_limits(x = 0)
+#X p + expand_limits(y = c(1, 9))
+#X p + expand_limits(x = 0, y = 0)
+#X
+#X qplot(mpg, wt, data = mtcars, colour = cyl) + 
+#X  expand_limits(colour = seq(2, 10, by = 2))
+#X qplot(mpg, wt, data = mtcars, colour = factor(cyl)) + 
+#X  expand_limits(colour = factor(seq(2, 10, by = 2)))
+expand_limits <- function(...) {
+  data <- data.frame(...)
+  
+  geom_blank(aes_all(names(data)), data, inherit.aes = FALSE)
 }

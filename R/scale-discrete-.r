@@ -7,8 +7,11 @@ ScaleDiscrete <- proto(Scale, expr={
 
   discrete <- function(.) TRUE
 
-  new <- function(., name=NULL, variable=.$.input, expand = c(0.05, 0.55), limits = NULL, breaks = NULL, labels = NULL, formatter = identity, drop = FALSE) {
-    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = labels, limits = limits, breaks = breaks, formatter = formatter, drop = drop)
+  new <- function(., name=NULL, variable=.$.input, expand = c(0.05, 0.55), limits = NULL, breaks = NULL, labels = NULL, formatter = identity, drop = FALSE, legend = TRUE) {
+    
+    b_and_l <- check_breaks_and_labels(breaks, labels)
+    
+    .$proto(name=name, .input=variable, .output=variable, .expand = expand, .labels = b_and_l$labels, limits = limits, breaks = b_and_l$breaks, formatter = formatter, drop = drop, legend = legend)
   }
 
   # Range -------------------
@@ -41,6 +44,7 @@ ScaleDiscrete <- proto(Scale, expr={
   # have been set
   train_df <- function(., df, drop = FALSE) {
     if (empty(df)) return() 
+    if (!is.null(.$limits)) return()
     
     input <- .$input_aesthetics(df)
     l_ply(input, function(var) .$train(df[[var]], drop))

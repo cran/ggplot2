@@ -7,16 +7,25 @@ CoordCartesian <- proto(Coord, expr={
     rescale_x <- function(data) .$rescale_var(data, details$x.range)
     rescale_y <- function(data) .$rescale_var(data, details$y.range)
     
-    transform_position(data, rescale_x, rescale_y)
+    data <- transform_position(data, rescale_x, rescale_y)
+    transform_position(data, trim_infinite_01, trim_infinite_01)
   }
   
   compute_ranges <- function(., scales) {
-    x.range <- .$limits[["x"]] %||% scales$x$output_expand()
+    if (is.null(.$limits$x)) {
+      x.range <- scales$x$output_expand()
+    } else {
+      x.range <- range(scales$x$.tr$transform(.$limits[["x"]]))
+    }
     x.major <- .$rescale_var(scales$x$input_breaks_n(), x.range, TRUE)
     x.minor <- .$rescale_var(scales$x$output_breaks(), x.range, TRUE)
     x.labels <- scales$x$labels()
 
-    y.range <- .$limits[["y"]] %||% scales$y$output_expand()
+    if (is.null(.$limits$y)) {
+      y.range <- scales$y$output_expand()
+    } else {
+      y.range <- range(scales$y$.tr$transform(.$limits[["y"]]))
+    }
     y.major <- .$rescale_var(scales$y$input_breaks_n(), y.range, TRUE)
     y.minor <- .$rescale_var(scales$y$output_breaks(), y.range, TRUE)
     y.labels <- scales$y$labels()
