@@ -64,7 +64,7 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
   argnames <- names(as.list(match.call(expand.dots=FALSE)[-1]))
   arguments <- as.list(match.call()[-1])
   
-  aesthetics <- compact(arguments[.all_aesthetics])
+  aesthetics <- plyr::compact(arguments[.all_aesthetics])
   aesthetics <- aesthetics[!is.constant(aesthetics)]
   aes_names <- names(aesthetics)
   aesthetics <- rename_aes(aesthetics)
@@ -77,7 +77,8 @@ qplot <- function(x, y = NULL, z=NULL, ..., data, facets = . ~ ., margins=FALSE,
     # Faceting variables must be in a data frame, so pull those out
     facetvars <- all.vars(facets)
     facetvars <- facetvars[facetvars != "."]
-    facetsdf <- as.data.frame(sapply(facetvars, get))
+    names(facetvars) <- facetvars
+    facetsdf <- as.data.frame(lapply(facetvars, get))
     if (nrow(facetsdf)) data <- facetsdf
   }
 
@@ -144,7 +145,7 @@ quickplot <- qplot
 # 
 # Used by qplot to determine whether a value should be mapped or set
 #
-# @keywords internal
+# @keyword internal
 is.constant <- function(x) {
   sapply(x, function(x) "I" %in% all.names(asOneSidedFormula(x)))
 }

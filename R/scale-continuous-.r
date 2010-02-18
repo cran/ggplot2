@@ -39,7 +39,7 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
     }
     input <- intersect(input, names(df))
 
-    df <- colwise(.$.tr$transform)(df[input])
+    df <- plyr::colwise(.$.tr$transform)(df[input])
     if (ncol(df) == 0) return(NULL)
     names(df) <- output      
     df
@@ -54,7 +54,7 @@ ScaleContinuous <- proto(Scale, funEnvir = globalenv(), {
         call.=FALSE
       )
     }
-    if (all(is.na(x))) return()
+    if (all(is.na(x)) || all(!is.finite(x))) return()
     .$.domain <- range(x, .$.domain, na.rm=TRUE, finite=TRUE)
   }
     

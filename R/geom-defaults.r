@@ -1,9 +1,9 @@
 # Update geom defaults
 # Modify geom aesthetic defaults for future plots
 # 
-# @keywords name of geom to modify
-# @keywords named list of aesthetics
-# @keywords hplot
+# @arguments name of geom to modify
+# @arguments named list of aesthetics
+# @keyword hplot
 #X update_geom_defaults("point", aes(colour = "darkblue"))
 #X qplot(mpg, wt, data = mtcars)
 #X update_geom_defaults("point", aes(colour = "black"))
@@ -11,7 +11,7 @@ update_geom_defaults <- function(geom, new) {
   g <- Geom$find(geom)
   old <- g$default_aes()
   
-  aes <- defaults(new, old)
+  aes <- plyr::defaults(new, old)
   g$default_aes <- eval(substitute(function(.) aes, list(aes = aes)))
 }
 
@@ -23,13 +23,13 @@ update_geom_defaults <- function(geom, new) {
 # Update geom defaults
 # Modify geom aesthetic defaults for future plots
 # 
-# @keywords name of geom to modify
-# @keywords named list of aesthetics
-# @keywords hplot
+# @arguments name of geom to modify
+# @arguments named list of aesthetics
+# @keyword hplot
 update_stat_defaults <- function(geom, new) {
   g <- Stat$find(geom)
   old <- g$default_aes()
   
-  aes <- defaults(new, old)
+  aes <- plyr::defaults(new, old)
   g$default_aes <- eval(substitute(function(.) aes, list(aes = aes)))
 }

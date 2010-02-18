@@ -84,7 +84,7 @@ Layer <- proto(expr = {
   clone <- function(.) as.proto(.$as.list(all.names=TRUE))
   
   use_defaults <- function(., data) {
-    mapped_vars <- .$mapping[!sapply(.$mapping, is.character)]
+    mapped_vars <- .$mapping[!sapply(.$mapping, is.null)]
     df <- aesdefaults(data, .$geom$default_aes(), mapped_vars)
     
     # Override mappings with parameters
@@ -97,9 +97,9 @@ Layer <- proto(expr = {
   }
   
   aesthetics_used <- function(., plot_aesthetics) {
-    aes <- defaults(.$mapping, plot_aesthetics)
-    aes <- defaults(.$stat$default_aes(), aes)
-    aesthetics <- names(compact(aes))
+    aes <- plyr::defaults(.$mapping, plot_aesthetics)
+    aes <- plyr::defaults(.$stat$default_aes(), aes)
+    aesthetics <- names(plyr::compact(aes))
     aesthetics <- intersect(aesthetics, names(.$geom$default_aes()))
     parameters <- names(.$geom_params)
     setdiff(aesthetics, parameters)
@@ -138,11 +138,11 @@ Layer <- proto(expr = {
     # For certain geoms, it is useful to be able to ignore the default
     # aesthetics and only use those set in the layer
     if (.$inherit.aes) {
-      aesthetics <- compact(defaults(.$mapping, plot$mapping))      
+      aesthetics <- plyr::compact(plyr::defaults(.$mapping, plot$mapping))
     } else {
       aesthetics <- .$mapping
     }
-
+    
     # Override grouping if specified in layer
     if (!is.null(.$geom_params$group)) {
       aesthetics["group"] <- .$geom_params$group
@@ -150,11 +150,11 @@ Layer <- proto(expr = {
     
     # Drop aesthetics that are set manually
     aesthetics <- aesthetics[setdiff(names(aesthetics), names(.$geom_params))]
-    plot$scales$add_defaults(plot$data, aesthetics, plot$plot_env)
+    plot$scales$add_defaults(data, aesthetics, plot$plot_env)
     
     # Evaluate aesthetics in the context of their data frame
     eval.each <- function(dots) 
-      compact(lapply(dots, function(x.) eval(x., data, plot$plot_env)))
+      plyr::compact(lapply(dots, function(x.) eval(x., data, plot$plot_env)))
 
     aesthetics <- aesthetics[!is_calculated_aes(aesthetics)]
     evaled <- eval.each(aesthetics)
@@ -214,8 +214,8 @@ Layer <- proto(expr = {
   map_statistic <- function(., data, plot) {
     if (empty(data)) return(data.frame())
 
-    aesthetics <- defaults(.$mapping, 
-      defaults(plot$mapping, .$stat$default_aes()))
+    aesthetics <- plyr::defaults(.$mapping, 
+      plyr::defaults(plot$mapping, .$stat$default_aes()))
 
     new <- strip_dots(aesthetics[is_calculated_aes(aesthetics)])
     if (length(new) == 0) return(data)
@@ -244,26 +244,30 @@ Layer <- proto(expr = {
   }
 
   adjust_position <- function(., data, scales) {
-    gg_apply(data, function(x) {
-      .$position$adjust(x, scales)
+    gg_apply(data, function(df) {
+      if (empty(df)) return(data.frame())
+      if (is.null(df$group)) df$group <- 1
+
+      # If ordering is set, modify group variable according to this order
+      if (!is.null(df$order)) {
+        df$group <- ninteraction(list(df$group, df$order))
+        df$order <- NULL
+      }
+
+      df <- df[order(df$group), ]
+      .$position$adjust(df, scales)
     })
   }
   
   make_grob <- function(., data, scales, cs) {
     if (empty(data)) return(zeroGrob())
+    
     data <- .$use_defaults(data)
     
-    check_required_aesthetics(.$geom$required_aes, c(names(data), names(.$geom_params)), paste("geom_", .$geom$objname, sep=""))
+    check_required_aesthetics(.$geom$required_aes,
+      c(names(data), names(.$geom_params)), 
+      paste("geom_", .$geom$objname, sep=""))
     
-    if (is.null(data$group)) data$group <- 1
-    
-    # If ordering is set, modify group variable according to this order
-    if (!is.null(data$order)) {
-      data$group <- ninteraction(list(data$group, data$order))
-      data$order <- NULL
-    }
-    
-    data <- data[order(data$group), ]
     
     do.call(.$geom$draw_groups, c(
       data = list(as.name("data")), 
@@ -311,7 +315,7 @@ layer <- Layer$new
 # Is calculated aesthetic?
 # Determine if aesthetic is calculated from the statistic
 # 
-# @keywords internal
+# @keyword internal
 is_calculated_aes <- function(aesthetics) {
   match <- "\\.\\.([a-zA-z._]+)\\.\\."
   stats <- rep(F, length(aesthetics))
@@ -322,7 +326,7 @@ is_calculated_aes <- function(aesthetics) {
 # Strip dots
 # Strip dots from expressions that represent mappings of aesthetics to output from statistics
 # 
-# @keywords internal
+# @keyword internal
 strip_dots <- function(aesthetics) {
   match <- "\\.\\.([a-zA-z._]+)\\.\\."
   strings <- lapply(aesthetics, deparse)

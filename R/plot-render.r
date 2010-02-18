@@ -31,7 +31,7 @@ panelGrob <- function(plot, pieces = ggplot_build(plot)) {
 # 
 # @arguments plot
 # @arguments plot grob
-# @keyword hplot 
+# @keyword internal
 ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep, ...) {
   pieces <- ggplot_build(plot)
   
@@ -143,7 +143,7 @@ ggplotGrob <- function(plot, drop = plot$options$drop, keep = plot$options$keep,
 # Generate viewports for plot surroundings
 # This some pretty ugly code
 # 
-# @keywords internal
+# @keyword internal
 surround_viewports <- function(position, widths, heights, legend_vp) {
   layout <- grid.layout(
     length(heights), length(widths), 

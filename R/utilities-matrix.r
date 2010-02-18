@@ -2,10 +2,10 @@
 # Row weave
 # Weave together two (or more) matrices by row
 # 
-# Matrices must have smae dimensions
+# Matrices must have same dimensions
 # 
 # @arguments matrices to weave together
-# @keywords internal
+# @keyword internal
 #X a <- matrix(1:10 * 2, ncol = 2)
 #X b <- matrix(1:10 * 3, ncol = 2)
 #X c <- matrix(1:10 * 5, ncol = 2)
@@ -27,7 +27,7 @@ rweave.matrix <- function(...) {
 # 
 # @arguments data frame a
 # @arguments data frame b
-# @keywords internal
+# @keyword internal
 cunion <- function(a, b) {
   if (length(a) == 0) return(b)
   if (length(b) == 0) return(a)
@@ -38,10 +38,10 @@ cunion <- function(a, b) {
 # Col weave
 # Weave together two (or more) matrices by column
 # 
-# Matrices must have smae dimensions
+# Matrices must have same dimensions
 # 
 # @arguments matrices to weave together
-# @keywords internal
+# @keyword internal
 cweave <- function(...) UseMethod("cweave")
 cweave.list <- function(...) do.call("cweave", ...)
 cweave.matrix <- function(...) {
@@ -59,23 +59,23 @@ cweave.matrix <- function(...) {
 # Interleave (or zip) multiple vectors into a single vector
 # 
 # @arguments vectors to interleave
-# @keywords internal
+# @keyword internal
 interleave <- function(...) UseMethod("interleave")
 interleave.list <- function(...) do.call("interleave", ...)
 interleave.unit <- function(...) {
-  do.call("unit.c", do.call("interleave.default", llply(list(...), as.list)))
+  do.call("unit.c", do.call("interleave.default", plyr::llply(list(...), as.list)))
 }
 interleave.default <- function(...) {
   vectors <- list(...)
   
   # Check lengths 
-  lengths <- unique(setdiff(laply(vectors, length), 1))
+  lengths <- unique(setdiff(plyr::laply(vectors, length), 1))
   if (length(lengths) == 0) lengths <- 1
   stopifnot(length(lengths) <= 1)
   
   # Replicate elements of length one up to correct length
-  singletons <- laply(vectors, length) == 1
-  vectors[singletons] <- llply(vectors[singletons], rep, lengths)
+  singletons <- plyr::laply(vectors, length) == 1
+  vectors[singletons] <- plyr::llply(vectors[singletons], rep, lengths)
   
   # Interleave vectors
   n <- lengths
@@ -88,13 +88,13 @@ interleave.default <- function(...) {
 # Check that a list of matrices have equal dimensions
 # 
 # @arguments list of matrices
-# @keywords internal
+# @keyword internal
 equal_dims <- function(matrices) {
-  are.matrices <- laply(matrices, is.matrix)
+  are.matrices <- plyr::laply(matrices, is.matrix)
   stopifnot(all(are.matrices))
   
-  cols <- laply(matrices, ncol)
-  rows <- laply(matrices, ncol)
+  cols <- plyr::laply(matrices, ncol)
+  rows <- plyr::laply(matrices, ncol)
 
   length(unique(cols) == 1) && length(unique(rows) == 1)
 } 

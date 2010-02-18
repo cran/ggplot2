@@ -96,7 +96,7 @@ TopLevel$rdoc_aesthetics <- function(.) {
   if (length(aes) == 0) return("")
 
   req <- ifelse(aes %in% .$required_aes, " (\\strong{required})", "")
-  desc <- paste(defaults(.$desc_params, .desc_aes)[aes], req, sep="")
+  desc <- paste(plyr::defaults(.$desc_params, .desc_aes)[aes], req, sep="")
 
   ps(
     "\\section{Aesthetics}{\n",
@@ -144,8 +144,11 @@ TopLevel$call <- function(.) {
 
 # FIXME: need to generate usage statements for all common scales
 TopLevel$rdoc_usage <- function (.) {
+  # add line breaks
+  call <- deparse(parse(text = .$call())[[1]])
+  
   ps(
-    "\\usage{", ps(.$call(), collapse="\n"), "}\n"
+    "\\usage{", ps(call, collapse="\n"), "}\n"
   )
 }
 
@@ -155,7 +158,7 @@ TopLevel$rdoc_arguments <- function(.) {
   
   ps(
     "\\arguments{\n",
-      ps(" \\item{", p, "}{", defaults(.$desc_params, .desc_param)[p], "}\n"),
+      ps(" \\item{", p, "}{", plyr::defaults(.$desc_params, .desc_param)[p], "}\n"),
     "}\n"
   )
 }  
@@ -197,7 +200,7 @@ TopLevel$rdoc_keyword<- function(.) {
 # Automatically link functions used in rdoc
 # 
 # @arguments input rdoc string
-# @argument functions to omit
+# @arguments functions to omit
 # @keyword internal
 rdoc_auto_link <- function(input, skip="") {
   if (!exists("links")) html_autolink_index()
