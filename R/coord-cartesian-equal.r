@@ -11,7 +11,9 @@ CoordEqual <- proto(CoordCartesian, {
     # Set limits without transformation, because transformation has already
     # occured by this point.
     scales$x$limits <- ranges$x
+    scales$x$.expand <- c(0, 0)
     scales$y$limits <- ranges$y
+    scales$y$.expand <- c(0, 0)
     
     .super$compute_ranges(., scales)
   }
@@ -55,7 +57,7 @@ CoordEqual <- proto(CoordCartesian, {
 # @arguments x limits
 # @arguments y limits
 # @arguments desired ratio between x and y ranges
-# @keywords internal
+# @keyword internal
 equal_ranges <- function(xlim, ylim, ratio = NULL) {
   if (is.null(ratio)) return(list(x = xlim, y = ylim))
 

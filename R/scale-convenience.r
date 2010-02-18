@@ -1,8 +1,9 @@
 # Set x limits
 # Convenience function to set the limits of the x axis.
 # 
-# @argument if numeric, will create a continuos scale, if factor or character, will create a discrete scale
+# @arguments if numeric, will create a continuos scale, if factor or character, will create a discrete scale
 # @keyword hplot
+# @arguments limits
 #X xlim(15, 20)
 #X xlim(20, 15)
 #X xlim(c(10, 20))
@@ -15,8 +16,9 @@ xlim <- function(...) {
 # Set y limits
 # Convenience function to set the limits of the y axis.
 # 
-# @argument if numeric, will create a continuos scale, if factor or character, will create a discrete scale
+# @arguments if numeric, will create a continuos scale, if factor or character, will create a discrete scale
 # @keyword hplot
+# @arguments limits
 #X ylim(15, 20)
 #X ylim(c(10, 20))
 #X ylim("a", "b", "c") 
@@ -30,7 +32,7 @@ ylim <- function(...) {
 # 
 # @arguments vector of limits
 # @arguments variable
-# @keywords internal
+# @keyword internal
 # @alias limits.numeric
 # @alias limits.character
 # @alias limits.factor 
@@ -63,18 +65,18 @@ limits.Date <- function(lims, var) {
 }
 limits.POSIXct <- function(lims, var) {
   stopifnot(length(lims) == 2)
-  ScaleDateTime$new(var = var, limits = lims)
+  ScaleDatetime$new(var = var, limits = lims)
 }
 limits.POSIXlt <- function(lims, var) {
   stopifnot(length(lims) == 2)
-  ScaleDateTime$new(var = var, limits = as.POSIXct(lims))
+  ScaleDatetime$new(var = var, limits = as.POSIXct(lims))
 }
 
 # Expand the plot limits with data.
 # Some times you may want to ensure limits include a single value, for all panels or all plots.  This function is a thin wrapper around \code{\link{geom_blank}} that makes it easy to add such values.
 # 
-# @argument hplot
-# @argument named list of aesthetics specifying the value (or values that should be included.
+# @arguments named list of aesthetics specifying the value (or values that should be included.
+# @keyword hplot
 #X p <- qplot(mpg, wt, data = mtcars)
 #X p + expand_limits(x = 0)
 #X p + expand_limits(y = c(1, 9))

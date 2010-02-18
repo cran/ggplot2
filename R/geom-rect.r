@@ -12,7 +12,7 @@ GeomRect <- proto(Geom, {
         names(data), c("x", "y", "xmin","xmax", "ymin", "ymax")
       )
       
-      polys <- alply(data, 1, function(row) {
+      polys <- plyr::alply(data, 1, function(row) {
         poly <- with(row, rect_to_poly(xmin, xmax, ymin, ymax))
         aes <- as.data.frame(row[aesthetics], 
           stringsAsFactors = FALSE)[rep(1,5), ]
@@ -60,7 +60,7 @@ GeomRect <- proto(Geom, {
 # Convert rectangle to polygon
 # Useful for non-Cartesian coordinate systems where it's easy to work purely in terms of locations, rather than locations and dimensions.
 # 
-# @keywords internal
+# @keyword internal
 rect_to_poly <- function(xmin, xmax, ymin, ymax) {
   data.frame(
     y = c(ymax, ymax, ymin, ymin, ymax),

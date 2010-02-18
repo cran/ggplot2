@@ -1,4 +1,4 @@
-\name{nulldefault-infix}
+\name{infix-nulldefault}
 \alias{\%||\%}
 \title{Null default}
 \author{Hadley Wickham <h.wickham@gmail.com>}
@@ -15,4 +15,4 @@ Analog of || from ruby
 
 
 
-
+\keyword{internal}

@@ -39,8 +39,8 @@ guide_legends_box <- function(scales, layers, default_mapping, horizontal = FALS
 # Build all legend grob
 # Build legends, merging where possible
 # 
-# @argument list of legend descriptions
-# @argument list description usage of aesthetics in geoms
+# @arguments list of legend descriptions
+# @arguments list description usage of aesthetics in geoms
 # @keyword internal
 # @value A list of grobs
 # @alias build_legend
@@ -80,10 +80,10 @@ guide_legends <- function(scales, layers, default_mapping, theme) {
 }
 
 build_legend <- function(name, mapping, layers, default_mapping, theme) {
-  legend_data <- llply(layers, build_legend_data, mapping, default_mapping)
+  legend_data <- plyr::llply(layers, build_legend_data, mapping, default_mapping)
   
   # Calculate sizes for keys - mainly for v. large points and lines
-  size_mat <- do.call("cbind", llply(legend_data, "[[", "size"))
+  size_mat <- do.call("cbind", plyr::llply(legend_data, "[[", "size"))
   if (is.null(size_mat)) {
     key_heights <- rep(0, nrow(mapping))
   } else {
@@ -99,7 +99,7 @@ build_legend <- function(name, mapping, layers, default_mapping, theme) {
   nkeys <- nrow(mapping)
   hgap <- vgap <- unit(0.3, "lines")
   
-  numeric_labels <- all(sapply(mapping$.labels, is.language)) || suppressWarnings(all(!is.na(sapply(mapping$.labels, "as.numeric"))))
+  numeric_labels <- all(sapply(mapping$.label, is.language)) || suppressWarnings(all(!is.na(sapply(mapping$.label, "as.numeric"))))
   hpos <- numeric_labels * 1
   
   labels <- lapply(mapping$.label, function(label) {
@@ -111,7 +111,7 @@ build_legend <- function(name, mapping, layers, default_mapping, theme) {
   label_heights <- do.call("unit.c", lapply(labels, grobHeight))
   label_heights <- convertHeight(label_heights, "cm")
 
-  width <- max(unlist(llply(legend_data, "[[", "size")), 0)
+  width <- max(unlist(plyr::llply(legend_data, "[[", "size")), 0)
   key_width <- max(theme$legend.key.size, unit(width, "mm"))
 
   widths <- unit.c(

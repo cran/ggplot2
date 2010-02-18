@@ -8,6 +8,7 @@
 # @alias theme_set
 # @alias theme_get
 # @alias ggopt
+# @arguments named list of theme settings
 #X qplot(mpg, wt, data = mtcars)
 #X old <- theme_set(theme_bw())
 #X qplot(mpg, wt, data = mtcars)
@@ -28,7 +29,7 @@ theme_update <- function(...) {
   if (length(args) == 1 && is.list(elements[[1]])) {
     elements <- elements[[1]]
   }
-  theme <- defaults(elements, theme_get())
+  theme <- plyr::defaults(elements, theme_get())
   class(theme) <- c("options")
   
   theme_set(theme)  
@@ -65,7 +66,7 @@ ggopt <- function(...) {
 # Use this function if you want to modify a few theme settings for 
 # a single plot.
 # 
-# @argument named list of theme settings
+# @arguments named list of theme settings
 #X p <- qplot(mpg, wt, data = mtcars)
 #X p 
 #X p + opts(panel_background = theme_rect(colour = "pink"))
@@ -79,7 +80,7 @@ opts <- function(...) {
 # 
 # It also names the created grobs consistently
 # 
-# @keywords internal
+# @keyword internal
 theme_render <- function(theme, element, ..., name = NULL) {
   el <- theme[[element]]
   if (is.null(el)) {
@@ -93,7 +94,7 @@ theme_render <- function(theme, element, ..., name = NULL) {
 # Print out a theme element
 # Currently all theme elements save there call, which is printed here
 # 
-# @keywords internal
+# @keyword internal
 print.theme <- function(x, ...) {
   call <- attr(x, "call")
   print(call)
@@ -102,8 +103,8 @@ print.theme <- function(x, ...) {
 # Retrieve theme for a plot
 # Combines plot defaults with current theme to get complete theme for a plot
 # 
-# @arugments plot
-# @keywords internal
+# @arguments plot
+# @keyword internal
 plot_theme <- function(x) {
-  defaults(x$options, theme_get())
+  plyr::defaults(x$options, theme_get())
 }
