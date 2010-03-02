@@ -1,7 +1,7 @@
 Package: ggplot2
 Type: Package
 Title: An implementation of the Grammar of Graphics
-Version: 0.8.6
+Version: 0.8.7
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
 Description: An implementation of the grammar of graphics in R. It
@@ -61,6 +61,6 @@ Collate: aaa-.r aaa-compare.r aaa-constants.r aaa-examples.r aaa-html.r
         utilities-layer.r utilities-matrix.r utilities-position.r
         utilities-resolution.r utilities.r xxx-codegen.r xxx-digest.r
         xxx.r zxx.r
-Packaged: 2010-02-18 14:06:33 UTC; hadley
+Packaged: 2010-03-02 15:54:03 UTC; hadley
 Repository: CRAN
-Date/Publication: 2010-02-18 16:52:48
+Date/Publication: 2010-03-02 16:57:59
