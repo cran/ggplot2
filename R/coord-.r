@@ -10,30 +10,23 @@ Coord <- proto(TopLevel, expr={
     rescale(data, 0:1, range, clip = clip)
   }
   
-  munch <- function(., data, details, npieces=50) {
-    if (!.$muncher()) {
-      .$transform(data, details)
-    } else {
-      data <- add_group(data)
-
-      groups <- split(data, data$group)
-      munched_groups <- lapply(groups, function(df) .$munch_group(df, details, npieces))
-      do.call("rbind", munched_groups)      
-    }
-  }
-  
-  munch_group <- function(., data, details, npieces=50) {
-    n <- nrow(data)
-
-    x <- approx(data$x, n = npieces * (n - 1) + 1)$y
-    y <- approx(data$y, n = npieces * (n - 1) + 1)$y
+  munch <- function(., data, details, segment_length = 0.01) {
+    if (!.$muncher()) return(.$transform(data, details))
     
-    cbind(
-      .$transform(data.frame(x=x, y=y), details),
-      data[c(rep(1:(n-1), each=npieces), n), setdiff(names(data), c("x", "y"))]
-    )
+    # Calculate distances using coord distance metric
+    dist <- .$distance(data$x, data$y, details)
+    dist[data$group[-1] != data$group[-nrow(data)]] <- NA
+    
+    # Munch and then transform result
+    munched <- munch_data(data, dist, segment_length)
+    .$transform(munched, details)
   }
   
+  distance <- function(., x, y, details) {
+    max_dist <- dist_euclidean(details$x.range, details$y.range)    
+    dist_euclidean(x, y) / max_dist
+  }
+    
   compute_aspect <- function(., ranges) {
     NULL
   }

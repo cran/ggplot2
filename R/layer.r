@@ -166,7 +166,7 @@ Layer <- proto(expr = {
     # Add Conditioning variables needed for facets
     cond <- plot$facet$conditionals()
     facet_vars <- data[, intersect(names(data), cond), drop=FALSE]
-    if (nrow(facet_vars) > 0) {
+    if (!empty(facet_vars)) {
       df <- cbind(df, facet_vars)  
     }
 
@@ -188,7 +188,6 @@ Layer <- proto(expr = {
       c(names(data), names(.$stat_params)), 
       paste("stat_", .$stat$objname, sep=""))
 
-    
     res <- do.call(.$stat$calculate_groups, c(
       list(data=as.name("data"), scales=as.name("scales")), 
       .$stat_params)
@@ -214,9 +213,14 @@ Layer <- proto(expr = {
   map_statistic <- function(., data, plot) {
     if (empty(data)) return(data.frame())
 
-    aesthetics <- plyr::defaults(.$mapping, 
-      plyr::defaults(plot$mapping, .$stat$default_aes()))
-
+    # Assemble aesthetics from layer, plot and stat mappings
+    aesthetics <- .$mapping
+    if (.$inherit.aes) {
+      aesthetics <- plyr::defaults(aesthetics, plot$mapping)
+    }
+    aesthetics <- plyr::defaults(aesthetics, .$stat$default_aes())
+    aesthetics <- plyr::compact(aesthetics)
+  
     new <- strip_dots(aesthetics[is_calculated_aes(aesthetics)])
     if (length(new) == 0) return(data)
 
@@ -250,7 +254,7 @@ Layer <- proto(expr = {
 
       # If ordering is set, modify group variable according to this order
       if (!is.null(df$order)) {
-        df$group <- ninteraction(list(df$group, df$order))
+        df$group <- id(list(df$group, df$order))
         df$order <- NULL
       }
 

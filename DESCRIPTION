@@ -1,7 +1,7 @@
 Package: ggplot2
 Type: Package
 Title: An implementation of the Grammar of Graphics
-Version: 0.8.7
+Version: 0.8.8
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
 Description: An implementation of the grammar of graphics in R. It
@@ -12,11 +12,9 @@ Description: An implementation of the grammar of graphics in R. It
         conditioning system and a consistent interface to map data to
         aesthetic attributes. See the ggplot2 website for more
         information, documentation and examples.
-Depends: R (>= 2.7)
-Imports: reshape (>= 0.8.0), plyr (>= 0.1.8), splines, MASS,
-        RColorBrewer, grid, proto, digest
-Suggests: quantreg, Hmisc, mapproj, maps, colorspace, hexbin, gpclib,
-        maptools
+Depends: reshape (>= 0.8.0), grid, proto
+Imports: plyr (>= 1.0), splines, MASS, RColorBrewer, digest, colorspace
+Suggests: quantreg, Hmisc, mapproj, maps, hexbin, gpclib, maptools
 Extends: sp
 License: GPL
 URL: http://had.co.nz/ggplot2/
@@ -60,7 +58,7 @@ Collate: aaa-.r aaa-compare.r aaa-constants.r aaa-examples.r aaa-html.r
         utilities-discrete.r utilities-facet.r utilities-grid.r
         utilities-layer.r utilities-matrix.r utilities-position.r
         utilities-resolution.r utilities.r xxx-codegen.r xxx-digest.r
-        xxx.r zxx.r
-Packaged: 2010-03-02 15:54:03 UTC; hadley
+        xxx.r zxx.r coord-munch.r
+Packaged: 2010-07-02 18:52:38 UTC; hadley
 Repository: CRAN
-Date/Publication: 2010-03-02 16:57:59
+Date/Publication: 2010-07-05 18:25:15

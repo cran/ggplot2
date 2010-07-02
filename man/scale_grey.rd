@@ -3,6 +3,7 @@
 \alias{scale_colour_grey}
 \alias{scale_fill_grey}
 \alias{ScaleGrey}
+\alias{scale_color_grey}
 \title{scale\_grey}
 \description{Sequential grey colour scale}
 \details{
@@ -34,7 +35,7 @@ p + scale_colour_grey()
 p + scale_colour_grey(end = 0)
 
 # You may want to turn off the pale grey background with this scale
-p + scale_colour_grey() + theme_bw
+p + scale_colour_grey() + theme_bw()
 }}
 \author{Hadley Wickham, \url{http://had.co.nz/}}
 \keyword{hplot}
