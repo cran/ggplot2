@@ -3,8 +3,10 @@ GeomSmooth <- proto(Geom, {
     ribbon <- transform(data, colour = NA)
     path <- transform(data, alpha = 1)
     
+    has_ribbon <- function(x) !is.null(data$ymax) && !is.null(data$ymin)
+        
     gList(
-      tryNULL(GeomRibbon$draw(ribbon, scales, coordinates)),
+      if (has_ribbon(data)) GeomRibbon$draw(ribbon, scales, coordinates),
       GeomLine$draw(path, scales, coordinates)
     )
   }
@@ -43,8 +45,6 @@ GeomSmooth <- proto(Geom, {
     # See stat_smooth for examples of using built in model fitting
     # if you need some more flexible, this example shows you how to
     # plot the fits from any model of your choosing
-    
-    library(ggplot2)
     qplot(wt, mpg, data=mtcars, colour=factor(cyl))
 
     model <- lm(mpg ~ wt + factor(cyl), data=mtcars)

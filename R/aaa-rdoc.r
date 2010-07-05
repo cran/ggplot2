@@ -84,7 +84,7 @@ TopLevel$rdoc_details <- function(.) {
   ps(
     "\\details{\n",
     rdoc_from_html(.$details, .$my_name()),
-    rdoc_from_html(ps("This page describes ", .$my_name(), ", see layer and qplot for how to create a complete plot from individual components.\n")),
+    rdoc_from_html(ps("This page describes ", .$my_name(), ", see \\code{\\link{layer}} and \\code{\\link{qplot}} for how to create a complete plot from individual components.\n")),
     "}\n"
   )
 }
@@ -203,9 +203,9 @@ TopLevel$rdoc_keyword<- function(.) {
 # @arguments functions to omit
 # @keyword internal
 rdoc_auto_link <- function(input, skip="") {
-  if (!exists("links")) html_autolink_index()
+  if (!exists(".links")) html_autolink_index()
   
-  for (n in names(links)[names(links) != skip]) {
+  for (n in names(.links)[names(.links) != skip]) {
     input <- gsub(ps("\\b", n, "\\b"), ps("\\\\code{\\\\link{", n, "}}"), input)
   }
   input

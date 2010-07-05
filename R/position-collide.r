@@ -16,9 +16,8 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
     }
   } else {
     if (!(all(c("xmin", "xmax") %in% names(data)))) {
-      data <- ddply(data, .(x), function(df) strategy(df, width = 0))
-      data <- data[order(data$x, data$group), ]
-      return(data)
+      data$xmin <- data$x
+      data$xmax <- data$x
     }
     
     # Width determined from data, must be floating point constant 
@@ -37,12 +36,22 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
   intervals <- as.numeric(t(unique(data[c("xmin", "xmax")])))
   intervals <- scale(intervals[!is.na(intervals)])
   if (any(diff(intervals) < -1e-6)) {
-    stop(name, " requires non-overlapping x intervals", call. = FALSE)
-    # This is where the algorithm from [L. Wilkinson. Dot plots. 
+    warning(name, " requires non-overlapping x intervals", call. = FALSE)
+    # This is where the algorithm from [L. Wilkinson. Dot plots. 
     # The American Statistician, 1999.] should be used
   }
 
-  ddply(data, .(xmin), function(df) strategy(df, width = width))
+  if (!is.null(data$ymax)) {
+    ddply(data, .(xmin), strategy, width = width)
+  } else if (!is.null(data$y)) {
+    message("ymax not defined: adjusting position using y instead")
+    transform(
+      ddply(transform(data, ymax = y), .(xmin), strategy, width = width),
+      y = ymax
+    )
+  } else {
+    stop("Neither y nor ymax defined")
+  }
 }
 
 # Stack overlapping intervals

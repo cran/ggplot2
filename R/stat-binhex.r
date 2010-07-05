@@ -3,12 +3,13 @@ StatBinhex <- proto(Stat, {
   desc <- "Bin 2d plane into hexagons"
   
   calculate <- function(., data, scales, binwidth = NULL, bins = 30, na.rm = FALSE, ...) {
+    try_require("hexbin")
     data <- remove_missing(data, na.rm, c("x", "y"), name="stat_hexbin")
 
     if (is.null(binwidth)) {
       binwidth <- c( 
-        diff(range(data$x)) / bins,
-        diff(range(data$y)) / bins
+        diff(scales$x$input_set()) / bins,
+        diff(scales$y$input_set() ) / bins
       )
     }
     

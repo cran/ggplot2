@@ -1,6 +1,7 @@
 ScaleGrey <- proto(ScaleColour, expr={
   doc <- TRUE
   common <- c("colour", "fill")
+  aliases <- "scale_color_grey"
 
   new <- function(., name=NULL, variable, start = 0.2, end = 0.8, limits=NULL, breaks = NULL, labels=NULL, formatter = identity, legend = TRUE) {
     
@@ -38,6 +39,6 @@ ScaleGrey <- proto(ScaleColour, expr={
     p + scale_colour_grey(end = 0)
     
     # You may want to turn off the pale grey background with this scale
-    p + scale_colour_grey() + theme_bw
+    p + scale_colour_grey() + theme_bw()
   }
 })

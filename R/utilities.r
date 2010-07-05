@@ -167,11 +167,12 @@ invert <- function(L) {
   x >= interval[1] & x <= interval[2]
 }
 
-# Check if a data frame is empty
-# Empty if it's null or it has 0 rows or columns
-# 
-# @arguments data frame to check
+# Expression should raise an error
+# Used in examples to illustrate when errors should occur
+#
 # @keyword internal
-empty <- function(df) {
-  (is.null(df) || nrow(df) == 0 || ncol(df) == 0)
+should_stop <- function(expr) {
+  res <- try(print(force(expr)), TRUE)
+  if (!inherits(res, "try-error")) stop("No error!", call. = FALSE)
+  invisible()
 }
