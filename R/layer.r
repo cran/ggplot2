@@ -84,22 +84,20 @@ Layer <- proto(expr = {
   clone <- function(.) as.proto(.$as.list(all.names=TRUE))
   
   use_defaults <- function(., data) {
-    mapped_vars <- .$mapping[!sapply(.$mapping, is.null)]
-    df <- aesdefaults(data, .$geom$default_aes(), mapped_vars)
+    df <- aesdefaults(data, .$geom$default_aes(), NULL)
     
-    # Override mappings with parameters
+    # Override mappings with atomic parameters
     gp <- intersect(c(names(df), .$geom$required_aes), names(.$geom_params))
+    gp <- gp[unlist(lapply(.$geom_params[gp], is.atomic))]
 
-    if (length(.$geom_params[gp])) 
-      gp <- gp[sapply(.$geom_params[gp], is.atomic)]
     df[gp] <- .$geom_params[gp]
     df
   }
   
   aesthetics_used <- function(., plot_aesthetics) {
-    aes <- plyr::defaults(.$mapping, plot_aesthetics)
-    aes <- plyr::defaults(.$stat$default_aes(), aes)
-    aesthetics <- names(plyr::compact(aes))
+    aes <- defaults(.$mapping, plot_aesthetics)
+    aes <- defaults(.$stat$default_aes(), aes)
+    aesthetics <- names(compact(aes))
     aesthetics <- intersect(aesthetics, names(.$geom$default_aes()))
     parameters <- names(.$geom_params)
     setdiff(aesthetics, parameters)
@@ -138,7 +136,7 @@ Layer <- proto(expr = {
     # For certain geoms, it is useful to be able to ignore the default
     # aesthetics and only use those set in the layer
     if (.$inherit.aes) {
-      aesthetics <- plyr::compact(plyr::defaults(.$mapping, plot$mapping))
+      aesthetics <- compact(defaults(.$mapping, plot$mapping))
     } else {
       aesthetics <- .$mapping
     }
@@ -154,7 +152,7 @@ Layer <- proto(expr = {
     
     # Evaluate aesthetics in the context of their data frame
     eval.each <- function(dots) 
-      plyr::compact(lapply(dots, function(x.) eval(x., data, plot$plot_env)))
+      compact(lapply(dots, function(x.) eval(x., data, plot$plot_env)))
 
     aesthetics <- aesthetics[!is_calculated_aes(aesthetics)]
     evaled <- eval.each(aesthetics)
@@ -216,10 +214,10 @@ Layer <- proto(expr = {
     # Assemble aesthetics from layer, plot and stat mappings
     aesthetics <- .$mapping
     if (.$inherit.aes) {
-      aesthetics <- plyr::defaults(aesthetics, plot$mapping)
+      aesthetics <- defaults(aesthetics, plot$mapping)
     }
-    aesthetics <- plyr::defaults(aesthetics, .$stat$default_aes())
-    aesthetics <- plyr::compact(aesthetics)
+    aesthetics <- defaults(aesthetics, .$stat$default_aes())
+    aesthetics <- compact(aesthetics)
   
     new <- strip_dots(aesthetics[is_calculated_aes(aesthetics)])
     if (length(new) == 0) return(data)

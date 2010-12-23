@@ -5,6 +5,7 @@
 # @alias predictdf.default
 # @alias predictdf.glm
 # @alias predictdf.loess
+# @alias predictdf.locfit
 predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
 
 predictdf.default <- function(model, xseq, se, level) {
@@ -34,7 +35,7 @@ predictdf.glm <- function(model, xseq, se, level) {
       se = as.vector(pred$se)
     )
   } else {
-    data.frame(x = xseq, y = model$family$linkinv(pred))
+    data.frame(x = xseq, y = model$family$linkinv(as.vector(pred)))
   }
 }
 
@@ -42,6 +43,19 @@ predictdf.loess <- function(model, xseq, se, level) {
   pred <- stats::predict(model, newdata = data.frame(x = xseq), se = se,
     level = level, interval = if(se) "confidence" else "none")
 
+  if (se) {
+    y = pred$fit
+    ymin = y - pred$se.fit
+    ymax = y + pred$se.fit
+    data.frame(x = xseq, y, ymin, ymax, se = pred$se.fit)
+  } else {
+    data.frame(x = xseq, y = as.vector(pred))
+  }
+}
+
+predictdf.locfit <- function(model, xseq, se, level) {
+  pred <- predict(model, newdata = data.frame(x = xseq), se.fit = se)
+                          
   if (se) {
     y = pred$fit
     ymin = y - pred$se.fit

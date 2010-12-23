@@ -1,6 +1,6 @@
 StatSmooth <- proto(Stat, {
   calculate_groups <- function(., data, scales, ...) {
-    rows <- plyr::daply(data, .(group), function(df) length(unique(df$x)))
+    rows <- daply(data, .(group), function(df) length(unique(df$x)))
     
     if (all(rows == 1) && length(rows) > 1) {
       message("geom_smooth: Only one unique x value each group.", 
@@ -13,7 +13,7 @@ StatSmooth <- proto(Stat, {
   
   calculate <- function(., data, scales, method="auto", formula=y~x, se = TRUE, n=80, fullrange=FALSE, xseq = NULL, level=0.95, na.rm = FALSE, ...) {
     data <- remove_missing(data, na.rm, c("x", "y"), name="stat_smooth")
-    if (length(unique(data$x)) <= 2) {
+    if (length(unique(data$x)) < 2) {
       # Not enough data to perform fit
       return(data.frame())
     }

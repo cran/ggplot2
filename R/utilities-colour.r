@@ -20,6 +20,7 @@ nice_ramp <- function(ramp, x, alpha = 1) {
 # @arguments alpha level [0,1]
 # @keyword internal 
 alpha <- function(colour, alpha) {
+  alpha[is.na(alpha)] <- 0
   col <- col2rgb(colour, TRUE) / 255
   
   if (length(colour) != length(alpha)) {
@@ -45,6 +46,7 @@ alpha <- function(colour, alpha) {
 # Transforms rgb to hcl, sets non-missing arguments and then backtransforms to rgb
 #
 # @keyword internal
+# @examples col2hcl(colors())
 col2hcl <- function(colour, h, c, l, alpha = 1) {
   try_require("colorspace")
   
@@ -52,10 +54,12 @@ col2hcl <- function(colour, h, c, l, alpha = 1) {
   coords <- colorspace::coords(as(col, "polarLUV"))
   
   if (missing(h)) h <- coords[, "H"]
-  if (missing(c)) h <- coords[, "C"]
-  if (missing(l)) h <- coords[, "L"]
+  if (missing(c)) c <- coords[, "C"]
+  if (missing(l)) l <- coords[, "L"]
     
-  hcl(h, c, l, alpha=alpha)
+  hcl_colours <- hcl(h, c, l, alpha = alpha) 
+  names(hcl_colours) <- names(colour) 
+  hcl_colours
 }
 
 # Mute standard R colours.
