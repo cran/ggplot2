@@ -17,17 +17,18 @@
 # @keyword internal
 # @alias \%+\%
 "+.ggplot" <- function(p, object) {
-  p <- plot_clone(p)
+  if (is.null(object)) return(p)
 
+  p <- plot_clone(p)
   if (is.data.frame(object)) {
     p$data <- object
   } else if (inherits(object, "options")) {
-    object$labels <- plyr::defaults(object$labels, p$options$labels)
-    p$options <- plyr::defaults(object, p$options)
+    object$labels <- defaults(object$labels, p$options$labels)
+    p$options <- defaults(object, p$options)
   } else if(inherits(object, "labels")) {
       p <- update_labels(p, object)
   } else if(inherits(object, "uneval")) {
-      p$mapping <- plyr::defaults(object, p$mapping)
+      p$mapping <- defaults(object, p$mapping)
       
       labels <- lapply(object, deparse)
       names(labels) <- names(object)
@@ -36,7 +37,7 @@
     for (o in object) {
       p <- p + o
     }
-  } else {
+  } else if(is.proto(object)) {
     p <- switch(object$class(),
       layer  = {
         p$layers <- append(p$layers, object)
@@ -45,8 +46,8 @@
         mapping <- make_labels(object$mapping)
         default <- make_labels(object$stat$default_aes())
         
-        new_labels <- plyr::defaults(mapping, default)
-        p$options$labels <- plyr::defaults(p$options$labels, new_labels)
+        new_labels <- defaults(mapping, default)
+        p$options$labels <- defaults(p$options$labels, new_labels)
         p
       },
       coord = {
@@ -62,6 +63,9 @@
         p
       }
     )
+  } else {
+    stop("Don't know how to add ", deparse(substitute(object)), " to a plot",
+      call. = FALSE)
   }
   set_last_plot(p)
   p

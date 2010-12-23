@@ -18,10 +18,10 @@ StatSummary <- proto(Stat, {
       }
     } else {
       # User supplied individual vector functions
-      fs <- plyr::compact(list(ymin = fun.ymin, y = fun.y, ymax = fun.ymax))
+      fs <- compact(list(ymin = fun.ymin, y = fun.y, ymax = fun.ymax))
       
       fun <- function(df, ...) {
-        res <- plyr::llply(fs, function(f) do.call(f, list(df$y, ...)))
+        res <- llply(fs, function(f) do.call(f, list(df$y, ...)))
         names(res) <- names(fs)
         as.data.frame(res)
       }
@@ -164,3 +164,16 @@ mean_cl_boot <- wrap_hmisc("smean.cl.boot")
 mean_cl_normal <- wrap_hmisc("smean.cl.normal")
 mean_sdl <- wrap_hmisc("smean.sdl")
 median_hilow <- wrap_hmisc("smedian.hilow")
+
+# Mean + se's.
+# Mean and standard errors on either side.
+#
+# @arguments numeric vector
+# @arguments number of multiples of standard error
+# @seealso for use with \code{\link{stat_summary}}
+mean_se <- function(x, mult = 1) {  
+  x <- na.omit(x)
+  se <- mult * sqrt(var(x) / length(x))
+  mean <- mean(x)
+  data.frame(y = mean, ymin = mean - se, ymax = mean + se)
+}

@@ -1,17 +1,23 @@
 ScaleIdentity <- proto(ScaleDiscrete, {  
   doc <- TRUE
-  common <- c("colour","fill","size","shape","linetype")
+  common <- c("alpha", "colour","fill","size","shape","linetype")
   aliases <- "scale_color_identity"
   new <- function(., name=NULL, breaks=NULL, labels=NULL, formatter = NULL, legend = TRUE, variable="x") {
     
     b_and_l <- check_breaks_and_labels(breaks, labels)
-    legend <- legend && !is.null(b_and_l$labels)
+#    legend <- legend && !is.null(b_and_l$labels)
     
     .$proto(name=name, breaks=b_and_l$breaks, .labels=b_and_l$labels, .input=variable, .output=variable, formatter = formatter, legend = legend)
   }
 
   train <- function(., data, drop = FALSE) {
     .$breaks <- union(.$breaks, unique(data))
+    if (is.numeric(data)) {
+      if (all(is.na(data)) || all(!is.finite(data))) return()
+      .$.domain <- range(data, .$.domain, na.rm=TRUE, finite=TRUE)
+    } else {
+      .$.domain <- discrete_range(.$.domain, data, drop = drop)
+    }
   }
 
   map_df <- function(., data) {
@@ -19,7 +25,16 @@ ScaleIdentity <- proto(ScaleDiscrete, {
     data[, .$input(), drop=FALSE]
   }
   output_breaks <- function(.) .$breaks
-  labels <- function(.) .$.labels
+  labels <- function(.) {
+    if (!is.null(.$.labels)) return(as.list(.$.labels))
+
+    if (is.null(get("formatter", .))) {
+      f <- match.fun(identity)
+    } else {
+      f <- match.fun(get("formatter", .))
+    }
+    as.list(f(.$input_breaks()))
+  }
 
   # Documentation -----------------------------------------------
 
