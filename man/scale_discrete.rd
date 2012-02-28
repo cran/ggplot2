@@ -1,33 +1,34 @@
-\name{scale_discrete}
-\alias{scale_discrete}
+\name{scale_x_discrete}
 \alias{scale_x_discrete}
 \alias{scale_y_discrete}
-\alias{scale_z_discrete}
-\alias{ScaleDiscretePosition}
-\title{scale\_discrete}
-\description{Discrete position scale}
-\details{
-This page describes scale\_discrete, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+\title{Discrete position.}
+\usage{
+  scale_x_discrete(..., expand = c(0, 0.6))
+
+  scale_y_discrete(..., expand = c(0, 0.6))
 }
-\usage{scale_x_discrete(name = NULL, expand = c(0.05, 0.55), limits = NULL, 
-    breaks = NULL, labels = NULL, formatter = identity, drop = FALSE, 
-    legend = TRUE, ...)}
 \arguments{
- \item{name}{name of scale to appear in legend or on axis.  Maybe be an expression: see ?plotmath}
- \item{expand}{numeric vector of length 2, giving multiplicative and additive expansion factors}
- \item{limits}{numeric vector of length 2, giving the extent of the scale}
- \item{breaks}{numeric vector indicating where breaks should lie}
- \item{labels}{character vector giving labels associated with breaks}
- \item{formatter}{NULL}
- \item{drop}{NULL}
- \item{legend}{NULL}
- \item{...}{ignored }
+  \item{...}{common discrete scale parameters: \code{name},
+  \code{breaks}, \code{labels}, \code{na.value},
+  \code{limits} and \code{guide}.  See
+  \code{\link{discrete_scale}} for more details}
+
+  \item{expand}{a numeric vector of length two giving
+  multiplicative and additive expansion constants. These
+  constants ensure that the data is placed some distance
+  away from the axes.}
 }
-\seealso{\itemize{
-  \item \url{http://had.co.nz/ggplot2/scale_discrete.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
+\description{
+  You can use continuous positions even with a discrete
+  position scale - this allows you (e.g.) to place labels
+  between bars in a bar chart. Continuous positions are
+  numeric values starting at one for the first level, and
+  increasing by one for each level (i.e. the labels are
+  placed at integer positions).  This is what allows
+  jittering to work.
+}
+\examples{
+\donttest{
 qplot(cut, data=diamonds, stat="bin")
 qplot(cut, data=diamonds, geom="bar")
 
@@ -57,9 +58,21 @@ qplot(reorder(manufacturer, cty), cty, data=mpg)
 qplot(reorder(manufacturer, displ), cty, data=mpg)
 
 # Use abbreviate as a formatter to reduce long names
-qplot(reorder(manufacturer, cty), cty, data=mpg) +  
-  scale_x_discrete(formatter = "abbreviate")
+qplot(reorder(manufacturer, cty), cty, data=mpg) +
+  scale_x_discrete(labels = abbreviate)
+}
+}
+\seealso{
+  Other position scales: \code{\link{scale_x_continuous}},
+  \code{\link{scale_x_date}},
+  \code{\link{scale_x_datetime}},
+  \code{\link{scale_x_log10}},
+  \code{\link{scale_x_reverse}},
+  \code{\link{scale_x_sqrt}},
+  \code{\link{scale_y_continuous}},
+  \code{\link{scale_y_date}},
+  \code{\link{scale_y_datetime}},
+  \code{\link{scale_y_log10}},
+  \code{\link{scale_y_reverse}}, \code{\link{scale_y_sqrt}}
+}
 
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}

@@ -1,27 +1,71 @@
+#' Line, vertical.
+#' 
+#' This geom allows you to annotate the plot with vertical lines (see
+#' \code{\link{geom_hline}} and \code{\link{geom_abline}} for other types of
+#' lines.
+#'
+#' There are two ways to use it.  You can either specify the intercept of the
+#' line in the call to the geom, in which case the line will be in the same
+#' position in every panel.  Alternatively, you can supply a different
+#' intercept for each panel using a data.frame.  See the examples for the
+#' differences.
+#'
+#' @param show_guide should a legend be drawn? (defaults to \code{FALSE})
+#' @inheritParams geom_point
+#' @seealso
+#'  \code{\link{geom_hline}} for horizontal lines,
+#'  \code{\link{geom_abline}} for lines defined by a slope and intercept,
+#'  \code{\link{geom_segment}} for a more general approach"
+#' @export
+#' @examples
+#' # Fixed lines
+#' p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+#' p + geom_vline(xintercept = 5)
+#' p + geom_vline(xintercept = 1:5)
+#' p + geom_vline(xintercept = 1:5, colour="green", linetype = "longdash")
+#' p + geom_vline(aes(xintercept = wt))
+#' 
+#' # With coordinate transforms
+#' p + geom_vline(aes(xintercept = wt)) + coord_equal()
+#' p + geom_vline(aes(xintercept = wt)) + coord_flip()
+#' p + geom_vline(aes(xintercept = wt)) + coord_polar()
+#' 
+#' p2 <- p + aes(colour = factor(cyl))
+#' p2 + geom_vline(xintercept = 15)
+#'
+#' # To display different lines in different facets, you need to 
+#' # create a data frame.
+#' p <- qplot(mpg, wt, data=mtcars, facets = vs ~ am)   
+#' vline.data <- data.frame(z = c(15, 20, 25, 30), vs = c(0, 0, 1, 1), am = c(0, 1, 0, 1)) 
+#' p + geom_vline(aes(xintercept = z), vline.data)
+geom_vline <- function (mapping = NULL, data = NULL, stat = "vline", position = "identity", show_guide = FALSE, ...) { 
+  GeomVline$new(mapping = mapping, data = data, stat = stat, position = position, show_guide = show_guide, ...)
+}
+
 GeomVline <- proto(Geom, {
-  new <- function(., data = NULL, mapping = NULL, xintercept = NULL, legend = NA, ...) {
+  objname <- "vline"
+
+  new <- function(., data = NULL, mapping = NULL, xintercept = NULL, ...) {
     if (is.numeric(xintercept)) {
       data <- data.frame(xintercept = xintercept)
       xintercept <- NULL
       mapping <- aes_all(names(data))
-      if(is.na(legend)) legend <- FALSE
     }
     .super$new(., data = data, mapping = mapping, inherit.aes = FALSE, 
-      xintercept = xintercept, legend = legend, ...)
+      xintercept = xintercept, ...)
   }
   
   draw <- function(., data, scales, coordinates, ...) {
-    data$y    <- -Inf
-    data$yend <- Inf
+    ranges <- coord_range(coordinates, scales)
+
+    data$y    <- ranges$y[1]
+    data$yend <- ranges$y[2]
     
     GeomSegment$draw(unique(data), scales, coordinates)
   }
 
-  objname <- "vline"
-  desc <- "Line, vertical"
-  icon <- function(.) linesGrob(c(0.5, 0.5), c(0, 1))
-  details <- "<p>This geom allows you to annotate the plot with vertical lines (see geom_hline and geom_abline for other types of lines)</p>\n\n<p>There are two ways to use it.  You can either specify the intercept of the line in the call to the geom, in which case the line will be in the same position in every panel.  Alternatively, you can supply a different intercept for each panel using a data.frame.  See the examples for the differences</p>"
   
+  icon <- function(.) linesGrob(c(0.5, 0.5), c(0, 1))
   default_stat <- function(.) StatVline
   default_aes <- function(.) aes(colour="black", size=0.5, linetype=1, alpha = 1)
   guide_geom <- function(.) "vline"
@@ -35,23 +79,4 @@ GeomVline <- proto(Geom, {
     )
   }
 
-  seealso <- list(
-    geom_hline = "for horizontal lines",
-    geom_abline = "for lines defined by a slope and intercept",
-    geom_segment = "for a more general approach"
-  )
-  
-  examples <- function(.) {
-    # Fixed lines
-    p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
-    p + geom_vline(xintercept = 5)
-    p + geom_vline(xintercept = 1:5)
-    p + geom_vline(xintercept = 1:5, colour="green")
-    
-    last_plot() + coord_equal()
-    last_plot() + coord_flip()
-    
-    p2 <- p + aes(colour = factor(cyl))
-    p2 + geom_vline(xintercept = 15)
-  }  
 })

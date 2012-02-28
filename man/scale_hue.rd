@@ -1,42 +1,61 @@
-\name{scale_hue}
-\alias{scale_hue}
-\alias{scale_colour_hue}
-\alias{scale_fill_hue}
-\alias{ScaleHue}
-\alias{scale_colour_discrete}
-\alias{scale_fill_discrete}
-\alias{scale_color_hue}
+\name{scale_colour_hue}
 \alias{scale_color_discrete}
-\title{scale\_hue}
-\description{Qualitative colour scale with evenly spaced hues}
-\details{
-This page describes scale\_hue, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+\alias{scale_color_hue}
+\alias{scale_colour_discrete}
+\alias{scale_colour_hue}
+\alias{scale_fill_discrete}
+\alias{scale_fill_hue}
+\title{Qualitative colour scale with evenly spaced hues.}
+\usage{
+  scale_colour_hue(..., h = c(0, 360) + 15, c = 100,
+    l = 65, h.start = 0, direction = 1,
+    na.value = "grey50")
+
+  scale_fill_hue(..., h = c(0, 360) + 15, c = 100, l = 65,
+    h.start = 0, direction = 1, na.value = "grey50")
+
+  scale_colour_discrete(..., h = c(0, 360) + 15, c = 100,
+    l = 65, h.start = 0, direction = 1,
+    na.value = "grey50")
+
+  scale_fill_discrete(..., h = c(0, 360) + 15, c = 100,
+    l = 65, h.start = 0, direction = 1,
+    na.value = "grey50")
+
+  scale_color_discrete(..., h = c(0, 360) + 15, c = 100,
+    l = 65, h.start = 0, direction = 1,
+    na.value = "grey50")
+
+  scale_color_hue(..., h = c(0, 360) + 15, c = 100, l = 65,
+    h.start = 0, direction = 1, na.value = "grey50")
 }
-\usage{scale_colour_hue(name = NULL, h = c(0, 360) + 15, l = 65, c = 100, 
-    limits = NULL, breaks = NULL, labels = NULL, h.start = 0, 
-    direction = 1, formatter = identity, legend = TRUE, ...)}
 \arguments{
- \item{name}{name of scale to appear in legend or on axis.  Maybe be an expression: see ?plotmath}
- \item{h}{range of hues to use, in [0, 360]}
- \item{l}{luminance (lightness), in [0, 100]}
- \item{c}{chroma (intensity of colour)}
- \item{limits}{numeric vector of length 2, giving the extent of the scale}
- \item{breaks}{numeric vector indicating where breaks should lie}
- \item{labels}{character vector giving labels associated with breaks}
- \item{h.start}{hue to start at}
- \item{direction}{direction to travel around the colour wheel, 1 = clockwise, -1 = counter-clockwise}
- \item{formatter}{NULL}
- \item{legend}{NULL}
- \item{...}{other arguments}
+  \item{na.value}{Colour to use for missing values}
+
+  \item{...}{Other arguments passed on to
+  \code{\link{continuous_scale}} to control name, limits,
+  breaks, labels and so forth.}
+
+  \item{h}{range of hues to use, in [0, 360]}
+
+  \item{c}{chroma (intensity of colour), maximum value
+  varies depending on}
+
+  \item{l}{luminance (lightness), in [0, 100]}
+
+  \item{h.start}{hue to start at}
+
+  \item{direction}{direction to travel around the colour
+  wheel, 1 = clockwise, -1 = counter-clockwise}
 }
-\seealso{\itemize{
-  \item \url{http://had.co.nz/ggplot2/scale_hue.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
+\description{
+  Qualitative colour scale with evenly spaced hues.
+}
+\examples{
+\donttest{
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
 (d <- qplot(carat, price, data=dsamp, colour=clarity))
-  
+
 # Change scale label
 d + scale_colour_hue()
 d + scale_colour_hue("clarity")
@@ -60,6 +79,32 @@ d <- ggplot(dsamp, aes(carat, price, colour = clarity))
 d + geom_point(alpha = 0.9)
 d + geom_point(alpha = 0.5)
 d + geom_point(alpha = 0.2)
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}
+
+# Colour of missing values is controlled with na.value:
+miss <- factor(sample(c(NA, 1:5), nrow(mtcars), rep = TRUE))
+qplot(mpg, wt, data = mtcars, colour = miss)
+qplot(mpg, wt, data = mtcars, colour = miss) +
+  scale_colour_hue(na.value = "black")
+}
+}
+\seealso{
+  Other colour scales: \code{\link{scale_color_brewer}},
+  \code{\link{scale_color_continuous}},
+  \code{\link{scale_color_gradient}},
+  \code{\link{scale_color_gradient2}},
+  \code{\link{scale_color_gradientn}},
+  \code{\link{scale_color_grey}},
+  \code{\link{scale_colour_brewer}},
+  \code{\link{scale_colour_continuous}},
+  \code{\link{scale_colour_gradient}},
+  \code{\link{scale_colour_gradient2}},
+  \code{\link{scale_colour_gradientn}},
+  \code{\link{scale_colour_grey}},
+  \code{\link{scale_fill_brewer}},
+  \code{\link{scale_fill_continuous}},
+  \code{\link{scale_fill_gradient}},
+  \code{\link{scale_fill_gradient2}},
+  \code{\link{scale_fill_gradientn}},
+  \code{\link{scale_fill_grey}}
+}
+

@@ -1,22 +1,29 @@
 \name{coord_trans}
 \alias{coord_trans}
-\alias{CoordTrans}
-\title{coord\_trans}
-\description{Transformed cartesian coordinate system}
-\details{
-This page describes coord\_trans, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+\title{Transformed cartesian coordinate system.}
+\usage{
+  coord_trans(xtrans = "identity", ytrans = "identity")
 }
-\usage{coord_trans(xtrans = "identity", ytrans = "identity", ...)}
 \arguments{
- \item{xtrans}{NULL}
- \item{ytrans}{NULL}
- \item{...}{ignored }
+  \item{ytrans}{transformer for x axis}
+
+  \item{xtrans}{transformer for y axis}
 }
-\seealso{\itemize{
-  \item \url{http://had.co.nz/ggplot2/coord_trans.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
+\description{
+  \code{coord_trans} is different to scale transformations
+  in that it occurs after statistical transformation and
+  will affect the visual appearance of geoms - there is no
+  guarantee that straight lines will continue to be
+  straight.
+}
+\details{
+  All current transformations only work with continuous
+  values - see \code{scale}{trans_new} for list of
+  transformations, and instructions on how to create your
+  own.
+}
+\examples{
+\donttest{
 # See ?geom_boxplot for other examples
 
 # Three ways of doing transformating in ggplot:
@@ -31,28 +38,35 @@ qplot(carat, price, data=diamonds) + coord_trans(x = "log10", y = "log10")
 # The difference between transforming the scales and
 # transforming the coordinate system is that scale
 # transformation occurs BEFORE statistics, and coordinate
-# transformation afterwards.  Coordinate transformation also 
+# transformation afterwards.  Coordinate transformation also
 # changes the shape of geoms:
 
 d <- subset(diamonds, carat > 0.5)
-qplot(carat, price, data = d, log="xy") + 
+qplot(carat, price, data = d, log="xy") +
   geom_smooth(method="lm")
-qplot(carat, price, data = d) + 
+qplot(carat, price, data = d) +
   geom_smooth(method="lm") +
   coord_trans(x = "log10", y = "log10")
-  
+
 # Here I used a subset of diamonds so that the smoothed line didn't
 # drop below zero, which obviously causes problems on the log-transformed
 # scale
 
 # With a combination of scale and coordinate transformation, it's
 # possible to do back-transformations:
-qplot(carat, price, data=diamonds, log="xy") + 
-  geom_smooth(method="lm") + 
-  coord_trans(x="pow10", y="pow10")
+library(scales)
+qplot(carat, price, data=diamonds, log="xy") +
+  geom_smooth(method="lm") +
+  coord_trans(x = exp_trans(10), y = exp_trans(10))
 # cf.
 qplot(carat, price, data=diamonds) + geom_smooth(method = "lm")
 
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}
+# Also works with discrete scales
+df <- data.frame(a = abs(rnorm(26)),letters)
+plot <- ggplot(df,aes(a,letters)) + geom_point()
+
+plot + coord_trans(x = "log10")
+plot + coord_trans(x = "sqrt")
+}
+}
+

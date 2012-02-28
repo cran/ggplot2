@@ -1,36 +1,31 @@
-\name{scale_brewer}
-\alias{scale_brewer}
+\name{scale_colour_brewer}
+\alias{scale_color_brewer}
 \alias{scale_colour_brewer}
 \alias{scale_fill_brewer}
-\alias{ScaleBrewer}
-\alias{scale_color_brewer}
-\title{scale\_brewer}
-\description{Sequential, diverging and qualitative colour scales from colorbrewer.org}
-\details{
-See <a href='http://colorbrewer.org'>colorbrewer.org</a> for more info
+\title{Sequential, diverging and qualitative colour scales from colorbrewer.org}
+\usage{
+  scale_colour_brewer(..., type = "seq", palette = 1)
 
-This page describes scale\_brewer, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+  scale_fill_brewer(..., type = "seq", palette = 1)
+
+  scale_color_brewer(..., type = "seq", palette = 1)
 }
-\usage{scale_colour_brewer(name = NULL, palette = 1, type = "qual", 
-    na.colour = "grey80", limits = NULL, breaks = NULL, labels = NULL, 
-    formatter = identity, legend = TRUE, ...)}
 \arguments{
- \item{name}{name of scale to appear in legend or on axis.  Maybe be an expression: see ?plotmath}
- \item{palette}{Either numeric or character.  If numeric, selects the nth palette of type type.  If character, selects the named palette.  Get a complete list of all parameters by running \code{RColorBrewer::display.brewer.all(n=8, exact.n=FALSE)}}
- \item{type}{Type of scale.  One of 'div' (diverging), 'qual' (qualitative, the default), 'seq' (sequential), or 'all' (all).  Only used when palette is numeric.}
- \item{na.colour}{colour to use for missing values}
- \item{limits}{numeric vector of length 2, giving the extent of the scale}
- \item{breaks}{numeric vector indicating where breaks should lie}
- \item{labels}{character vector giving labels associated with breaks}
- \item{formatter}{NULL}
- \item{legend}{NULL}
- \item{...}{other arguments}
+  \item{type}{One of seq (sequential), div (diverging) or
+  qual (qualitative)}
+
+  \item{palette}{If a string, will use that named palette.
+  If a number, will index into the list of palettes of
+  appropriate \code{type}}
+
+  \item{...}{Other arguments passed on to
+  \code{\link{continuous_scale}} to control name, limits,
+  breaks, labels and so forth.}
 }
-\seealso{\itemize{
-  \item \url{http://had.co.nz/ggplot2/scale_brewer.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
+\description{
+  See \url{http://colorbrewer2.org} for more information.
+}
+\examples{
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
 (d <- qplot(carat, price, data=dsamp, colour=clarity))
 
@@ -39,21 +34,41 @@ d + scale_colour_brewer()
 d + scale_colour_brewer("clarity")
 d + scale_colour_brewer(expression(clarity[beta]))
 
-# Select brewer palette to use, see ?brewer.pal for more details
+# Select brewer palette to use, see ?scales::brewer_pal for more details
 d + scale_colour_brewer(type="seq")
 d + scale_colour_brewer(type="seq", palette=3)
-
-RColorBrewer::display.brewer.all(n=8, exact.n=FALSE)
 
 d + scale_colour_brewer(palette="Blues")
 d + scale_colour_brewer(palette="Set1")
 
-# scale_fill_brewer works just the same as 
+# scale_fill_brewer works just the same as
 # scale_colour_brewer but for fill colours
-ggplot(diamonds, aes(x=price, fill=cut)) + 
-  geom_histogram(position="dodge", binwidth=1000) + 
+ggplot(diamonds, aes(x=price, fill=cut)) +
+  geom_histogram(position="dodge", binwidth=1000) +
   scale_fill_brewer()
+}
+\seealso{
+  Other colour scales:
+  \code{\link{scale_color_continuous}},
+  \code{\link{scale_color_discrete}},
+  \code{\link{scale_color_gradient}},
+  \code{\link{scale_color_gradient2}},
+  \code{\link{scale_color_gradientn}},
+  \code{\link{scale_color_grey}},
+  \code{\link{scale_color_hue}},
+  \code{\link{scale_colour_continuous}},
+  \code{\link{scale_colour_discrete}},
+  \code{\link{scale_colour_gradient}},
+  \code{\link{scale_colour_gradient2}},
+  \code{\link{scale_colour_gradientn}},
+  \code{\link{scale_colour_grey}},
+  \code{\link{scale_colour_hue}},
+  \code{\link{scale_fill_continuous}},
+  \code{\link{scale_fill_discrete}},
+  \code{\link{scale_fill_gradient}},
+  \code{\link{scale_fill_gradient2}},
+  \code{\link{scale_fill_gradientn}},
+  \code{\link{scale_fill_grey}},
+  \code{\link{scale_fill_hue}}
+}
 
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}

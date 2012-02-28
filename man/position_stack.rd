@@ -1,25 +1,27 @@
 \name{position_stack}
 \alias{position_stack}
-\alias{PositionStack}
-\title{position\_stack}
-\description{Stack overlapping objects on top of one another}
-\details{
-This page describes position\_stack, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+\title{Stack overlapping objects on top of one another.}
+\usage{
+  position_stack(width = NULL, height = NULL)
 }
-\usage{position_stack(width = NULL, height = NULL, ...)}
 \arguments{
- \item{width}{NULL}
- \item{height}{NULL}
- \item{...}{ignored }
+  \item{width}{Manually specify width (does not affect all
+  position adjustments)}
+
+  \item{height}{Manually specify height (does not affect
+  all position adjustments)}
 }
-\seealso{\itemize{
-  \item \url{http://had.co.nz/ggplot2/position_stack.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
+\description{
+  Stack overlapping objects on top of one another.
+}
+\examples{
 # Stacking is the default behaviour for most area plots:
 ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) + geom_bar()
-  
+
+# To change stacking order, use factor() to change order of levels
+mtcars$vs <- factor(mtcars$vs, levels = c(1,0))
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) + geom_bar()
+
 ggplot(diamonds, aes(price)) + geom_histogram(binwidth=500)
 ggplot(diamonds, aes(price, fill = cut)) + geom_histogram(binwidth=500)
 
@@ -37,6 +39,11 @@ qplot(Time, Value, data = data.set, colour = Type, geom = "line",
   position = "stack")
 # But realise that this makes it *much* harder to compare individual
 # trends
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}
+}
+\seealso{
+  Other position adjustments: \code{\link{position_dodge}},
+  \code{\link{position_fill}},
+  \code{\link{position_identity}},
+  \code{\link{position_jitter}}
+}
+

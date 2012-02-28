@@ -1,38 +1,38 @@
-# ggsave
-# Save a ggplot with sensible defaults
-# 
-# ggsave is a convenient function for saving a plot.  It defaults to
-# saving the last plot that you displayed, and for a default size uses 
-# the size of the current graphics device.  It also guesses the type of 
-# graphics device from the extension.  This means the only argument you 
-# need to supply is the filename.
-# 
-# \code{ggsave} currently recognises the extensions eps/ps, tex (pictex), pdf,
-# jpeg, tiff, png, bmp, svg and wmf (windows only).
-# 
-# @arguments file name/filename of plot
-# @arguments plot to save, defaults to last plot displayed
-# @arguments device to use, automatically extract from file name extension
-# @arguments path to save plot to (if you just want to set path and not filename)
-# @arguments scaling factor
-# @arguments width (in inches)
-# @arguments height (in inches)
-# @arguments dpi to use for raster graphics
-# @arguments plot components to keep
-# @arguments plot components to drop
-# @arguments other arguments passed to graphics device
-# @keyword file 
-#X \dontrun{
-#X ratings <- qplot(rating, data=movies, geom="histogram")
-#X qplot(length, data=movies, geom="histogram")
-#X ggsave(file="length-hist.pdf")
-#X ggsave(file="length-hist.png")
-#X ggsave(ratings, file="ratings.pdf")
-#X ggsave(ratings, file="ratings.pdf", width=4, height=4)
-#X # make twice as big as on screen
-#X ggsave(ratings, file="ratings.pdf", scale=2)
-#X }
-ggsave <- function(filename=default_name(plot), plot = last_plot(), device=default_device(filename), path = NULL, scale=1, width=par("din")[1], height=par("din")[2], dpi=300, keep = plot$options$keep, drop = plot$options$drop, ...) {
+#' Save a ggplot with sensible defaults
+#' 
+#' ggsave is a convenient function for saving a plot.  It defaults to
+#' saving the last plot that you displayed, and for a default size uses 
+#' the size of the current graphics device.  It also guesses the type of 
+#' graphics device from the extension.  This means the only argument you 
+#' need to supply is the filename.
+#' 
+#' \code{ggsave} currently recognises the extensions eps/ps, tex (pictex),
+#' pdf, jpeg, tiff, png, bmp, svg and wmf (windows only).
+#' 
+#' @param filename file name/filename of plot
+#' @param plot plot to save, defaults to last plot displayed
+#' @param device device to use, automatically extract from file name extension
+#' @param path path to save plot to (if you just want to set path and not
+#'    filename)
+#' @param scale scaling factor
+#' @param width width (defaults to the width of current plotting window)
+#' @param height height (defaults to the height of current plotting window)
+#' @param units units for width and height when either one is explicitly specified (in, cm, or mm)
+#' @param dpi dpi to use for raster graphics
+#' @param ... other arguments passed to graphics device
+#' @export
+#' @examples
+#' \donttest{
+#' ratings <- qplot(rating, data=movies, geom="histogram")
+#' qplot(length, data=movies, geom="histogram")
+#' ggsave(file="length-hist.pdf")
+#' ggsave(file="length-hist.png")
+#' ggsave(ratings, file="ratings.pdf")
+#' ggsave(ratings, file="ratings.pdf", width=4, height=4)
+#' # make twice as big as on screen
+#' ggsave(ratings, file="ratings.pdf", scale=2)
+#' }
+ggsave <- function(filename=default_name(plot), plot = last_plot(), device=default_device(filename), path = NULL, scale=1, width=par("din")[1], height=par("din")[2], units=c("in", "cm", "mm"), dpi=300, ...) {
   if (!inherits(plot, "ggplot")) stop("plot should be a ggplot2 plot")
 
   eps <- ps <- function(..., width, height)  
@@ -66,10 +66,37 @@ ggsave <- function(filename=default_name(plot), plot = last_plot(), device=defau
     match.fun(ext)
   }
 
-  if (missing(width) || missing(height)) {
-    message("Saving ", prettyNum(width * scale, digits=3), "\" x ", prettyNum(height * scale, digits=3), "\" image")
+  units <- match.arg(units)
+  convert_to_inches <- function(x, units) {
+    x <- switch(units,
+      `in` = x,
+      cm = x / 2.54,
+      mm = x / 2.54 /10
+    )
   }
-  
+
+  convert_from_inches <- function(x, units) {
+    x <- switch(units,
+      `in` = x,
+      cm = x * 2.54,
+      mm = x * 2.54 * 10
+    )
+  }
+
+  # dimensions need to be in inches for all graphic devices
+  # convert width and height into inches when they are specified
+  if (!missing(width)) {
+    width <- convert_to_inches(width, units)
+  }
+  if (!missing(height)) {
+    height <- convert_to_inches(height, units)
+  }
+  # if either width or height is not specified, display an information message
+  # units are those specified by the user
+  if (missing(width) || missing(height)) {
+    message("Saving ", prettyNum(convert_from_inches(width * scale, units), digits=3), " x ", prettyNum(convert_from_inches(height * scale, units), digits=3), " ", units, " image")
+  }
+
   width <- width * scale
   height <- height * scale
   
@@ -78,7 +105,7 @@ ggsave <- function(filename=default_name(plot), plot = last_plot(), device=defau
   }
   device(file=filename, width=width, height=height, ...)
   on.exit(capture.output(dev.off()))
-  print(plot, keep = keep, drop = drop)
+  print(plot)
   
   invisible()
 }

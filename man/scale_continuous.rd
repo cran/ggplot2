@@ -1,35 +1,48 @@
-\name{scale_continuous}
-\alias{scale_continuous}
+\name{scale_x_continuous}
 \alias{scale_x_continuous}
+\alias{scale_x_log10}
+\alias{scale_x_reverse}
+\alias{scale_x_sqrt}
 \alias{scale_y_continuous}
-\alias{ScaleContinuous}
-\title{scale\_continuous}
-\description{Continuous position scale}
-\details{
-This page describes scale\_continuous, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+\alias{scale_y_log10}
+\alias{scale_y_reverse}
+\alias{scale_y_sqrt}
+\title{Continuous position scales (x & y).}
+\usage{
+  scale_x_continuous(..., expand = c(0.05, 0))
+
+  scale_y_continuous(..., expand = c(0.05, 0))
+
+  scale_x_log10(...)
+
+  scale_y_log10(...)
+
+  scale_x_reverse(...)
+
+  scale_y_reverse(...)
+
+  scale_x_sqrt(...)
+
+  scale_y_sqrt(...)
 }
-\usage{scale_x_continuous(name = NULL, limits = NULL, breaks = NULL, 
-    labels = NULL, trans = NULL, expand = c(0.05, 0), minor_breaks = NULL, 
-    formatter = "scientific", legend = TRUE, ...)}
 \arguments{
- \item{name}{name of scale to appear in legend or on axis.  Maybe be an expression: see ?plotmath}
- \item{limits}{numeric vector of length 2, giving the extent of the scale}
- \item{breaks}{numeric vector indicating where breaks should lie}
- \item{labels}{character vector giving labels associated with breaks}
- \item{trans}{a transformer to use}
- \item{expand}{numeric vector of length 2, giving multiplicative and additive expansion factors}
- \item{minor_breaks}{NULL}
- \item{formatter}{NULL}
- \item{legend}{NULL}
- \item{...}{ignored }
+  \item{...}{common continuous scale parameters:
+  \code{name}, \code{breaks}, \code{labels},
+  \code{na.value}, \code{limits} and \code{trans}.  See
+  \code{\link{continuous_scale}} for more details}
+
+  \item{expand}{a numeric vector of length two giving
+  multiplicative and additive expansion constants. These
+  constants ensure that the data is placed some distance
+  away from the axes.}
 }
-\seealso{\itemize{
-  \item \code{\link{scale_discrete}}: Discrete position scales
-  \item \url{http://had.co.nz/ggplot2/scale_continuous.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
-(m <- qplot(rating, votes, data=subset(movies, votes > 1000), na.rm = T))
+\description{
+  Continuous position scales (x & y).
+}
+\examples{
+\donttest{
+(m <- qplot(rating, votes, data=subset(movies, votes > 1000),
+  na.rm = TRUE))
 
 # Manipulating the default position scales lets you:
 
@@ -58,20 +71,19 @@ m + scale_x_continuous(breaks=c(2,5,8), labels=expression(Alpha, Beta, Omega))
 
 # There are also a wide range of transformations you can use:
 m + scale_y_log10()
-m + scale_y_log()
-m + scale_y_log2()
 m + scale_y_sqrt()
 m + scale_y_reverse()
 # see ?transformer for a full list
 
 # You can control the formatting of the labels with the formatter
-# argument.  Some common formats are built in:
+# argument.  Some common formats are built into the scales package:
 x <- rnorm(10) * 100000
 y <- seq(0, 1, length = 10)
 p <- qplot(x, y)
-p + scale_y_continuous(formatter = "percent")
-p + scale_y_continuous(formatter = "dollar")
-p + scale_x_continuous(formatter = "comma")
+library(scales)
+p + scale_y_continuous(labels = percent)
+p + scale_y_continuous(labels = dollar)
+p + scale_x_continuous(labels = comma)
 
 # qplot allows you to do some of this with a little less typing:
 #   * axis limits
@@ -80,6 +92,14 @@ qplot(rating, votes, data=movies, ylim=c(1e4, 5e4))
 qplot(rating, votes, data=movies, xlab="My x axis", ylab="My y axis")
 #   * log scaling
 qplot(rating, votes, data=movies, log="xy")
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}
+}
+}
+\seealso{
+  Other position scales: \code{\link{scale_x_date}},
+  \code{\link{scale_x_datetime}},
+  \code{\link{scale_x_discrete}},
+  \code{\link{scale_y_date}},
+  \code{\link{scale_y_datetime}},
+  \code{\link{scale_y_discrete}}
+}
+

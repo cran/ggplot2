@@ -1,31 +1,42 @@
-\name{scale_datetime}
-\alias{scale_datetime}
+\name{scale_x_datetime}
 \alias{scale_x_datetime}
 \alias{scale_y_datetime}
-\alias{ScaleDatetime}
-\title{scale\_datetime}
-\description{Position scale, date time}
-\details{
-This page describes scale\_datetime, see \code{\link{layer}} and \code{\link{qplot}} for how to create a complete plot from individual components.
+\title{Position scale, date}
+\usage{
+  scale_x_datetime(..., expand = c(0.05, 0),
+    breaks = waiver(), minor_breaks = waiver())
+
+  scale_y_datetime(..., expand = c(0.05, 0),
+    breaks = waiver(), minor_breaks = waiver())
 }
-\usage{scale_x_datetime(name = NULL, limits = NULL, major = NULL, minor = NULL, 
-    format = NULL, expand = c(0.05, 0), tz = "", ...)}
 \arguments{
- \item{name}{name of scale to appear in legend or on axis.  Maybe be an expression: see ?plotmath}
- \item{limits}{numeric vector of length 2, giving the extent of the scale}
- \item{major}{NULL}
- \item{minor}{NULL}
- \item{format}{NULL}
- \item{expand}{numeric vector of length 2, giving multiplicative and additive expansion factors}
- \item{tz}{NULL}
- \item{...}{ignored }
+  \item{breaks}{A vector of breaks, a function that given
+  the scale limits returns a vector of breaks, or a
+  character vector, specifying the width between breaks.
+  For more information about the first two, see
+  \code{\link{continuous_scale}}, for more information
+  about the last, see \code{\link[scales]{date_breaks}}`.}
+
+  \item{minor_breaks}{Either \code{NULL} for no minor
+  breaks, \code{waiver()} for the default breaks (one minor
+  break between each major break), a numeric vector of
+  positions, or a function that given the limits returns a
+  vector of minor breaks.}
+
+  \item{...}{common continuous scale parameters:
+  \code{name}, \code{breaks}, \code{labels},
+  \code{na.value}, \code{limits} and \code{trans}.  See
+  \code{\link{continuous_scale}} for more details}
+
+  \item{expand}{a numeric vector of length two giving
+  multiplicative and additive expansion constants. These
+  constants ensure that the data is placed some distance
+  away from the axes.}
 }
-\seealso{\itemize{
-  \item \code{\link{scale_discrete}}: Discrete position scales
-  \item \url{http://had.co.nz/ggplot2/scale_datetime.html}
-}}
-\value{A \code{\link{layer}}}
-\examples{\dontrun{
+\description{
+  Position scale, date
+}
+\examples{
 start <- ISOdate(2001, 1, 1, tz = "")
 df <- data.frame(
   day30  = start + round(runif(100, max = 30 * 86400)),
@@ -54,12 +65,26 @@ qplot(day30, y, data = df)
 
 # Manual scale selection
 qplot(day30, y, data = df)
-last_plot() + scale_x_datetime(major = "2 weeks")
-last_plot() + scale_x_datetime(major = "2 weeks", minor = "1 week")
-last_plot() + scale_x_datetime(major = "10 days")
-# See ?strptime for formatting parameters
-last_plot() + scale_x_datetime(major = "10 days", format = "%d/%m")
+library(scales) # to access breaks/formatting functions
+last_plot() + scale_x_datetime(breaks = date_breaks("2 weeks"))
+last_plot() + scale_x_datetime(breaks = date_breaks("10 days"))
+library(scales) # to access breaks/formatting functions
+last_plot() + scale_x_datetime(breaks = date_breaks("10 days"),
+  labels = date_format("\%d/\%m"))
+last_plot() + scale_x_datetime(breaks = date_breaks("1 day"),
+  minor_breaks = date_breaks("2 hour"))
+}
+\seealso{
+  Other position scales: \code{\link{scale_x_continuous}},
+  \code{\link{scale_x_date}},
+  \code{\link{scale_x_discrete}},
+  \code{\link{scale_x_log10}},
+  \code{\link{scale_x_reverse}},
+  \code{\link{scale_x_sqrt}},
+  \code{\link{scale_y_continuous}},
+  \code{\link{scale_y_date}},
+  \code{\link{scale_y_discrete}},
+  \code{\link{scale_y_log10}},
+  \code{\link{scale_y_reverse}}, \code{\link{scale_y_sqrt}}
+}
 
-}}
-\author{Hadley Wickham, \url{http://had.co.nz/}}
-\keyword{hplot}
