@@ -1,8 +1,12 @@
-# Summarise ggplot object
-# Displays a useful description of a ggplot object
-# 
-# @keyword internal
-#X summary(qplot(mpg, wt, data=mtcars))
+#' Displays a useful description of a ggplot object
+#' 
+#' @param object ggplot2 object to summarise
+#' @param ... other arguments ignored (for compatibility with generic)
+#' @keywords internal
+#' @method summary ggplot
+#' @export
+#' @examples
+#' summary(qplot(mpg, wt, data=mtcars))
 summary.ggplot <- function(object, ...) {
   wrap <- function(x) paste(
     paste(strwrap(x, exdent = 2), collapse = "\n"),
@@ -28,11 +32,11 @@ summary.ggplot <- function(object, ...) {
     cat("mapping:  ", clist(object$mapping), "\n", sep="")    
   }
   if (object$scales$n() > 0) {
-    cat("scales:  ", paste(object$scales$output(), collapse = ", "), "\n")
+    cat("scales:  ", paste(object$scales$input(), collapse = ", "), "\n")
   }
   
   cat("faceting: ")
-  object$facet$pprint()
+  print(object$facet)
 
   if (length(object$layers) > 0)
     cat("-----------------------------------\n")

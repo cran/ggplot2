@@ -1,6 +1,18 @@
+#' Add a line with slope and intercept.
+#'
+#' @keywords internal
+#' @inheritParams stat_identity
+#' @export
+#' @examples
+#' # see geom_abline
+stat_abline <- function (mapping = NULL, data = NULL, geom = "abline", position = "identity", ...) { 
+  StatAbline$new(mapping = mapping, data = data, geom = geom, position = position, ...)
+}
+
 StatAbline <- proto(Stat, {
+  objname <- "abline"
+
   calculate <- function(., data, scales, intercept = NULL, slope = NULL, ...) {
-    data <- aesdefaults(data, .$default_aes(), list(...))
     if (is.null(intercept)) {
       if (is.null(data$intercept)) data$intercept <- 0
     } else {
@@ -16,19 +28,26 @@ StatAbline <- proto(Stat, {
     unique(data)
   }
   
-  objname <- "abline" 
-  desc <- "Add a line with slope and intercept"
   icon <- function(.) GeomAbline$icon()
-  
-  required_aes <- c()
   default_geom <- function(.) GeomAbline
-  
-  examples <- function(.) {
-    # See geom_abline for examples
-  }
 })
 
+#' Add a vertical line
+#'
+#' @keywords internal
+#' @inheritParams stat_identity
+#' @export
+#' @examples
+#' # see geom_vline
+stat_vline <- function (mapping = NULL, data = NULL, geom = "vline", position = "identity", 
+intercept, ...) {
+  StatVline$new(mapping = mapping, data = data, geom = geom, position = position, 
+  intercept = intercept, ...)
+}
+
 StatVline <- proto(Stat, {
+  objname <- "vline"
+
   calculate <- function(., data, scales, xintercept = NULL, intercept, ...) {
     if (!missing(intercept)) {
       stop("stat_vline now uses xintercept instead of intercept")
@@ -41,18 +60,25 @@ StatVline <- proto(Stat, {
     }))
   }
   
-  objname <- "vline" 
-  desc <- "Add a vertical line"
   icon <- function(.) GeomVline$icon()
   
   required_aes <- c()
   default_geom <- function(.) GeomVline
-  
-  examples <- function(.) {
-    # See geom_vline for examples
-  }
 })
 
+#' Add a horizontal line
+#'
+#' @keywords internal
+#' @inheritParams stat_identity
+#' @export
+#' @examples
+#' # see geom_hline
+stat_hline <- function (mapping = NULL, data = NULL, geom = "hline", position = "identity", 
+intercept, ...) { 
+  StatHline$new(mapping = mapping, data = data, geom = geom, position = position, 
+  intercept = intercept, ...)
+}
+  
 StatHline <- proto(Stat, {
   calculate <- function(., data, scales, yintercept = NULL, intercept, ...) {
     if (!missing(intercept)) {
@@ -80,7 +106,6 @@ StatHline <- proto(Stat, {
 })
 
 
-# Compute intercept from data
 # Compute intercept for vline and hline from data and parameters
 # 
 # @keyword internal
