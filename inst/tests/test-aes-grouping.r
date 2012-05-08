@@ -1,4 +1,5 @@
 context("Aesthetics (grouping)")
+library(plyr)
 
 df <- data.frame(
   x = 1:4,
@@ -22,6 +23,13 @@ test_that("one group per combination of discrete vars", {
   expect_that(groups(plot), equals(4))
 })
 
+test_that("label is not used as a grouping var", {
+  plot <- ggplot(df, aes(x, x, label = a)) + geom_point()
+  expect_that(group(plot), equals(c(1, 1, 1, 1)))
+
+  plot <- ggplot(df, aes(x, x, colour = a, label = b)) + geom_point()
+  expect_that(group(plot), equals(c(1, 1, 2, 2)))
+})
 
 test_that("group aesthetic overrides defaults", {
   plot <- ggplot(df, aes(x, x, group = x)) + geom_point()

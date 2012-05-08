@@ -4,7 +4,7 @@
 \title{Cartesian coordinates with fixed relationship between x and y scales.}
 \usage{
   coord_fixed(ratio = 1, xlim = NULL, ylim = NULL,
-    wise = FALSE)
+    wise = NULL)
 }
 \arguments{
   \item{ratio}{aspect ratio, expressed as \code{y / x}}
@@ -13,9 +13,7 @@
 
   \item{ylim}{limits for the y axis}
 
-  \item{wise}{If \code{TRUE} will wisely expand the actual
-  range of the plot a little, in the way that setting the
-  limits on the scales does}
+  \item{wise}{deprecated in 0.9.1}
 }
 \description{
   A fixed scale coordinate system forces a specified ratio
@@ -33,9 +31,9 @@
 # ensures that the ranges of axes are equal to the specified ratio by
 # adjusting the plot aspect ratio
 
-qplot(mpg, wt, data = mtcars) + coord_equal(ratio = 1)
-qplot(mpg, wt, data = mtcars) + coord_equal(ratio = 5)
-qplot(mpg, wt, data = mtcars) + coord_equal(ratio = 1/5)
+qplot(mpg, wt, data = mtcars) + coord_fixed(ratio = 1)
+qplot(mpg, wt, data = mtcars) + coord_fixed(ratio = 5)
+qplot(mpg, wt, data = mtcars) + coord_fixed(ratio = 1/5)
 
 # Resize the plot to see that the specified aspect ratio is maintained
 }

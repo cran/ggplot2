@@ -42,15 +42,6 @@ ggplot_gtable <- function(data) {
   plot_table <- facet_render(plot$facet, panel, plot$coordinates,
     plot_theme(plot), geom_grobs)
 
-  # Title  
-  title <- theme_render(theme, "plot.title", plot$options$title)
-  title_height <- grobHeight(title) + 
-    if (is.null(plot$options$title)) unit(0, "lines") else unit(0.5, "lines")
-  
-  plot_table <- gtable_add_rows(plot_table, title_height, pos = 0)
-  plot_table <- gtable_add_grob(plot_table, title, name = "title",
-    t = 1, b = 1, l = 2, r = -1, clip = "off")
-  
   # Axis labels
   labels <- coord_labels(plot$coordinates, list(
     x = xlabel(panel, theme),
@@ -138,6 +129,17 @@ ggplot_gtable <- function(data) {
         t = panel_dim$t, b = panel_dim$b, l = panel_dim$l, r = panel_dim$r,
         clip = "off", name = "guide-box")
   }
+
+  # Title  
+  title <- theme_render(theme, "plot.title", plot$options$title)
+  title_height <- grobHeight(title) + 
+    if (is.null(plot$options$title)) unit(0, "lines") else unit(0.5, "lines")
+
+  pans <- subset(plot_table$layout, grepl("^panel", name))
+  
+  plot_table <- gtable_add_rows(plot_table, title_height, pos = 0)
+  plot_table <- gtable_add_grob(plot_table, title, name = "title",
+    t = 1, b = 1, l = min(pans$l), r = max(pans$r), clip = "off")
   
   # Margins
   plot_table <- gtable_add_rows(plot_table, theme$plot.margin[1], pos = 0)
@@ -162,7 +164,7 @@ ggplot_gtable <- function(data) {
 #' @param vp viewport to draw plot in
 #' @param ... other arguments not used by this method
 #' @keywords hplot
-#' @S3method print ggplot
+#' @export
 #' @method print ggplot
 print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...) {
   set_last_plot(x)
@@ -181,6 +183,11 @@ print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...) {
   
   invisible(data)
 }
+#' @rdname print.ggplot
+#' @method plot ggplot
+#' @export
+plot.ggplot <- print.ggplot
+
 
 #' Generate a ggplot2 plot grob.
 #' 

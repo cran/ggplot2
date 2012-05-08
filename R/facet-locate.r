@@ -1,9 +1,13 @@
 # Take single layer of data and combine it with panel information to split
-# data into different panels.  Adds in extra data for missing facetting
+# data into different panels. Adds in extra data for missing facetting
 # levels and for margins.
 #
 # @params data a data frame
 locate_grid <- function(data, panels, rows = NULL, cols = NULL, margins = FALSE) {
+  if (empty(data)) {
+    return(cbind(data, PANEL = integer(0)))
+  }
+
   rows <- as.quoted(rows)
   cols <- as.quoted(cols)
   vars <- c(names(rows), names(cols))
@@ -12,9 +16,7 @@ locate_grid <- function(data, panels, rows = NULL, cols = NULL, margins = FALSE)
   margin_vars <- list(intersect(names(rows), names(data)),
     intersect(names(cols), names(data)))
   data <- add_margins(data, margin_vars, margins)
-
-  # Workaround for bug in reshape
-  data <- unique(data)
+  
   facet_vals <- quoted_df(data, c(rows, cols))
   values <- compact(llply(data, quoted_df, vars = c(rows, cols)))
 
@@ -50,6 +52,9 @@ locate_grid <- function(data, panels, rows = NULL, cols = NULL, margins = FALSE)
 }
 
 locate_wrap <- function(data, panels, vars) {
+  if (empty(data)) {
+    return(cbind(data, PANEL = integer(0)))
+  }
   vars <- as.quoted(vars)
   
   facet_vals <- quoted_df(data, vars)
