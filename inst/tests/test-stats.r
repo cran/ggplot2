@@ -9,7 +9,7 @@ test_that("plot succeeds even if some computation fails", {
   b1 <- ggplot_build(p1)
   expect_equal(length(b1$data), 1)
   
-  b2 <- ggplot_build(p2)
+  expect_warning(b2 <- ggplot_build(p2))
   expect_equal(length(b2$data), 2)
   
 })
@@ -63,4 +63,49 @@ test_that("stat_sum", {
   expect_equal(dim(ret), c(38, 5))
   expect_equal(sum(ret$n), sum(d$price))
   expect_equal(sum(ret$prop), 1)
+})
+
+# helper function for stat calc tests.
+test_stat_scale <- function(stat, scale) {
+  stat$data <- transform(stat$data, PANEL = 1)
+  dat <- stat$compute_aesthetics(stat$data, ggplot())
+  dat <- add_group(dat)
+  stat$calc_statistic(dat, scale)
+}
+
+context("stat-bin2d")
+
+test_that("stat-bin2d", {
+  d <- diamonds[1:1000,]
+
+  full_scales <- list(x = scale_x_continuous(limits = range(d$carat, na.rm=TRUE)),
+                      y = scale_y_continuous(limits = range(d$depth, na.rm=TRUE)))
+  ret <- test_stat_scale(stat_bin2d(aes(x = carat, y = depth), data=d), full_scales)
+  expect_equal(dim(ret), c(191,12))
+
+  d$carat[1] <- NA
+  d$depth[2] <- NA
+
+  full_scales <- list(x = scale_x_continuous(limits = range(d$carat, na.rm=TRUE)),
+                      y = scale_y_continuous(limits = range(d$depth, na.rm=TRUE)))
+  ret <- test_stat_scale(stat_bin2d(aes(x = carat, y = depth), data=d), full_scales)
+  expect_equal(dim(ret), c(191,12))
+})
+
+
+context("stat-density2d")
+
+test_that("stat-density2d", {
+
+  full_scales <- list(x = scale_x_continuous(limits=c(1,6)),
+                      y = scale_y_continuous(limits=c(5,40)))
+  ret <- test_stat_scale(stat_density2d(aes(x = wt, y = mpg), data = mtcars), full_scales)
+  # Check that the contour data goes beyond data range.
+  # The specific values below are sort of arbitrary; but they go beyond the range
+  # of the data
+  expect_true(min(ret$x) < 1.2)
+  expect_true(max(ret$x) > 5.8)
+  expect_true(min(ret$y) < 8)
+  expect_true(max(ret$y) > 35)
+
 })

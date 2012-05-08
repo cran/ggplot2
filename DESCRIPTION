@@ -1,7 +1,7 @@
 Package: ggplot2
 Type: Package
 Title: An implementation of the Grammar of Graphics
-Version: 0.9.0
+Version: 0.9.1
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
 Description: An implementation of the grammar of graphics in R. It
@@ -13,10 +13,10 @@ Description: An implementation of the grammar of graphics in R. It
         aesthetic attributes. See the ggplot2 website for more
         information, documentation and examples.
 Depends: R (>= 2.14), stats, methods
-Imports: plyr (>= 1.0), digest, grid, reshape2, scales, memoise, proto,
-        MASS
+Imports: plyr (>= 1.0), digest, grid, reshape2, scales (>= 0.2.1),
+        memoise, proto, MASS
 Suggests: quantreg, Hmisc, mapproj, maps, hexbin, gpclib, maptools,
-        multcomp, nlme
+        multcomp, nlme, testthat
 Extends: sp
 License: GPL-2
 URL: http://had.co.nz/ggplot2/
@@ -69,6 +69,7 @@ Collate: 'aaa-.r' 'aaa-constants.r' 'aes-colour-fill-alpha.r'
         'annotation-custom.r' 'aes-group-order.r' 'aes-position.r'
         'translate-qplot-base.r' 'translate-qplot-ggplot.r'
         'translate-qplot-gpl.r' 'translate-qplot-lattice.r'
-Packaged: 2012-02-28 14:25:28 UTC; hadley
+        'annotation-logticks.r'
+Packaged: 2012-05-08 03:49:20 UTC; hadley
 Repository: CRAN
-Date/Publication: 2012-03-01 07:01:39
+Date/Publication: 2012-05-08 04:15:08

@@ -2,12 +2,14 @@
 \alias{coord_trans}
 \title{Transformed cartesian coordinate system.}
 \usage{
-  coord_trans(xtrans = "identity", ytrans = "identity")
+  coord_trans(xtrans = "identity", ytrans = "identity",
+    limx = NULL, limy = NULL)
 }
 \arguments{
-  \item{ytrans}{transformer for x axis}
+  \item{xtrans,ytrans}{transformers for x and y axes}
 
-  \item{xtrans}{transformer for y axis}
+  \item{limx,limy}{limits for x and y axes. (Named so for
+  backward compatability)}
 }
 \description{
   \code{coord_trans} is different to scale transformations
