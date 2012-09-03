@@ -1,5 +1,8 @@
 #' 1d kernel density estimate along y axis, for violin plot.
 #'
+#' @section Aesthetics: 
+#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("stat", "ydensity")}
+#'
 #' @inheritParams stat_density
 #' @inheritParams stat_identity
 #' @param trim If \code{TRUE} (default), trim the tails of the violins
@@ -16,6 +19,8 @@
 #'   \item{scaled}{density estimate, scaled depending on scalearea and scalecount}
 #'   \item{count}{ydensity * number of points}
 #'   \item{counttotal}{number of points} 
+#' @seealso \code{\link{geom_violin}} for examples, and \code{\link{stat_density}}
+#'   for examples with data along the x axis.
 #' @export
 #' @examples
 #' # See geom_violin for examples
@@ -78,7 +83,6 @@ StatYdensity <- proto(Stat, {
     densdf
   }
 
-  icon <- function(.) GeomViolin$icon()
   default_geom <- function(.) GeomViolin
   required_aes <- c("x", "y")
 

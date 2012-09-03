@@ -1,5 +1,8 @@
 #' Calculate components of box and whisker plot.
 #' 
+#' @section Aesthetics: 
+#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("stat", "boxplot")}
+#'
 #' @param coef length of the whiskers as multiple of IQR.  Defaults to 1.5
 #' @param na.rm If \code{FALSE} (the default), removes missing values with
 #'    a warning.  If \code{TRUE} silently removes missing values.
@@ -13,6 +16,7 @@
 #'   \item{notchupper}{upper edge of notch = median + 1.58 * IQR / sqrt(n)}
 #'   \item{upper}{upper hinge, 75\% quantile}
 #'   \item{ymax}{upper whisker = largest observation less than or equal to upper hinge + 1.5 * IQR}
+#' @seealso See \code{\link{geom_boxplot}} for examples.
 #' @export
 #' @examples
 #' # See geom_boxplot for examples
@@ -26,7 +30,6 @@ StatBoxplot <- proto(Stat, {
   objname <- "boxplot"
   
   required_aes <- c("x", "y")
-  icon <- function(.) GeomBoxplot$icon()
   default_geom <- function(.) GeomBoxplot
   
   calculate_groups <- function(., data, na.rm = FALSE, width = NULL, ...) {

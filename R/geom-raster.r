@@ -12,6 +12,9 @@ NULL
 #' If you want to manually set the padding (e.g. want zero-padding),
 #' you can change the behavior by setting \code{hpad} and \code{vpad}.
 #'
+#' @section Aesthetics: 
+#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "raster")}
+#'
 #' @inheritParams geom_point
 #' @param hjust,vjust horizontal and vertical justification of the grob.  Each
 #'   justification value should be a number between 0 and 1.  Defaults to 0.5 
@@ -91,9 +94,9 @@ GeomRaster <- proto(Geom, {
     
     nrow <- max(y_pos) + 1
     ncol <- max(x_pos) + 1
-    
+
     raster <- matrix(NA_character_, nrow = nrow, ncol = ncol)
-    raster[cbind(nrow - y_pos, x_pos + 1)] <- data$fill
+    raster[cbind(nrow - y_pos, x_pos + 1)] <- alpha(data$fill, data$alpha)
     
     # Figure out dimensions of raster on plot
     x_rng <- c(min(data$xmin, na.rm = TRUE), max(data$xmax, na.rm = TRUE))
@@ -102,11 +105,6 @@ GeomRaster <- proto(Geom, {
     rasterGrob(raster, x = mean(x_rng), y = mean(y_rng), 
       width = diff(x_rng), height = diff(y_rng), 
       default.units = "native", interpolate = interpolate)
-  }
-
-
-  icon <- function(.) {
-    rectGrob(c(0.25, 0.25, 0.75, 0.75), c(0.25, 0.75, 0.75, 0.25), width=0.5, height=c(0.67, 0.5, 0.67, 0.5), gp=gpar(col="grey20", fill=c("#804070", "#668040")))
   }
 
   default_stat <- function(.) StatIdentity

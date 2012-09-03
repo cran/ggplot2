@@ -1,3 +1,130 @@
+ggplot2 0.9.2
+----------------------------------------------------------------
+
+THEME SYSTEM
+
+* The theme system has been completely rewritten. (Winston Chang)
+
+* The functions `theme_text`, `theme_line`, and so on have been renamed to
+  `element_text`, `element_line`, and so on.
+
+* The `opts()` function has been renamed to `theme()`.
+
+* To set the plot title, use `labs(title = "...")` or `ggtitle("...")
+  instead of `opts(title = "...")`.
+
+* Elements are now just lists of properties, instead of functions that
+  return grobs.
+
+* Theme elements now can inherit properties. For example, `axis.title.x`
+  inherits properties from `axis.title`, which in turn inherits from
+  `text`. The inheritance tree is stored in ggplot2::.element_tree.
+
+* Theme objects can now be added to each other with `+`, without a ggplot
+  object. There is also a new `%replace%` operator for adding theme
+  objects together.
+
+* Vertical and horizontal grid lines can now be controlled independently,
+  with `axis.grid.major.x`, `axis.grid.major.y` (and the same for minor);
+  `axis.ticks.x` and `axis.ticks.y`; and `axis.line.x` and `axis.line.y`.
+
+* The `size` property of theme elements can be defined relative to the
+  parent objects, using the `rel()` function.
+
+MINOR FEATURES
+
+* ggplot2 now uses the external gtable package instead of internal gtable
+  functions.
+
+* The condition that set parameters (e.g. `colour = "red"`) could only be of
+  length one has been relaxed - they may now be of length one, or exactly the
+  same length as the data. Recycling is not done because it makes it harder to
+  spot problems. This makes `annotate` considerably more flexible. (Fixes
+  #489)
+
+* `stat_contour` is now somewhat faster
+
+* new stat class `stat_ecdf` that shows empirical cumulative distribution
+  function. (Kohske Takahashi)
+
+* Dependency on `gpclib` removed, and `fortify.SpatialPolygonsDataFrame` will
+  now use `rgeos` if available - this is particularly useful if you're not
+  able to use the non-free `gpclib`.
+
+* `ggsave` now supports emf output files.
+
+* all "template" plots (`plotmatrix`, `ggorder` etc) have been deprecated and
+  will be removed in a future version. These plots are poorly tested and
+  poorly supported and really belong in a separate package.
+
+* The default guide for continuous color/fill scale is now colourbar.
+  (Kohske Takahashi. Fixes #555)
+
+* The arrowhead of geom-path and geom-segment with `arrow = TRUE` is
+  now filled with the same colour as the path.
+
+* The algorithm for calculating breaks locations has been changed from
+  `pretty_breaks()` to `extended_breaks()` from the 'labeling' package
+  by Justin Talbot. (Winston Chang. Fixes #580)
+
+* `scale_type`, the function used to pick which type of scale should be
+   used for a given type of input variable is now an S3 generic. That
+   means that if you want to add a new default type of scale you can
+   provide a method - it should return a string giving the name of the
+   scale to use (e.g. "continuous", "discrete", "date")
+
+* When there are multiple guides (legends), the order that they are
+  displayed can now be controlled manually. (Kohske Takahashi. Fixes
+  #470)
+
+* When a scale for a given aesthetic is added to a plot more than once,
+  display a message indicating that the first scale will be replaced.
+  (Winston Chang. Fixes #518)
+
+DOCUMENTATION
+
+* All geoms and stats now document their aesthetics. (Thanks to joranE.
+  Fixes #447)
+
+BUG FIXES
+
+* `scale_x_continuous` now respects `na.value` (Fixes #522)
+
+* `geom_map` now correctly uses set aesthetics (e.g. `colour = "green"`)
+
+* Setting breaks outside the limits of the x or y axis no longer causes
+  errors. (Kohske Takahashi. Fixes #552)
+
+* `facet_locate` no longer evaluates unneeded expressions. (Winston
+  Chang. Fixes #565)
+
+* `annotation_map` now gets group id from munched data. (Winston Chang.
+  Fixes #568)
+
+* `geom_raster` now supports alpha. (Kohske Takahashi. Fixes #596)
+
+* Both axis lines are now drawn above the plotting area panel.
+  (Winston Chang. Fixes #585)
+
+* The jitter resolution is now correctly calculated when the data
+  does _not_ include zero. (Thanks to Karl Ove Hufthammer. Fixes #572)
+
+* Legend icons for `geom_boxplot` now display linetype. (Kohske
+  Takahashi. Fixes #608)
+
+* Facets now appear in the correct order when layers with different
+  factor levels are added. (Winston Chang. Fixes #543)
+
+* Distances in polar coordinates are calculated along spiral arcs,
+  instead of straight-line distance. (Winston Chang. Fixes #471)
+
+* `fortify.SpatialPolygonsDataFrame` now uses the correct ordering.
+  (Charlotte Wickham. Fixes #434)
+
+* `stat_vline` and `stat_hline` no longer throw errors when
+  `xintercept` and `yintercept` are passed to them. (Winston Chang.
+  Fixes #624)
+
 ggplot2 0.9.1
 ----------------------------------------------------------------
 

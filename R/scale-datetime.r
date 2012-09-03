@@ -50,7 +50,7 @@
 #'   labels = date_format("%d/%m"))
 #' last_plot() + scale_x_datetime(breaks = date_breaks("1 day"),
 #'   minor_breaks = date_breaks("2 hour"))
-scale_x_datetime <- function(..., expand = waiver(), breaks = waiver(),
+scale_x_datetime <- function(..., expand = waiver(), breaks = pretty_breaks(),
   minor_breaks = waiver()) {
   
   scale_datetime(c("x", "xmin", "xmax", "xend"), expand = expand,
@@ -64,19 +64,16 @@ scale_map.datetime <- function(scale, x, limits = scale_limits(scale)) {
 
 #' @rdname scale_datetime
 #' @export 
-scale_y_datetime <- function(..., expand = waiver(), breaks = waiver(),
+scale_y_datetime <- function(..., expand = waiver(), breaks = pretty_breaks(),
   minor_breaks = waiver()) {
   
   scale_datetime(c("y", "ymin", "ymax", "yend"), expand = expand,
     breaks = breaks, minor_breaks = minor_breaks, ...)
 }
 
-icon.scale_datetime <- function() {
-  textGrob("14/10/1979\n10:14am", gp=gpar(cex=0.9))
-}
 
 # base class for scale_{xy}_datetime
-scale_datetime <- function(aesthetics, expand = waiver(), breaks = waiver(),
+scale_datetime <- function(aesthetics, expand = waiver(), breaks = pretty_breaks(),
   minor_breaks = waiver(), ...) {
 
   if (is.character(breaks)) {

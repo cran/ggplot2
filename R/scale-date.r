@@ -20,7 +20,7 @@
 #'   price = runif(50)
 #' )
 #' df <- df[order(df$date), ]
-#' dt <- qplot(date, price, data=df, geom="line") + opts(aspect.ratio = 1/4)
+#' dt <- qplot(date, price, data=df, geom="line") + theme(aspect.ratio = 1/4)
 #' 
 #' # We can control the format of the labels, and the frequency of 
 #' # the major and minor tickmarks.  See ?format.Date and ?seq.Date 
@@ -71,7 +71,7 @@
 #' qplot(date, value, data = em, geom = "line", group = variable)
 #' qplot(date, value, data = em, geom = "line", group = variable) + 
 #'   facet_grid(variable ~ ., scale = "free_y")
-scale_x_date <- function(..., expand = waiver(), breaks = waiver(),
+scale_x_date <- function(..., expand = waiver(), breaks = pretty_breaks(),
   minor_breaks = waiver()) {
   
   scale_date(c("x", "xmin", "xmax", "xend"), expand = expand, breaks = breaks,
@@ -80,7 +80,7 @@ scale_x_date <- function(..., expand = waiver(), breaks = waiver(),
 
 #' @rdname scale_date
 #' @export
-scale_y_date <- function(..., expand = waiver(), breaks = waiver(),
+scale_y_date <- function(..., expand = waiver(), breaks = pretty_breaks(),
   minor_breaks = waiver()) {
 
   scale_date(c("y", "ymin", "ymax", "yend"), expand = expand, breaks = breaks,
@@ -88,7 +88,7 @@ scale_y_date <- function(..., expand = waiver(), breaks = waiver(),
 }
 
 # base class for scale_{xy}_date
-scale_date <- function(aesthetics, expand = waiver(), breaks = waiver(),
+scale_date <- function(aesthetics, expand = waiver(), breaks = pretty_breaks(),
   minor_breaks = waiver(), ...) {
 
   if (is.character(breaks)) {
@@ -109,8 +109,4 @@ scale_date <- function(aesthetics, expand = waiver(), breaks = waiver(),
 #' @S3method scale_map date
 scale_map.date <- function(scale, x, limits = scale_limits(scale)) {
   x
-}
-
-icon.scale_date <- function() {
-  textGrob("14/10/1979", gp=gpar(cex=1))
 }

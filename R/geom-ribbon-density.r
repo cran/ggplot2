@@ -2,7 +2,11 @@
 #'
 #' A smooth density estimate calculated by \code{\link{stat_density}}.
 #'
-#' @seealso \code{\link{geom_histogram}} for the histogram
+#' @section Aesthetics: 
+#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "density")}
+#'
+#' @seealso \code{\link{geom_histogram}} for the histogram and
+#'   \code{\link{stat_density}} for examples.
 #' @inheritParams geom_point
 #' @export
 #' @examples
@@ -16,12 +20,6 @@ na.rm = FALSE, ...) {
 GeomDensity <- proto(GeomArea, {
   objname <- "density"
 
-  objname <- "density"
-  icon <- function(.) {
-    x <- seq(0, 1, length=80)
-    y <- dnorm(x, mean=0.5, sd=0.15)
-    linesGrob(x, 0.05 + y / max(y) * 0.9, default="npc")
-  }
   default_stat <- function(.) StatDensity
   default_pos <- function(.) PositionIdentity
   
