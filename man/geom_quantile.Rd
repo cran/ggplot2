@@ -42,7 +42,14 @@
   This can be used as a continuous analogue of a
   geom_boxplot.
 }
+\section{Aesthetics}{
+  \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom",
+  "quantile")}
+}
 \examples{
 # See stat_quantile for examples
+}
+\seealso{
+  See \code{\link{stat_quantile}} for examples.
 }
 

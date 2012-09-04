@@ -2,6 +2,7 @@
 #'
 #' @keywords internal
 #' @inheritParams stat_identity
+#' @seealso \code{\link{geom_abline}} for code examples.
 #' @export
 #' @examples
 #' # see geom_abline
@@ -28,7 +29,6 @@ StatAbline <- proto(Stat, {
     unique(data)
   }
   
-  icon <- function(.) GeomAbline$icon()
   default_geom <- function(.) GeomAbline
 })
 
@@ -36,13 +36,14 @@ StatAbline <- proto(Stat, {
 #'
 #' @keywords internal
 #' @inheritParams stat_identity
+#' @seealso \code{\link{geom_vline}} for code examples.
 #' @export
 #' @examples
 #' # see geom_vline
 stat_vline <- function (mapping = NULL, data = NULL, geom = "vline", position = "identity", 
-intercept, ...) {
+xintercept, ...) {
   StatVline$new(mapping = mapping, data = data, geom = geom, position = position, 
-  intercept = intercept, ...)
+  xintercept = xintercept, ...)
 }
 
 StatVline <- proto(Stat, {
@@ -60,8 +61,6 @@ StatVline <- proto(Stat, {
     }))
   }
   
-  icon <- function(.) GeomVline$icon()
-  
   required_aes <- c()
   default_geom <- function(.) GeomVline
 })
@@ -70,13 +69,14 @@ StatVline <- proto(Stat, {
 #'
 #' @keywords internal
 #' @inheritParams stat_identity
+#' @seealso \code{\link{geom_hline}} for code examples.
 #' @export
 #' @examples
 #' # see geom_hline
 stat_hline <- function (mapping = NULL, data = NULL, geom = "hline", position = "identity", 
-intercept, ...) { 
+yintercept, ...) {
   StatHline$new(mapping = mapping, data = data, geom = geom, position = position, 
-  intercept = intercept, ...)
+  yintercept = yintercept, ...)
 }
   
 StatHline <- proto(Stat, {
@@ -95,7 +95,6 @@ StatHline <- proto(Stat, {
   
   objname <- "hline" 
   desc <- "Add a horizontal line"
-  icon <- function(.) GeomHline$icon()
   
   required_aes <- c()
   default_geom <- function(.) GeomHline

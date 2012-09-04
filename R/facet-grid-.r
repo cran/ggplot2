@@ -118,7 +118,7 @@
 #'   model <- reorder(model, cty)
 #'   manufacturer <- reorder(manufacturer, cty)
 #' })
-#' last_plot() %+% mpg + opts(strip.text.y = theme_text())
+#' last_plot() %+% mpg + theme(strip.text.y = element_text())
 #' 
 #' # Use as.table to to control direction of horizontal facets, TRUE by default
 #' h <- ggplot(mtcars, aes(x = mpg, y = wt)) + geom_point()
@@ -231,14 +231,15 @@ facet_render.grid <- function(facet, panel, coord, theme, geom_grobs) {
   top <- gtable_add_cols(top, strips$r$widths)
   top <- gtable_add_cols(top, axes$l$widths, pos = 0)
   
-  center <- cbind(cbind(axes$l, panels), strips$r)
+  center <- cbind(axes$l, panels, strips$r, z = c(2, 1, 3))
   bottom <- axes$b
   bottom <- gtable_add_cols(bottom, strips$r$widths)
   bottom <- gtable_add_cols(bottom, axes$l$widths, pos = 0)
 
-  complete <- rbind(top, rbind(center, bottom))
+  complete <- rbind(top, center, bottom, z = c(1, 2, 3))
   complete$respect <- panels$respect
   complete$name <- "layout"
+  bottom <- axes$b
   
   complete
 }
@@ -263,10 +264,10 @@ build_strip <- function(panel, label_df, labeller, theme, side = "right") {
   if (empty(label_df)) {
     if (horizontal) {
       widths <- unit(rep(0, max(panel$layout$COL)), "null")
-      return(layout_empty_row(widths))
+      return(gtable_row_spacer(widths))
     } else {
       heights <- unit(rep(0, max(panel$layout$ROW)), "null")
-      return(layout_empty_col(heights))
+      return(gtable_col_spacer(heights))
     }
   }
   
@@ -295,7 +296,7 @@ build_strip <- function(panel, label_df, labeller, theme, side = "right") {
     widths <- unit(apply(grobs, 2, col_width), "cm")
     heights <- unit(rep(1, nrow(grobs)), "null")
   }
-  strips <- layout_matrix(name, grobs, heights = heights, widths = widths)
+  strips <- gtable_matrix(name, grobs, heights = heights, widths = widths)
   
   if (horizontal) {
     gtable_add_col_space(strips, theme$panel.margin)
@@ -312,14 +313,14 @@ facet_axes.grid <- function(facet, panel, coord, theme) {
   cols <- which(panel$layout$ROW == 1)
   grobs <- lapply(panel$ranges[cols], coord_render_axis_h, 
     coord = coord, theme = theme)
-  axes$b <- gtable_add_col_space(layout_row("axis-b", grobs),
+  axes$b <- gtable_add_col_space(gtable_row("axis-b", grobs),
     theme$panel.margin)
 
   # Vertical axes
   rows <- which(panel$layout$COL == 1)
   grobs <- lapply(panel$ranges[rows], coord_render_axis_v, 
     coord = coord, theme = theme)
-  axes$l <- gtable_add_row_space(layout_col("axis-l", grobs),
+  axes$l <- gtable_add_row_space(gtable_col("axis-l", grobs),
     theme$panel.margin)
 
   axes
@@ -379,21 +380,13 @@ facet_panels.grid <- function(facet, panel, coord, theme, geom_grobs) {
     panel_heights <- rep(unit(1 * aspect_ratio, "null"), nrow)
   }
   
-  panels <- layout_matrix("panel", panel_matrix,
+  panels <- gtable_matrix("panel", panel_matrix,
     panel_widths, panel_heights, respect = respect)
   panels <- gtable_add_col_space(panels, theme$panel.margin)
   panels <- gtable_add_row_space(panels, theme$panel.margin)
     
   panels
 }
-
-icon.grid <- function(.) {
-  gTree(children = gList(
-    rectGrob(0, 1, width=0.95, height=0.05, hjust=0, vjust=1, gp=gpar(fill="grey60", col=NA)),
-    rectGrob(0.95, 0.95, width=0.05, height=0.95, hjust=0, vjust=1, gp=gpar(fill="grey60", col=NA)),
-    segmentsGrob(c(0, 0.475), c(0.475, 0), c(1, 0.475), c(0.475, 1))
-  ))
-}  
 
 #' @S3method facet_vars grid
 facet_vars.grid <- function(facet) {

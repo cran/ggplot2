@@ -1,5 +1,8 @@
 #' Sum unique values.  Useful for overplotting on scatterplots.
 #' 
+#' @section Aesthetics: 
+#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("stat", "sum")}
+#'
 #' @seealso \code{\link{ggfluctuation}} for a fluctuation diagram, 
 #' @inheritParams stat_identity
 #' @return a data.frame with additional columns
@@ -12,12 +15,12 @@
 #' # By default, all categorical variables in the plot form grouping
 #' # variables, and the default behavior in stat_sum is to show the
 #' # proportion. Specifying stat_sum with no group identifier leads to
-#' # a plot which is not meaningful:	
+#' # a plot which is not meaningful:
 #' d + stat_sum()
-#' # To correct this problem and achieve a more desirable plot, we need	
-#' # to specify which group the proportion is to be calculated over.	
-#' # There are several ways to do this:	
-#'	
+#' # To correct this problem and achieve a more desirable plot, we need
+#' # to specify which group the proportion is to be calculated over.
+#' # There are several ways to do this:
+#'
 #' # by overall proportion
 #' d + stat_sum(aes(group = 1))
 #' d + stat_sum(aes(group = 1)) + scale_size(range = c(3, 10))
@@ -52,7 +55,6 @@ StatSum <- proto(Stat, {
   default_aes <- function(.) aes(size = ..prop..)
   required_aes <- c("x", "y")
   default_geom <- function(.) GeomPoint
-  icon <- function(.) textGrob(expression(Sigma), gp=gpar(cex=4))
   
   calculate_groups <- function(., data, scales, ...) {
 

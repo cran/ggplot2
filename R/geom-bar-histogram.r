@@ -8,6 +8,8 @@
 #' but the idea is to get you experimenting with different binwidths. You
 #' may need to look at a few to uncover the full story behind your data.
 #'
+#' @section Aesthetics: 
+#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "histogram")}
 #'
 #' @export 
 #' @inheritParams geom_point
@@ -64,9 +66,10 @@
 #' # bar is anchored at zero, and so when transformed becomes negative
 #' # infinity.  This is not a problem when transforming the scales, because
 #' # no observations have 0 ratings.
-#' should_stop(m + geom_histogram() + coord_trans(x = "log10"))
-#' m + geom_histogram() + coord_trans(x = "sqrt")
-#' m + geom_histogram(binwidth=1000) + coord_trans(x = "sqrt")
+#' m + geom_histogram(origin = 0) + coord_trans(x = "log10")
+#' # Use origin = 0, to make sure we don't take sqrt of negative values
+#' m + geom_histogram(origin = 0) + coord_trans(x = "sqrt")
+#' m + geom_histogram(origin = 0, binwidth = 1000) + coord_trans(x = "sqrt")
 #'   
 #' # You can also transform the y axis.  Remember that the base of the bars
 #' # has value 0, so log transformations are not appropriate 
@@ -116,10 +119,4 @@ geom_histogram <- function (mapping = NULL, data = NULL, stat = "bin", position 
 
 GeomHistogram <- proto(GeomBar, {
   objname <- "histogram"
-
-  icon <- function(.) {
-    y <- c(0.2, 0.3, 0.5, 0.6,0.2, 0.8, 0.5, 0.3)
-    rectGrob(seq(0.1, 0.9, by=0.1), y, height=y, width=0.1, vjust=1, gp=gpar(fill="grey20", col=NA))
-  }
-
 })

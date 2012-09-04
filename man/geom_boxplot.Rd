@@ -44,7 +44,7 @@
 }
 \description{
   The upper and lower "hinges" correspond to the first and
-  third quartiles (the 25th and 7th percentiles). This
+  third quartiles (the 25th and 75th percentiles). This
   differs slightly from the method used by the
   \code{boxplot} function, and may be apparent with small
   samples. See \code{\link{boxplot.stats}} for for more
@@ -64,6 +64,10 @@
   IQR / sqrt(n)}. This gives a roughly 95% confidence
   interval for comparing medians. See McGill et al. (1978)
   for more details.
+}
+\section{Aesthetics}{
+  \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom",
+  "boxplot")}
 }
 \examples{
 \donttest{
