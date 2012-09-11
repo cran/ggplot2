@@ -1,7 +1,7 @@
 cf025b40a301729a340139f428c5bc2d *CHANGELOG
-f7fb14bead52004948285bfa9febe101 *DESCRIPTION
+8ff5b4c7af5f9eebed78baf4d35ebe73 *DESCRIPTION
 8007e6b6b085fdbe7d38cd2abd73f28d *NAMESPACE
-dd4be708cb921aa482f63d134ea017af *NEWS
+500a23e62cc3776445022e7fe5a41b60 *NEWS
 cdc165b0b74d5b1cfd879769181ec510 *R/aaa-.r
 dc3d3aab5c3802286ba7ad449eb6645d *R/aaa-constants.r
 ae3f1d04a847f7593b3bf8836667104f *R/aes-colour-fill-alpha.r
@@ -121,7 +121,7 @@ d43de9cd781dc3ff486216aff4c6bc86 *R/scale-linetype.r
 73941853b55fbe85ee43d514616cf278 *R/scale-manual.r
 621f0c32a080738b66f290c0a7ecdf4f *R/scale-shape.r
 67434e36f32961b84943e7d26d611df3 *R/scale-size.r
-0e012fc1a34a5eff22cf80ac3c4ec51c *R/scales-.r
+170f7866fef3f79ebac0e7e7b1fff431 *R/scales-.r
 913469f5bdd833a806b3f05bd06e3269 *R/stat-.r
 7b261765d721f0ee62e755b3b415a90a *R/stat-bin.r
 e04072f2f78615a5b2b8b9fed837069a *R/stat-bin2d.r
@@ -167,7 +167,7 @@ afc6431171cfd73e050e71df95bfa0dd *R/utilities-matrix.r
 610971f2b52b5165ac7e29106eff0b0a *R/zxx.r
 1eaf05da9731eb13f290fba1abd4b073 *R/zzz.r
 b4fab9a4162bad65843f1af6f2568dae *README.md
-3fef6b64346f05211bd64af06a99c3fd *build/partial.rdb
+b7a8cdd89ba25bbeb1776e69cf60e9e2 *build/partial.rdb
 9cb6a35588a5dd6989b03aece1b60e03 *data/datalist
 4096c2eeb1224845fc5f0e25e9974c25 *data/diamonds.rda
 8985076e2ad3bed814a263e66cda6536 *data/economics.rda
@@ -201,7 +201,7 @@ a2c0ce251e99c0b018439d607b0c7451 *inst/tests/test-facet-layout.r
 df4857f8b4cb04d4846337dd0021b5e1 *inst/tests/test-qplot.r
 a5c8acb60c96d7e0f7210a8c15b452b3 *inst/tests/test-scale-manual.r
 369b0bf3b04cbc0d462ec7bd40f7b6ea *inst/tests/test-scales-breaks-labels.r
-bbdb63af3c669c8b731b10e024645412 *inst/tests/test-scales.r
+e2979e6a2d8486a5c2584a7958684474 *inst/tests/test-scales.r
 c803c8198eaf9b62a963d0603af4236e *inst/tests/test-stats.r
 640dc2d0eb7ef9a9c47129a70f1ae465 *inst/tests/test-theme.r
 16aeac0d13e4203be6c6677c02cb6ac9 *man/absoluteGrob.Rd
@@ -403,3 +403,18 @@ e868504746796454f51864acba92cc63 *man/xylim.Rd
 923198a65466326dfb62fec20e793e3c *staticdocs/head.html
 1636c128fb7de2919590069e9d19d17a *staticdocs/index.r
 18ce871dfe61dcdd288c02929f1b55d7 *tests/test-all.R
+41e12e5392d9badba7f98abbc92920ef *visual_test/alpha.r
+3dc3861b3e506ed6bf66b9812149cf79 *visual_test/aspect-ratio.r
+f3234acff61da85ad5a9e3bc7969ac2d *visual_test/coord-cartesian-with-limits.r
+7ca8aba74706b668f0213a4bc0b64b92 *visual_test/coord-polar.r
+0917cf8da454808e5a269e29cc37f2ac *visual_test/dotplot.r
+8f54c197d1e66c47ab971d7094b38431 *visual_test/geom-path.r
+c75ad6dbbbf486779377af59b81ecad9 *visual_test/geom-raster.r
+f618222428f044d07f485d45fb55d258 *visual_test/guide-axis.r
+ee3acfab0d7fbef7c4847ead4af30846 *visual_test/guide-position.r
+0b3556f50e3913ff2d4041d3beaea4e5 *visual_test/lines.r
+17de990bec91e563bca2acb53bee661a *visual_test/minor-breaks.r
+f3ca31ef24c25f5cfdc0fe4b9c6d6b30 *visual_test/scale-breaks.r
+66d286ca7530134b7ac17cf5efb518fc *visual_test/scale-date.r
+c4630360a7e754123efe7870e56d7305 *visual_test/themes.r
+fda5e662d6ae8f5b44f040b0a8abd62c *visual_test/violin.r
