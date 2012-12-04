@@ -124,9 +124,11 @@ print.theme <- function(x, ...) str(x)
 #'   legend.box       \tab arrangement of multiple legends
 #'                    ("horizontal" or "vertical") \cr
 #'
-#'   panel.background \tab background of plotting area
+#'   panel.background \tab background of plotting area, drawn underneath plot
 #'                    (\code{element_rect}; inherits from \code{rect}) \cr
-#'   panel.border     \tab border around plotting area
+#'   panel.border     \tab border around plotting area, drawn on top of plot
+#'                    so that it covers tick marks and grid lines. This should
+#'                    be used with \code{fill=NA}
 #'                    (\code{element_rect}; inherits from \code{rect}) \cr
 #'   panel.margin     \tab margin around facet panels
 #'                    (\code{unit}) \cr
@@ -150,7 +152,8 @@ print.theme <- function(x, ...) str(x)
 #'   plot.title       \tab plot title (text appearance)
 #'                    (\code{element_text}; inherits from \code{title}) \cr
 #'   plot.margin      \tab margin around entire plot
-#'                    (\code{unit}) \cr
+#'                    (\code{unit} with the sizes of the top, right, bottom, and
+#'                     left margins) \cr
 #'
 #'   strip.background \tab background of facet labels
 #'                    (\code{element_rect}; inherits from \code{rect}) \cr
@@ -317,15 +320,16 @@ theme <- function(..., complete = FALSE) {
 #'
 #' @export
 opts <- function(...) {
-  .Deprecated(new = "theme")
+  gg_dep("0.9.1", "'opts' is deprecated. Use 'theme' instead.")
 
   # Add check for deprecated elements
   extra <- NULL
   elements <- list(...)
   if (!is.null(elements[["title"]])) {
     # This is kind of a hack, but fortunately it will be removed in future versions
-    warning('Setting the plot title with opts(title="...") is deprecated.',
-      ' Use labs(title="...") or ggtitle("...") instead.')
+    gg_dep("0.9.1", paste(sep = "\n",
+      'Setting the plot title with opts(title="...") is deprecated.',
+      ' Use labs(title="...") or ggtitle("...") instead.'))
 
     title <- elements$title
     elements$title <- NULL
@@ -508,7 +512,7 @@ update_theme <- function(oldtheme, newtheme) {
 ##' update_element("axis.text", colour = 20)
 ##' }
 update_element <- function(name, ...) {
-  .Deprecated(new = "+.gg")
+  gg_dep("0.9.1", "update_element is deprecated. Use '+.gg' instead.")
  if (is.character(name)) {
    ele <- theme_get()[[name]]
    if (is.null(ele)) {

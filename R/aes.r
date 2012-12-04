@@ -64,8 +64,8 @@ rename_aes <- function(x) {
   # Convert prefixes to full names
   full <- match(names(x), .all_aesthetics)
   names(x)[!is.na(full)] <- .all_aesthetics[full[!is.na(full)]]
-  
-  rename(x, .base_to_ggplot)
+
+  rename(x, .base_to_ggplot, warn_missing = FALSE)
 }
 
 # Look up the scale that should be used for a given aesthetic
