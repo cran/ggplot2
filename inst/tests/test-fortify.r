@@ -1,8 +1,7 @@
 context("Fortify")
+library(sp)
 
 test_that("Spatial polygons have correct ordering", {
-  library(sp)
-
   make_square <- function(x = 0, y = 0, height = 1, width = 1){
     delx <- width/2
     dely <- height/2
