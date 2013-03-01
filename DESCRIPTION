@@ -1,7 +1,7 @@
 Package: ggplot2
 Type: Package
 Title: An implementation of the Grammar of Graphics
-Version: 0.9.3
+Version: 0.9.3.1
 Author: Hadley Wickham <h.wickham@gmail.com>, Winston Chang
         <winston@stdout.org>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
@@ -71,6 +71,7 @@ Collate: 'aaa-.r' 'aaa-constants.r' 'aes-colour-fill-alpha.r'
         'translate-qplot-ggplot.r' 'translate-qplot-gpl.r'
         'translate-qplot-lattice.r' 'annotation-logticks.r'
         'utilities-help.r'
-Packaged: 2012-12-04 21:08:18 UTC; hadley
+Packaged: 2013-03-01 17:44:46 UTC; ubuntu
+NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2012-12-05 13:11:26
+Date/Publication: 2013-03-02 15:56:56
