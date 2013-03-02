@@ -1,3 +1,23 @@
+ggplot2 0.9.3.1
+----------------------------------------------------------------
+
+BUG FIXES
+
+* The theme element `legend.box.just` now can be set. It was not properly
+  recognized before.
+
+* `stat_density2d` previously resulted in errors when geom="polygon". This
+  is fixed. (Fixes #741 and #749)
+
+* `annotation_logticks` previously drew one set of logticks for each group,
+  and inherited aesthetic mappings like colour. It no longer does this. (Fixes
+  #767)
+
+* Plots with geom_crossbar not display correct symbol in legend. (Fixes #768)
+
+* Grouping is no longer set automatically by `stat_summary()`, allowing for
+  summary paths. This reverts a change made for 0.9.3. (Fixes #732 and #739)
+
 ggplot2 0.9.3
 ----------------------------------------------------------------
 
