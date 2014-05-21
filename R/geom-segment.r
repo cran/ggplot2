@@ -1,6 +1,6 @@
 #' Single line segments.
 #'
-#' @section Aesthetics: 
+#' @section Aesthetics:
 #' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "segment")}
 #'
 #' @inheritParams geom_point
@@ -12,10 +12,11 @@
 #' @examples
 #' library(grid) # needed for arrow function
 #' p <- ggplot(seals, aes(x = long, y = lat))
-#' (p <- p + geom_segment(aes(xend = long + delta_long, yend = lat + delta_lat), arrow = arrow(length = unit(0.1,"cm"))))
-#' 
+#' (p <- p + geom_segment(aes(xend = long + delta_long, yend = lat + delta_lat),
+#'   arrow = arrow(length = unit(0.1,"cm"))))
+#'
 #' if (require("maps")) {
-#' 
+#'
 #' xlim <- range(seals$long)
 #' ylim <- range(seals$lat)
 #' usamap <- data.frame(map("world", xlim = xlim, ylim = ylim, plot =
@@ -26,13 +27,13 @@
 #'
 #' p + geom_path(data = usamap) + scale_x_continuous(limits = xlim)
 #' }
-#' 
-#' # You can also use geom_segment to recreate plot(type = "h") : 
+#'
+#' # You can also use geom_segment to recreate plot(type = "h") :
 #' counts <- as.data.frame(table(x = rpois(100,5)))
 #' counts$x <- as.numeric(as.character(counts$x))
 #' with(counts, plot(x, Freq, type = "h", lwd = 10))
-#' 
-#' qplot(x, Freq, data = counts, geom = "segment", 
+#'
+#' qplot(x, Freq, data = counts, geom = "segment",
 #'   yend = 0, xend = x, size = I(10))
 #'
 #' # Adding line segments
@@ -40,7 +41,8 @@
 #' b <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
 #' b + geom_segment(aes(x = 2, y = 15, xend = 2, yend = 25))
 #' b + geom_segment(aes(x = 2, y = 15, xend = 3, yend = 15))
-#' b + geom_segment(aes(x = 5, y = 30, xend = 3.5, yend = 25), arrow = arrow(length = unit(0.5, "cm")))
+#' b + geom_segment(aes(x = 5, y = 30, xend = 3.5, yend = 25),
+#'    arrow = arrow(length = unit(0.5, "cm")))
 geom_segment <- function (mapping = NULL, data = NULL, stat = "identity",
   position = "identity", arrow = NULL, lineend = "butt", na.rm = FALSE, ...) {
 
@@ -60,7 +62,7 @@ GeomSegment <- proto(Geom, {
     if (empty(data)) return(zeroGrob())
 
     if (is.linear(coordinates)) {
-      return(with(coord_transform(coordinates, data, scales), 
+      return(with(coord_transform(coordinates, data, scales),
         segmentsGrob(x, y, xend, yend, default.units="native",
         gp = gpar(col=alpha(colour, alpha), fill = alpha(colour, alpha),
           lwd=size * .pt, lty=linetype, lineend = lineend),
@@ -72,14 +74,14 @@ GeomSegment <- proto(Geom, {
     starts <- subset(data, select = c(-xend, -yend))
     ends <- rename(subset(data, select = c(-x, -y)), c("xend" = "x", "yend" = "y"),
       warn_missing = FALSE)
-    
+
     pieces <- rbind(starts, ends)
     pieces <- pieces[order(pieces$group),]
-    
+
     GeomPath$draw_groups(pieces, scales, coordinates, arrow = arrow, ...)
   }
 
-  
+
   default_stat <- function(.) StatIdentity
   required_aes <- c("x", "y", "xend", "yend")
   default_aes <- function(.) aes(colour="black", size=0.5, linetype=1, alpha = NA)
