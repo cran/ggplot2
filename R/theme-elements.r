@@ -104,35 +104,35 @@ is.rel <- function(x) inherits(x, "rel")
 #'
 #' @export
 theme_blank <- function(...) {
-  gg_dep("0.9.1", "Use 'element_blank' instead.")
+  gg_dep("0.9.1", "'theme_blank' is deprecated. Use 'element_blank' instead.")
   element_blank(...)
 }
 
 #' @rdname theme_blank
 #' @export
 theme_rect <- function(...) {
-  gg_dep("0.9.1", "Use 'element_rect' instead.")
+  gg_dep("0.9.1", "theme_rect is deprecated. Use 'element_rect' instead.")
   element_rect(...)
 }
 
 #' @rdname theme_blank
 #' @export
 theme_line <- function(...) {
-  gg_dep("0.9.1", "Use 'element_line' instead.")
+  gg_dep("0.9.1", "theme_line is deprecated. Use 'element_line' instead.")
   element_line(...)
 }
 
 #' @rdname theme_blank
 #' @export
 theme_segment <- function(...) {
-  gg_dep("0.9.1", "Use 'element_line' instead.")
+  gg_dep("0.9.1", "theme_segment is deprecated. Use 'element_line' instead.")
   element_line(...)
 }
 
 #' @rdname theme_blank
 #' @export
 theme_text <- function(...) {
-  gg_dep("0.9.1", "Use 'element_text' instead.")
+  gg_dep("0.9.1", "theme_text is deprecated. Use 'element_text' instead.")
   element_text(...)
 }
 

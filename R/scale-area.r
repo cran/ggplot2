@@ -11,7 +11,7 @@
 #' @export
 scale_area <- function(..., range = c(1, 6)) {
   gg_dep("0.9.2", paste(sep = "\n",
-    "Use scale_size_area instead.",
+    "scale_area is deprecated. Use scale_size_area instead.",
     "  Note that the behavior of scale_size_area is slightly different:",
     "  by default it makes the area proportional to the numeric value."))
   continuous_scale("size", "area", area_pal(range), ...)

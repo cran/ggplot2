@@ -1,4 +1,3 @@
-
 ## ----, echo = FALSE, message = FALSE-------------------------------------
 knitr::opts_chunk$set(
   comment = "#>",
@@ -6,13 +5,10 @@ knitr::opts_chunk$set(
   tidy = FALSE
 )
 
+## ----, eval = FALSE------------------------------------------------------
+#  install.packages(c("devtools", "testthat"))
+#  devtools::install_github("klutometis/roxygen")
 
 ## ----, eval = FALSE------------------------------------------------------
-## install.packages(c("devtools", "testthat"))
-## devtools::install_github("klutometis/roxygen")
-
-
-## ----, eval = FALSE------------------------------------------------------
-## install_deps(dep = T)
-
+#  install_deps(dep = T)
 

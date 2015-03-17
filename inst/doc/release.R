@@ -1,4 +1,3 @@
-
 ## ----, echo = FALSE, message = FALSE-------------------------------------
 knitr::opts_chunk$set(
   comment = "#>",
@@ -6,5 +5,4 @@ knitr::opts_chunk$set(
   tidy = FALSE
 )
 library(ggplot2)
-
 

@@ -286,7 +286,9 @@ print.theme <- function(x, ...) str(x)
 #' mytheme <- theme_grey() + theme(plot.title = element_text(colour = "red"))
 #' p + mytheme
 #'
+#' }
 #'
+#' \dontrun{
 #' ## Run this to generate a graph of the element inheritance tree
 #' build_element_graph <- function(tree) {
 #'   require(igraph)
@@ -331,14 +333,16 @@ theme <- function(..., complete = FALSE) {
 #'
 #' @export
 opts <- function(...) {
-  gg_dep("0.9.1", "Use 'theme' instead.")
+  gg_dep("0.9.1", "'opts' is deprecated. Use 'theme' instead.")
 
   # Add check for deprecated elements
   extra <- NULL
   elements <- list(...)
   if (!is.null(elements[["title"]])) {
     # This is kind of a hack, but fortunately it will be removed in future versions
-    gg_dep("0.9.1", 'Use labs(title="...") or ggtitle("...") instead.')
+    gg_dep("0.9.1", paste(sep = "\n",
+      'Setting the plot title with opts(title="...") is deprecated.',
+      ' Use labs(title="...") or ggtitle("...") instead.'))
 
     title <- elements$title
     elements$title <- NULL
@@ -521,7 +525,7 @@ update_theme <- function(oldtheme, newtheme) {
 ##' update_element("axis.text", colour = 20)
 ##' }
 update_element <- function(name, ...) {
-  gg_dep("0.9.1", "Use '+.gg' instead.")
+  gg_dep("0.9.1", "update_element is deprecated. Use '+.gg' instead.")
  if (is.character(name)) {
    ele <- theme_get()[[name]]
    if (is.null(ele)) {
