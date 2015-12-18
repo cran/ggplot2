@@ -8,7 +8,7 @@ NULL
 #' @param ... other arguments used to modify aesthetics
 #' @export
 #' @examples
-#' library(maps)
+#' if (require("maps")) {
 #' usamap <- map_data("state")
 #'
 #' seal.sub <- subset(seals, long > -130 & lat < 45 & lat > 40)
@@ -24,8 +24,8 @@ NULL
 #'   annotation_map(usamap, fill = "NA", colour = "grey50") +
 #'   geom_segment(aes(xend = long + delta_long, yend = lat + delta_lat)) +
 #'   facet_grid(latr ~ longr, scales = "free", space = "free")
+#' }
 annotation_map <- function(map, ...) {
-
   # Get map input into correct form
   stopifnot(is.data.frame(map))
   if (!is.null(map$lat)) map$y <- map$lat
@@ -33,17 +33,30 @@ annotation_map <- function(map, ...) {
   if (!is.null(map$region)) map$id <- map$region
   stopifnot(all(c("x", "y", "id") %in% names(map)))
 
-  GeomAnnotationMap$new(geom_params = list(map = map, ...), data =
-    NULL, inherit.aes = FALSE)
+  layer(
+    data = NULL,
+    stat = StatIdentity,
+    geom = GeomAnnotationMap,
+    position = PositionIdentity,
+    inherit.aes = FALSE,
+    params = list(map = map, ...)
+  )
 }
 
-GeomAnnotationMap <- proto(GeomMap, {
-  objname <- "map"
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+GeomAnnotationMap <- ggproto("GeomAnnotationMap", GeomMap,
+  extra_params = "",
+  handle_na = function(data, params) {
+    data
+  },
 
-  draw_groups <- function(., data, scales, coordinates, map, ...) {
+  draw_panel = function(data, panel_scales, coord, map) {
     # Munch, then set up id variable for polygonGrob -
     # must be sequential integers
-    coords <- coord_munch(coordinates, map, scales)
+    coords <- coord_munch(coord, map, panel_scales)
     coords$group <- coords$group %||% coords$id
     grob_id <- match(coords$group, unique(coords$group))
 
@@ -51,9 +64,9 @@ GeomAnnotationMap <- proto(GeomMap, {
       id = grob_id,
       gp = gpar(
         col = data$colour, fill = alpha(data$fill, data$alpha),
-        lwd = data$size * .pt))
-  }
+        lwd = data$size * .pt)
+      )
+  },
 
-  required_aes <- c()
-
-})
+  required_aes = c()
+)

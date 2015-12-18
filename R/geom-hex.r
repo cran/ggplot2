@@ -1,32 +1,70 @@
-#' Hexagon bining.
+#' Hexagon binning.
 #'
 #' @section Aesthetics:
 #' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "hex")}
 #'
+#' @seealso \code{\link{stat_bin2d}} for rectangular binning
+#' @param geom,stat Override the default connection between \code{geom_hex} and
+#'   \code{stat_binhex.}
 #' @export
 #' @inheritParams geom_point
+#' @export
 #' @examples
-#' # See ?stat_binhex for examples
-geom_hex <- function (mapping = NULL, data = NULL, stat = "binhex", position = "identity", ...) {
-  GeomHex$new(mapping = mapping, data = data, stat = stat, position = position, ...)
+#' d <- ggplot(diamonds, aes(carat, price))
+#' d + geom_hex()
+#'
+#' \donttest{
+#' # You can control the size of the bins by specifying the number of
+#' # bins in each direction:
+#' d + geom_hex(bins = 10)
+#' d + geom_hex(bins = 30)
+#'
+#' # Or by specifying the width of the bins
+#' d + geom_hex(binwidth = c(1, 1000))
+#' d + geom_hex(binwidth = c(.1, 500))
+#' }
+geom_hex <- function(mapping = NULL, data = NULL, stat = "binhex",
+                     position = "identity", na.rm = FALSE,
+                     show.legend = NA, inherit.aes = TRUE, ...) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = stat,
+    geom = GeomHex,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      na.rm = na.rm,
+      ...
+    )
+  )
 }
 
-GeomHex <- proto(Geom, {
-  objname <- "hex"
 
-  draw <- function(., data, scales, coordinates, ...) {
-    with(coord_transform(coordinates, data, scales),
-      ggname(.$my_name(), hexGrob(x, y, col=colour,
-        fill = alpha(fill, alpha)))
-    )
-  }
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+GeomHex <- ggproto("GeomHex", Geom,
+  draw_group = function(data, panel_scales, coord) {
+    if (!inherits(coord, "CoordCartesian")) {
+      stop("geom_hex() only works with Cartesian coordinates", call. = FALSE)
+    }
 
-  required_aes <- c("x", "y")
-  default_aes <- function(.) aes(colour=NA, fill = "grey50", size=0.5, alpha = NA)
-  default_stat <- function(.) StatBinhex
-  guide_geom <- function(.) "polygon"
+    coord <- coord$transform(data, panel_scales)
+    ggname("geom_hex", hexGrob(
+      coord$x, coord$y, colour = coord$colour,
+      fill = alpha(coord$fill, coord$alpha)
+    ))
+  },
 
-})
+  required_aes = c("x", "y"),
+
+  default_aes = aes(colour = NA, fill = "grey50", size = 0.5, alpha = NA),
+
+  draw_key = draw_key_polygon
+)
 
 
 # Draw hexagon grob

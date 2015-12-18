@@ -12,12 +12,13 @@
 #' if (require("maps")) {
 #' ca <- map("county", "ca", plot = FALSE, fill = TRUE)
 #' head(fortify(ca))
-#' qplot(long, lat, data = ca, geom = "polygon", group = group)
+#' ggplot(ca, aes(long, lat)) +
+#'   geom_polygon(aes(group = group))
 #'
 #' tx <- map("county", "texas", plot = FALSE, fill = TRUE)
 #' head(fortify(tx))
-#' qplot(long, lat, data = tx, geom = "polygon", group = group,
-#'  colour = I("white"))
+#' ggplot(tx, aes(long, lat)) +
+#'   geom_polygon(aes(group = group), colour = "white")
 #' }
 fortify.map <- function(model, data, ...) {
   df <- as.data.frame(model[c("x", "y")])
@@ -28,7 +29,7 @@ fortify.map <- function(model, data, ...) {
   names <- do.call("rbind", lapply(strsplit(model$names, "[:,]"), "[", 1:2))
   df$region <- names[df$group, 1]
   df$subregion <- names[df$group, 2]
-  df[complete.cases(df$lat, df$long), ]
+  df[stats::complete.cases(df$lat, df$long), ]
 }
 
 #' Create a data frame of map data.
@@ -54,13 +55,16 @@ fortify.map <- function(model, data, ...) {
 #'
 #' choro <- merge(states, arrests, sort = FALSE, by = "region")
 #' choro <- choro[order(choro$order), ]
-#' qplot(long, lat, data = choro, group = group, fill = assault,
-#'   geom = "polygon")
-#' qplot(long, lat, data = choro, group = group, fill = assault / murder,
-#'   geom = "polygon")
+#' ggplot(choro, aes(long, lat)) +
+#'   geom_polygon(aes(group = group, fill = assault)) +
+#'   coord_map("albers",  at0 = 45.5, lat1 = 29.5)
+#'
+#' ggplot(choro, aes(long, lat)) +
+#'   geom_polygon(aes(group = group, fill = assault / murder)) +
+#'   coord_map("albers",  at0 = 45.5, lat1 = 29.5)
 #' }
 map_data <- function(map, region = ".", exact = FALSE, ...) {
-  try_require("maps")
+  try_require("maps", "map_data")
   fortify(map(map, region, exact = exact, plot = FALSE, fill = TRUE, ...))
 }
 
@@ -70,6 +74,8 @@ map_data <- function(map, region = ".", exact = FALSE, ...) {
 #' @param regions map region
 #' @param fill fill colour
 #' @param colour border colour
+#' @param xlim,ylim latitudinal and logitudinal range for extracting map
+#'   polygons, see \code{\link[maps]{map}} for details.
 #' @param ... other arguments passed onto \code{\link{geom_polygon}}
 #' @export
 #' @examples
@@ -77,8 +83,7 @@ map_data <- function(map, region = ".", exact = FALSE, ...) {
 #'
 #' ia <- map_data("county", "iowa")
 #' mid_range <- function(x) mean(range(x))
-#' library(plyr)
-#' seats <- ddply(ia, .(subregion), colwise(mid_range, .(lat, long)))
+#' seats <- plyr::ddply(ia, "subregion", plyr::colwise(mid_range, c("lat", "long")))
 #' ggplot(ia, aes(long, lat)) +
 #'   geom_polygon(aes(group = group), fill = NA, colour = "grey60") +
 #'   geom_text(aes(label = subregion), data = seats, size = 2, angle = 45)
@@ -88,11 +93,19 @@ map_data <- function(map, region = ".", exact = FALSE, ...) {
 #' ggplot(capitals, aes(long, lat)) +
 #'   borders("state") +
 #'   geom_point(aes(size = pop)) +
-#'   scale_size_area()
+#'   scale_size_area() +
+#'   coord_quickmap()
 #'
+#' # Same map, with some world context
+#' ggplot(capitals, aes(long, lat)) +
+#'   borders("world", xlim = c(-130, -60), ylim = c(20, 50)) +
+#'   geom_point(aes(size = pop)) +
+#'   scale_size_area() +
+#'   coord_quickmap()
 #' }
-borders <- function(database = "world", regions = ".", fill = NA, colour = "grey50", ...) {
-  df <- map_data(database, regions)
-  geom_polygon(aes_q(quote(long), quote(lat), group = quote(group)), data = df,
-    fill = fill, colour = colour, ...)
+borders <- function(database = "world", regions = ".", fill = NA,
+                    colour = "grey50", xlim = NULL, ylim = NULL, ...) {
+  df <- map_data(database, regions, xlim = xlim, ylim = ylim)
+  geom_polygon(aes_(~long, ~lat, group = ~group), data = df,
+    fill = fill, colour = colour, ..., inherit.aes = FALSE)
 }

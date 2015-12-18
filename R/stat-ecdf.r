@@ -1,29 +1,52 @@
 #' Empirical Cumulative Density Function
 #'
 #' @inheritParams stat_identity
+#' @param na.rm If \code{FALSE} (the default), removes missing values with
+#'    a warning.  If \code{TRUE} silently removes missing values.
 #' @param n if NULL, do not interpolate. If not NULL, this is the number
 #'   of points to interpolate with.
-#' @return a data.frame with additional columns:
+#' @section Computed variables:
+#' \describe{
 #'   \item{x}{x in data}
 #'   \item{y}{cumulative density corresponding x}
+#' }
 #' @export
 #' @examples
 #' \donttest{
-#' qplot(rnorm(1000), stat = "ecdf", geom = "step")
+#' df <- data.frame(x = rnorm(1000))
+#' ggplot(df, aes(x)) + stat_ecdf(geom = "step")
 #'
 #' df <- data.frame(x = c(rnorm(100, 0, 3), rnorm(100, 0, 10)),
 #'                  g = gl(2, 100))
 #'
 #' ggplot(df, aes(x, colour = g)) + stat_ecdf()
 #' }
-stat_ecdf <- function (mapping = NULL, data = NULL, geom = "step", position = "identity", n = NULL, ...) {
-  StatEcdf$new(mapping = mapping, data = data, geom = geom, position = position, n = n, ...)
+stat_ecdf <- function(mapping = NULL, data = NULL, geom = "step",
+                      position = "identity", n = NULL, na.rm = FALSE,
+                      show.legend = NA, inherit.aes = TRUE, ...) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = StatEcdf,
+    geom = geom,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      n = n,
+      na.rm = na.rm,
+      ...
+    )
+  )
 }
 
-StatEcdf <- proto(Stat, {
-  objname <- "ecdf"
 
-  calculate <- function(., data, scales, n = NULL, ...) {
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+StatEcdf <- ggproto("StatEcdf", Stat,
+  compute_group = function(data, scales, n = NULL) {
 
     # If n is NULL, use raw values; otherwise interpolate
     if (is.null(n)) {
@@ -48,11 +71,10 @@ StatEcdf <- proto(Stat, {
     y1 <- 1
 
     data.frame(x = c(x0, xvals, x1), y = c(y0, y, y1))
-  }
+  },
 
-  default_aes <- function(.) aes(y = ..y..)
-  required_aes <- c("x")
-  default_geom <- function(.) GeomStep
+  default_aes = aes(y = ..y..),
 
-})
+  required_aes = c("x")
+)
 

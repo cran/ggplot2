@@ -6,7 +6,6 @@
 #' level, and increasing by one for each level (i.e. the labels are placed
 #' at integer positions).  This is what allows jittering to work.
 #'
-#'
 #' @param ... common discrete scale parameters: \code{name}, \code{breaks},
 #'  \code{labels}, \code{na.value}, \code{limits} and \code{guide}.  See
 #'  \code{\link{discrete_scale}} for more details
@@ -14,17 +13,17 @@
 #'   additive expansion constants. These constants ensure that the data is
 #'   placed some distance away from the axes.
 #' @rdname scale_discrete
-#' @family position scales
 #' @export
 #' @examples
 #' \donttest{
-#' qplot(cut, data=diamonds, stat="bin")
-#' qplot(cut, data=diamonds, geom="bar")
+#' ggplot(diamonds, aes(cut)) + stat_bin()
+#' ggplot(diamonds, aes(cut)) + geom_bar()
 #'
 #' # The discrete position scale is added automatically whenever you
 #' # have a discrete position.
 #'
-#' (d <- qplot(cut, clarity, data=subset(diamonds, carat > 1), geom="jitter"))
+#' (d <- ggplot(subset(diamonds, carat > 1), aes(cut, clarity)) +
+#'       geom_jitter())
 #'
 #' d + scale_x_discrete("Cut")
 #' d + scale_x_discrete("Cut", labels = c("Fair" = "F","Good" = "G",
@@ -42,19 +41,25 @@
 #' d + ylim("I1", "IF")
 #'
 #' # See ?reorder to reorder based on the values of another variable
-#' qplot(manufacturer, cty, data=mpg)
-#' qplot(reorder(manufacturer, cty), cty, data=mpg)
-#' qplot(reorder(manufacturer, displ), cty, data=mpg)
+#' ggplot(mpg, aes(manufacturer, cty)) + geom_point()
+#' ggplot(mpg, aes(reorder(manufacturer, cty), cty)) + geom_point()
+#' ggplot(mpg, aes(reorder(manufacturer, displ), cty)) + geom_point()
 #'
 #' # Use abbreviate as a formatter to reduce long names
-#' qplot(reorder(manufacturer, cty), cty, data=mpg) +
+#' ggplot(mpg, aes(reorder(manufacturer, displ), cty)) +
+#'   geom_point() +
 #'   scale_x_discrete(labels = abbreviate)
 #' }
 scale_x_discrete <- function(..., expand = waiver()) {
   sc <- discrete_scale(c("x", "xmin", "xmax", "xend"), "position_d", identity, ...,
     expand = expand, guide = "none")
 
-  sc$range_c <- ContinuousRange$new()
+  # TODO: Fix this hack. We're reassigning the parent ggproto object, but this
+  # object should in the first place be created with the correct parent.
+  sc$super <- ScaleDiscretePosition
+  class(sc) <- class(ScaleDiscretePosition)
+
+  sc$range_c <- continuous_range()
   sc
 }
 #' @rdname scale_discrete
@@ -62,7 +67,13 @@ scale_x_discrete <- function(..., expand = waiver()) {
 scale_y_discrete <- function(..., expand = waiver()) {
   sc <- discrete_scale(c("y", "ymin", "ymax", "yend"), "position_d", identity, ...,
     expand = expand, guide = "none")
-  sc$range_c <- ContinuousRange$new()
+
+  # TODO: Fix this hack. We're reassigning the parent ggproto object, but this
+  # object should in the first place be created with the correct parent.
+  sc$super <- ScaleDiscretePosition
+  class(sc) <- class(ScaleDiscretePosition)
+
+  sc$range_c <- continuous_range()
   sc
 }
 
@@ -71,61 +82,64 @@ scale_y_discrete <- function(..., expand = waiver()) {
 # mapping, but makes it possible to place objects at non-integer positions,
 # as is necessary for jittering etc.
 
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
 #' @export
-scale_train.position_d <- function(scale, x) {
-  if (is.discrete(x)) {
-    scale$range$train(x, drop = scale$drop)
-  } else {
-    scale$range_c$train(x)
+ScaleDiscretePosition <- ggproto("ScaleDiscretePosition", ScaleDiscrete,
+
+  train = function(self, x) {
+    if (is.discrete(x)) {
+      self$range$train(x, drop = self$drop)
+    } else {
+      self$range_c$train(x)
+    }
+  },
+
+  # If range not available from discrete range, implies discrete scale been
+  # used with purely continuous data, so construct limits accordingly
+  get_limits = function(self) {
+    if (self$is_empty()) return(c(0, 1))
+
+    dis_limits <- function(x) seq.int(floor(min(x)), ceiling(max(x)), by = 1L)
+
+    self$limits %||% self$range$range %||% dis_limits(self$range_c$range)
+  },
+
+  is_empty = function(self) {
+    is.null(self$range$range) && is.null(self$limits) && is.null(self$range_c$range)
+  },
+
+  reset = function(self) {
+    # Can't reset discrete scale because no way to recover values
+    self$range_c$reset()
+  },
+
+  map = function(self, x, limits = self$get_limits()) {
+    if (is.discrete(x)) {
+      seq_along(limits)[match(as.character(x), limits)]
+    } else {
+      x
+    }
+  },
+
+  dimension = function(self, expand = c(0, 0)) {
+    disc_range <- c(1, length(self$get_limits()))
+    disc <- expand_range(disc_range, 0, expand[2], 1)
+
+    # if no data was trained (i.e. range_c is infinite) return disc range
+    if (any(is.infinite(self$range_c$range))) {
+      return(disc)
+    }
+
+    cont <- expand_range(self$range_c$range, expand[1], 0, expand[2])
+    range(disc, cont)
+  },
+
+  clone = function(self) {
+    new <- ggproto(NULL, self)
+    new$range <- discrete_range()
+    new$range_c <- continuous_range()
+    new
   }
-}
-
-# If range not available from discrete range, implies discrete scale been
-# used with purely continuous data, so construct limits accordingly
-#' @export
-scale_limits.position_d <- function(scale) {
-  dis_limits <- function(x) seq.int(floor(min(x)), ceiling(max(x)), by = 1L)
-
-  scale$limits %||% scale$range$range %||% dis_limits(scale$range_c$range)
-}
-
-#' @export
-scale_is_empty.position_d <- function(scale) {
-  NextMethod() && is.null(scale$range_c$range)
-}
-
-#' @export
-scale_reset.position_d <- function(scale, x) {
-  # Can't reset discrete scale because no way to recover values
-  scale$range_c$reset()
-}
-
-
-#' @export
-scale_map.position_d <- function(scale, x, limits = scale_limits(scale)) {
-  if (is.discrete(x)) {
-    seq_along(limits)[match(as.character(x), limits)]
-  } else {
-    x
-  }
-}
-
-#' @export
-scale_dimension.position_d <- function(scale, expand = scale$expand) {
-  if(is.waive(expand))
-    expand <- c(0, 0)
-  disc_range <- c(1, length(scale_limits(scale)))
-  disc <- expand_range(disc_range, 0, expand[2], 1)
-  cont <- expand_range(scale$range_c$range, expand[1], 0, expand[2])
-
-  range(disc, cont)
-}
-
-#' @export
-scale_clone.position_d <- function(scale) {
-  new <- scale
-  new$range <- DiscreteRange$new()
-  new$range_c <- ContinuousRange$new()
-
-  new
-}
+)

@@ -4,7 +4,7 @@
 #' of aesthetics; colour, fill and alpha.
 #'
 #' @name aes_colour_fill_alpha
-#' @aliases colour color fill alpha
+#' @aliases colour color fill
 #' @examples
 #' \donttest{
 #'
@@ -20,14 +20,14 @@
 #' c + geom_bar(fill = "white", colour = "red")
 #'
 #' # The aesthetic fill also takes different colouring scales
-#' # setting fill equal to a factor varible uses a discrete colour scale
+#' # setting fill equal to a factor variable uses a discrete colour scale
 #' k <- ggplot(mtcars, aes(factor(cyl), fill = factor(vs)))
 #' k + geom_bar()
 #'
 #' # Fill aesthetic can also be used with a continuous variable
-#' m <- ggplot(movies, aes(x = rating))
-#' m + geom_histogram()
-#' m + geom_histogram(aes(fill = ..count..))
+#' m <- ggplot(faithfuld, aes(waiting, eruptions))
+#' m + geom_raster()
+#' m + geom_raster(aes(fill = density))
 #'
 #' # Some geoms don't use both aesthetics (i.e. geom_point or geom_line)
 #' b <- ggplot(economics, aes(x = date, y = unemploy))
@@ -44,10 +44,6 @@
 #' h + geom_point(alpha = 0.5)
 #' h + geom_point(alpha = 1/10)
 #'
-#' #If a geom uses both fill and colour, alpha will only modify the fill colour
-#' c + geom_bar(fill = "dark grey", colour = "black")
-#' c + geom_bar(fill = "dark grey", colour = "black", alpha = 1/3)
-#'
 #' # Alpha can also be used to add shading
 #' j <- b + geom_line()
 #' j
@@ -55,7 +51,6 @@
 #' j <- j + geom_rect(aes(NULL, NULL, xmin = start, xmax = end, fill = party),
 #' ymin = yrng[1], ymax = yrng[2], data = presidential)
 #' j
-#' library(scales) # to access the alpha function
 #' j + scale_fill_manual(values = alpha(c("blue", "red"), .3))
 #' }
 NULL

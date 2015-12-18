@@ -5,30 +5,58 @@
 #' statistics which display y conditional on x, to x conditional on y.
 #'
 #' @export
-#' @param ... Other arguments passed onto \code{\link{coord_cartesian}}
+#' @inheritParams coord_cartesian
 #' @examples
-#' \donttest{
 #' # Very useful for creating boxplots, and other interval
 #' # geoms in the horizontal instead of vertical position.
-#' qplot(cut, price, data=diamonds, geom="boxplot")
-#' last_plot() + coord_flip()
 #'
-#' qplot(cut, data=diamonds, geom="bar")
-#' last_plot() + coord_flip()
+#' ggplot(diamonds, aes(cut, price)) +
+#'   geom_boxplot() +
+#'   coord_flip()
 #'
-#' h <- qplot(carat, data=diamonds, geom="histogram")
+#' h <- ggplot(diamonds, aes(carat)) +
+#'   geom_histogram()
 #' h
 #' h + coord_flip()
 #' h + coord_flip() + scale_x_reverse()
 #'
-#' # You can also use it to flip lines and area plots:
-#' qplot(1:5, (1:5)^2, geom="area")
+#' # You can also use it to flip line and area plots:
+#' df <- data.frame(x = 1:5, y = (1:5) ^ 2)
+#' ggplot(df, aes(x, y)) +
+#'   geom_area()
 #' last_plot() + coord_flip()
-#' }
-coord_flip <- function(...) {
-  coord <- coord_cartesian(...)
-  structure(coord, class = c("flip", class(coord)))
+coord_flip <- function(xlim = NULL, ylim = NULL, expand = TRUE) {
+  ggproto(NULL, CoordFlip,
+    limits = list(x = xlim, y = ylim),
+    expand = expand
+  )
 }
+
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+CoordFlip <- ggproto("CoordFlip", CoordCartesian,
+
+  transform = function(data, scale_details) {
+    data <- flip_labels(data)
+    CoordCartesian$transform(data, scale_details)
+  },
+
+  range = function(scale_details) {
+    list(x = scale_details$y.range, y = scale_details$x.range)
+  },
+
+  train = function(self, scale_details) {
+    trained <- ggproto_parent(CoordCartesian, self)$train(scale_details)
+    flip_labels(trained)
+  },
+
+  labels = function(scale_details) {
+    flip_labels(CoordCartesian$labels(scale_details))
+  }
+)
+
 
 flip_labels <- function(x) {
   old_names <- names(x)
@@ -39,28 +67,4 @@ flip_labels <- function(x) {
   new_names <- gsub("^z", "y", new_names)
 
   setNames(x, new_names)
-}
-
-#' @export
-is.linear.flip <- function(coord) TRUE
-
-#' @export
-coord_transform.flip <- function(coord, data, details) {
-  data <- flip_labels(data)
-  NextMethod()
-}
-
-#' @export
-coord_range.flip <- function(coord, scales) {
-  return(list(x = scales$y.range, y = scales$x.range))
-}
-
-#' @export
-coord_train.flip <- function(coord, scales) {
-  flip_labels(NextMethod())
-}
-
-#' @export
-coord_labels.flip <- function(coord, scales) {
-  flip_labels(NextMethod())
 }

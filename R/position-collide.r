@@ -6,7 +6,7 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
     # Width set manually
     if (!(all(c("xmin", "xmax") %in% names(data)))) {
       data$xmin <- data$x - width / 2
-      data$xmax <- data$x - width / 2
+      data$xmax <- data$x + width / 2
     }
   } else {
     if (!(all(c("xmin", "xmax") %in% names(data)))) {
@@ -17,10 +17,12 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
     # Width determined from data, must be floating point constant
     widths <- unique(data$xmax - data$xmin)
     widths <- widths[!is.na(widths)]
-    if (!zero_range(range(widths))) {
-      warning(name, " requires constant width: output may be incorrect",
-        call. = FALSE)
-    }
+
+#   # Suppress warning message since it's not reliable
+#     if (!zero_range(range(widths))) {
+#       warning(name, " requires constant width: output may be incorrect",
+#         call. = FALSE)
+#     }
     width <- widths[1]
   }
 
@@ -39,12 +41,10 @@ collide <- function(data, width = NULL, name, strategy, check.width = TRUE) {
   }
 
   if (!is.null(data$ymax)) {
-    ddply(data, "xmin", strategy, width = width)
+    plyr::ddply(data, "xmin", strategy, width = width)
   } else if (!is.null(data$y)) {
-    message("ymax not defined: adjusting position using y instead")
-
     data$ymax <- data$y
-    data <- ddply(data, "xmin", strategy, width = width)
+    data <- plyr::ddply(data, "xmin", strategy, width = width)
     data$y <- data$ymax
     data
   } else {
@@ -58,28 +58,27 @@ pos_stack <- function(df, width) {
   if (nrow(df) == 1) return(df)
 
   n <- nrow(df) + 1
-  y <- with(df, ifelse(is.na(y), 0, y))
+  y <- ifelse(is.na(df$y), 0, df$y)
   if (all(is.na(df$x))) {
     heights <- rep(NA, n)
   } else {
     heights <- c(0, cumsum(y))
   }
 
-  within(df, {
-    ymin <- heights[-n]
-    ymax <- heights[-1]
-    y <- ymax
-  })
+  df$ymin <- heights[-n]
+  df$ymax <- heights[-1]
+  df$y <- df$ymax
+  df
 }
 
 # Stack overlapping intervals and set height to 1.
 # Assumes that each set has the same horizontal position.
 pos_fill <- function(df, width) {
-  within(pos_stack(df, width), {
-    ymin <- ymin / max(ymax)
-    ymax <- ymax / max(ymax)
-    y <- ymax
-  })
+  stacked <- pos_stack(df, width)
+  stacked$ymin <- stacked$ymin / max(stacked$ymax)
+  stacked$ymax <- stacked$ymax / max(stacked$ymax)
+  stacked$y <- stacked$ymax
+  stacked
 }
 
 # Dodge overlapping interval.
@@ -94,10 +93,9 @@ pos_dodge <- function(df, width) {
   }
 
   d_width <- max(df$xmax - df$xmin)
-  diff <- width - d_width
 
   # df <- data.frame(n = c(2:5, 10, 26), div = c(4, 3, 2.666666,  2.5, 2.2, 2.1))
-  # qplot(n, div, data = df)
+  # ggplot(df, aes(n, div)) + geom_point()
 
   # Have a new group index from 1 to number of groups.
   # This might be needed if the group numbers in this set don't include all of 1:n

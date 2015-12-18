@@ -1,4 +1,4 @@
-#' Create a new ggplot plot
+#' Create a new ggplot plot.
 #'
 #' \code{ggplot()} initializes a ggplot object. It can be used to
 #' declare the input data frame for a graphic and to specify the
@@ -31,21 +31,21 @@
 #' multiple data frames are used to produce different layers, as
 #' is often the case in complex graphics.
 #'
-#' The examples below illustrate how these methods of
-#' invoking \code{ggplot} can be used in constructing a
-#' graphic.
-#' @seealso \url{http://had.co.nz/ggplot2}
+#' @param data Default dataset to use for plot. If not already a data.frame,
+#'   will be converted to one by \code{\link{fortify}}. If not specified,
+#'   must be suppled in each layer added to the plot.
+#' @param mapping Default list of aesthetic mappings to use for plot.
+#'   If not specified, must be suppled in each layer added to the plot.
+#' @param ... Other arguments passed on to methods. Not currently used.
+#' @param environment If an variable defined in the aesthetic mapping is not
+#'   found in the data, ggplot will look for it in this environment. It defaults
+#'   to using the environment in which \code{ggplot()} is called.
 #' @export
-#' @keywords internal
-#' @param data default data set
-#' @param ... other arguments passed to specific methods
 #' @examples
-#
 #' df <- data.frame(gp = factor(rep(letters[1:3], each = 10)),
 #'                  y = rnorm(30))
 #' # Compute sample mean and standard deviation in each group
-#' library(plyr)
-#' ds <- ddply(df, .(gp), summarise, mean = mean(y), sd = sd(y))
+#' ds <- plyr::ddply(df, "gp", plyr::summarise, mean = mean(y), sd = sd(y))
 #'
 #' # Declare the data frame and common aesthetics.
 #' # The summary data frame ds is used to plot
@@ -71,35 +71,32 @@
 #'   geom_errorbar(data = ds, aes(x = gp, y = mean,
 #'                     ymin = mean - sd, ymax = mean + sd),
 #'                     colour = 'red', width = 0.4)
-ggplot <- function(data = NULL, ...) UseMethod("ggplot")
-
-#' @export
-ggplot.default <- function(data = NULL, mapping = aes(), ...) {
-  ggplot.data.frame(fortify(data, ...), mapping)
+ggplot <- function(data = NULL, mapping = aes(), ...,
+                   environment = parent.frame()) {
+  UseMethod("ggplot")
 }
 
-#' Reports whether x is a ggplot object
-#' @param x An object to test
 #' @export
-is.ggplot <- function(x) inherits(x, "ggplot")
+#' @rdname ggplot
+#' @usage NULL
+ggplot.default <- function(data = NULL, mapping = aes(), ...,
+                           environment = parent.frame()) {
+  ggplot.data.frame(fortify(data, ...), mapping, environment = environment)
+}
 
-#' Create a new ggplot plot from a data frame
-#'
-#' @param data default data frame for plot
-#' @param mapping default list of aesthetic mappings (these can be colour,
-#'   size, shape, line type -- see individual geom functions for more details)
-#' @param ... ignored
-#' @param environment in which evaluation of aesthetics should occur
-#' @seealso \url{http://had.co.nz/ggplot2}
-#' @method ggplot data.frame
 #' @export
-ggplot.data.frame <- function(data, mapping=aes(), ..., environment = globalenv()) {
-  if (!missing(mapping) && !inherits(mapping, "uneval")) stop("Mapping should be created with aes or aes_string")
+#' @rdname ggplot
+#' @usage NULL
+ggplot.data.frame <- function(data, mapping = aes(), ...,
+                              environment = parent.frame()) {
+  if (!missing(mapping) && !inherits(mapping, "uneval")) {
+    stop("Mapping should be created with aes or aes_string")
+  }
 
   p <- structure(list(
     data = data,
     layers = list(),
-    scales = Scales$new(),
+    scales = scales_list(),
     mapping = mapping,
     theme = list(),
     coordinates = coord_cartesian(),
@@ -116,7 +113,54 @@ ggplot.data.frame <- function(data, mapping=aes(), ..., environment = globalenv(
 plot_clone <- function(plot) {
   p <- plot
   p$scales <- plot$scales$clone()
-  p$layers <- lapply(plot$layers, function(x) x$clone())
 
   p
 }
+
+#' Reports whether x is a ggplot object
+#' @param x An object to test
+#' @keywords internal
+#' @export
+is.ggplot <- function(x) inherits(x, "ggplot")
+
+#' Draw plot on current graphics device.
+#'
+#' @param x plot to display
+#' @param newpage draw new (empty) page first?
+#' @param vp viewport to draw plot in
+#' @param ... other arguments not used by this method
+#' @keywords hplot
+#' @return Invisibly returns the result of \code{\link{ggplot_build}}, which
+#'   is a list with components that contain the plot itself, the data,
+#'   information about the scales, panels etc.
+#' @export
+#' @method print ggplot
+print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...) {
+  set_last_plot(x)
+  if (newpage) grid.newpage()
+
+  # Record dependency on 'ggplot2' on the display list
+  # (AFTER grid.newpage())
+  grDevices::recordGraphics(
+    requireNamespace("ggplot2", quietly = TRUE),
+    list(),
+    getNamespace("ggplot2")
+  )
+
+  data <- ggplot_build(x)
+
+  gtable <- ggplot_gtable(data)
+  if (is.null(vp)) {
+    grid.draw(gtable)
+  } else {
+    if (is.character(vp)) seekViewport(vp) else pushViewport(vp)
+    grid.draw(gtable)
+    upViewport()
+  }
+
+  invisible(data)
+}
+#' @rdname print.ggplot
+#' @method plot ggplot
+#' @export
+plot.ggplot <- print.ggplot

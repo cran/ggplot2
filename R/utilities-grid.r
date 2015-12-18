@@ -1,3 +1,9 @@
+#' @export
+grid::unit
+
+#' @export
+grid::arrow
+
 # Name ggplot grid object
 # Convenience function to name grid objects
 #

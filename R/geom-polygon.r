@@ -46,25 +46,34 @@
 #'
 #' # And if the positions are in longitude and latitude, you can use
 #' # coord_map to produce different map projections.
-geom_polygon <- function (mapping = NULL, data = NULL, stat = "identity", position = "identity", ...) {
-  GeomPolygon$new(mapping = mapping, data = data, stat = stat, position = position, ...)
+geom_polygon <- function(mapping = NULL, data = NULL, stat = "identity",
+                         position = "identity", na.rm = FALSE, show.legend = NA,
+                         inherit.aes = TRUE, ...) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = stat,
+    geom = GeomPolygon,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      na.rm = na.rm,
+      ...
+    )
+  )
 }
 
-GeomPolygon <- proto(Geom, {
-  objname <- "polygon"
-
-  draw_groups <- function(., ...) .$draw(...)
-
-  draw <- function(., data, scales, coordinates, ...) {
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+GeomPolygon <- ggproto("GeomPolygon", Geom,
+  draw_panel = function(data, panel_scales, coord) {
     n <- nrow(data)
-    if (n == 1) return()
+    if (n == 1) return(zeroGrob())
 
-    # Check if group is numeric, to make polygonGrob happy (factors are numeric,
-    # but is.numeric() will report FALSE because it actually checks something else)
-    if (mode(data$group) != "numeric")
-      data$group <- factor(data$group)
-
-    munched <- coord_munch(coordinates, data, scales)
+    munched <- coord_munch(coord, data, panel_scales)
     # Sort by group to make sure that colors, fill, etc. come in same order
     munched <- munched[order(munched$group), ]
 
@@ -74,32 +83,28 @@ GeomPolygon <- proto(Geom, {
     first_idx <- !duplicated(munched$group)
     first_rows <- munched[first_idx, ]
 
-    ggname(.$my_name(), gTree(children = gList(
+    ggname("geom_polygon",
       polygonGrob(munched$x, munched$y, default.units = "native",
         id = munched$group,
         gp = gpar(
-          col = first_rows$colour,
+          col = alpha(first_rows$colour, first_rows$alpha),
           fill = alpha(first_rows$fill, first_rows$alpha),
           lwd = first_rows$size * .pt,
           lty = first_rows$linetype
         )
       )
-    )))
-  }
+    )
+  },
 
-  default_stat <- function(.) StatIdentity
-  default_aes <- function(.) aes(colour="NA", fill="grey20", size=0.5, linetype=1, alpha = NA)
-  required_aes <- c("x", "y")
-  guide_geom <- function(.) "polygon"
+  default_aes = aes(colour = "NA", fill = "grey20", size = 0.5, linetype = 1,
+    alpha = NA),
 
-  draw_legend <- function(., data, ...)  {
-    data <- aesdefaults(data, .$default_aes(), list(...))
+  handle_na = function(data, params) {
+    data
+  },
 
-    with(data, grobTree(
-      rectGrob(gp = gpar(col = colour, fill = alpha(fill, alpha), lty = linetype)),
-      linesGrob(gp = gpar(col = colour, lwd = size * .pt, lineend="butt", lty = linetype))
-    ))
-  }
+  required_aes = c("x", "y"),
 
-})
+  draw_key = draw_key_polygon
+)
 

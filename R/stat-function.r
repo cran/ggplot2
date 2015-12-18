@@ -6,14 +6,22 @@
 #' @param fun function to use
 #' @param n number of points to interpolate along
 #' @param args list of additional arguments to pass to \code{fun}
+#' @param na.rm If \code{FALSE} (the default), removes missing values with
+#'    a warning.  If \code{TRUE} silently removes missing values.
 #' @inheritParams stat_identity
-#' @return a data.frame with additional columns:
+#' @section Computed variables:
+#' \describe{
 #'   \item{x}{x's along a grid}
 #'   \item{y}{value of function evaluated at corresponding x}
+#' }
 #' @export
 #' @examples
-#' x <- rnorm(100)
-#' base <- qplot(x, geom = "density")
+#' set.seed(1492)
+#' df <- data.frame(
+#'   x = rnorm(100)
+#' )
+#' x <- df$x
+#' base <- ggplot(df, aes(x)) + geom_density()
 #' base + stat_function(fun = dnorm, colour = "red")
 #' base + stat_function(fun = dnorm, colour = "red", arg = list(mean = 3))
 #'
@@ -21,14 +29,12 @@
 #' # Examples adapted from Kohske Takahashi
 #'
 #' # Specify range of x-axis
-#' qplot(c(0, 2), stat = "function", fun = exp, geom = "line")
-#' ggplot(data.frame(x = c(0, 2)), aes(x)) + stat_function(fun = exp)
+#' ggplot(data.frame(x = c(0, 2)), aes(x)) +
+#'   stat_function(fun = exp, geom = "line")
+#'
 #' # Plot a normal curve
 #' ggplot(data.frame(x = c(-5, 5)), aes(x)) + stat_function(fun = dnorm)
-#' # With qplot
-#' qplot(c(-5, 5), stat = "function", fun = dnorm, geom = "line")
-#' # Or
-#' qplot(c(-5, 5), geom = "blank") + stat_function(fun = dnorm)
+#'
 #' # To specify a different mean or sd, use the args parameter to supply new values
 #' ggplot(data.frame(x = c(-5, 5)), aes(x)) +
 #'   stat_function(fun = dnorm, args = list(mean = 2, sd = .5))
@@ -41,25 +47,42 @@
 #' # Using a custom function
 #' test <- function(x) {x ^ 2 + x + 20}
 #' f + stat_function(fun = test)
-stat_function <- function (mapping = NULL, data = NULL, geom = "path", position = "identity",
-fun, n = 101, args = list(), ...) {
-  StatFunction$new(mapping = mapping, data = data, geom = geom,
-  position = position, fun = fun, n = n, args = args, ...)
+stat_function <- function(mapping = NULL, data = NULL, geom = "path",
+                          position = "identity", fun, n = 101, args = list(),
+                          na.rm = FALSE, show.legend = NA, inherit.aes = TRUE,
+                          ...) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = StatFunction,
+    geom = geom,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      fun = fun,
+      n = n,
+      args = args,
+      na.rm = na.rm,
+      ...
+    )
+  )
 }
 
-StatFunction <- proto(Stat, {
-  objname <- "function"
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+StatFunction <- ggproto("StatFunction", Stat,
+  default_aes = aes(y = ..y..),
 
-  default_geom <- function(.) GeomPath
-  default_aes <- function(.) aes(y = ..y..)
-
-  calculate <- function(., data, scales, fun, n=101, args = list(), ...) {
-    range <- scale_dimension(scales$x, c(0, 0))
-    xseq <- seq(range[1], range[2], length=n)
+  compute_group = function(data, scales, fun, n = 101, args = list()) {
+    range <- scales$x$dimension()
+    xseq <- seq(range[1], range[2], length.out = n)
 
     data.frame(
       x = xseq,
-      y = do.call(fun, c(list(xseq), args))
+      y = do.call(fun, c(list(quote(scales$x$trans$inv(xseq))), args))
     )
   }
-})
+)

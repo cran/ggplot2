@@ -59,29 +59,39 @@ element_line <- function(colour = NULL, size = NULL, linetype = NULL,
 #' @param angle angle (in [0, 360])
 #' @param lineheight line height
 #' @param color an alias for \code{colour}
+#' @param margin margins around the text. See \code{\link{margin}} for more
+#'   details. When creating a theme, the margins should be placed on the
+#'   side of the text facing towards the center of the plot.
+#' @param debug If \code{TRUE}, aids visual debugging by drawing a solid
+#'   rectangle behind the complete text area, and a point where each label
+#'   is anchored.
 #' @export
 element_text <- function(family = NULL, face = NULL, colour = NULL,
   size = NULL, hjust = NULL, vjust = NULL, angle = NULL, lineheight = NULL,
-  color = NULL) {
+  color = NULL, margin = NULL, debug = NULL) {
 
   if (!is.null(color))  colour <- color
   structure(
     list(family = family, face = face, colour = colour, size = size,
-      hjust = hjust, vjust = vjust, angle = angle, lineheight = lineheight),
+      hjust = hjust, vjust = vjust, angle = angle, lineheight = lineheight,
+      margin = margin, debug = debug),
     class = c("element_text", "element")
   )
 }
 
 
 #' @export
-print.element <- function(x, ...) str(x)
+print.element <- function(x, ...) utils::str(x)
 
 
 #' Relative sizing for theme elements
 #'
 #' @param x A number representing the relative size
 #' @examples
-#' qplot(1:3, 1:3) + theme(axis.title.x = element_text(size = rel(2.5)))
+#' df <- data.frame(x = 1:3, y = 1:3)
+#' ggplot(df, aes(x, y)) +
+#'   geom_point() +
+#'   theme(axis.title.x = element_text(size = rel(2.5)))
 #' @export
 rel <- function(x) {
   structure(x, class = "rel")
@@ -94,49 +104,6 @@ print.rel <- function(x, ...) print(noquote(paste(x, " *", sep = "")))
 #' @param x An object to test
 is.rel <- function(x) inherits(x, "rel")
 
-
-#' Deprecated theme_xx functions
-#'
-#' The \code{theme_xx} functions have been deprecated. They are replaced
-#' with the \code{element_xx} functions.
-#' @param ... Arguments to be passed to the appropriate \code{element_xx}
-#'   function.
-#'
-#' @export
-theme_blank <- function(...) {
-  gg_dep("0.9.1", "'theme_blank' is deprecated. Use 'element_blank' instead.")
-  element_blank(...)
-}
-
-#' @rdname theme_blank
-#' @export
-theme_rect <- function(...) {
-  gg_dep("0.9.1", "theme_rect is deprecated. Use 'element_rect' instead.")
-  element_rect(...)
-}
-
-#' @rdname theme_blank
-#' @export
-theme_line <- function(...) {
-  gg_dep("0.9.1", "theme_line is deprecated. Use 'element_line' instead.")
-  element_line(...)
-}
-
-#' @rdname theme_blank
-#' @export
-theme_segment <- function(...) {
-  gg_dep("0.9.1", "theme_segment is deprecated. Use 'element_line' instead.")
-  element_line(...)
-}
-
-#' @rdname theme_blank
-#' @export
-theme_text <- function(...) {
-  gg_dep("0.9.1", "theme_text is deprecated. Use 'element_text' instead.")
-  element_text(...)
-}
-
-
 # Given a theme object and element name, return a grob for the element
 element_render <- function(theme, element, ..., name = NULL) {
 
@@ -147,7 +114,7 @@ element_render <- function(theme, element, ..., name = NULL) {
     return(zeroGrob())
   }
 
-  ggname(ps(element, name, sep = "."), element_grob(el, ...))
+  ggname(paste(element, name, sep = "."), element_grob(el, ...))
 }
 
 
@@ -158,10 +125,16 @@ len0_null <- function(x) {
 }
 
 
-# Returns a grob for an element object
-element_grob <- function(element, ...)
+#' Generate grid grob from theme element
+#'
+#' @param element Theme element, i.e. \code{element_rect} or similar.
+#' @param ... Other arguments to control specific of rendering. This is
+#'   usually at least position. See the source code for individual methods.
+#' @keywords internal
+#' @export
+element_grob <- function(element, ...) {
   UseMethod("element_grob")
-
+}
 
 #' @export
 element_grob.element_blank <- function(element, ...)  zeroGrob()
@@ -176,7 +149,7 @@ element_grob.element_rect <- function(element, x = 0.5, y = 0.5,
   element_gp <- gpar(lwd = len0_null(element$size * .pt), col = element$colour,
     fill = element$fill, lty = element$linetype)
 
-  rectGrob(x, y, width, height, gp = modifyList(element_gp, gp), ...)
+  rectGrob(x, y, width, height, gp = utils::modifyList(element_gp, gp), ...)
 }
 
 
@@ -184,33 +157,19 @@ element_grob.element_rect <- function(element, x = 0.5, y = 0.5,
 element_grob.element_text <- function(element, label = "", x = NULL, y = NULL,
   family = NULL, face = NULL, colour = NULL, size = NULL,
   hjust = NULL, vjust = NULL, angle = NULL, lineheight = NULL,
-  default.units = "npc", ...) {
+  margin = NULL, expand_x = FALSE, expand_y = FALSE, ...) {
+
+  if (is.null(label))
+    return(zeroGrob())
 
   vj <- vjust %||% element$vjust
   hj <- hjust %||% element$hjust
+  margin <- margin %||% element$margin
 
   angle <- angle %||% element$angle
   if (is.null(angle)) {
     stop("Text element requires non-NULL value for 'angle'.")
   }
-  angle <- angle %% 360
-
-  if (angle == 90) {
-    xp <- 1 - vj
-    yp <- hj
-  } else if (angle == 180) {
-    xp <- 1 - hj
-    yp <- 1 - vj
-  } else if (angle == 270) {
-    xp <- vj
-    yp <- 1 - hj
-  } else {
-    xp <- hj
-    yp <- vj
-  }
-
-  x <- x %||% xp
-  y <- y %||% yp
 
   # The gp settings can override element_gp
   gp <- gpar(fontsize = size, col = colour,
@@ -220,13 +179,11 @@ element_grob.element_text <- function(element, label = "", x = NULL, y = NULL,
     fontfamily = element$family, fontface = element$face,
     lineheight = element$lineheight)
 
-  textGrob(
-    label, x, y, hjust = hj, vjust = vj,
-    default.units = default.units,
-    gp = modifyList(element_gp, gp),
-    rot = angle, ...
-  )
+  titleGrob(label, x, y, hjust = hj, vjust = vj, angle = angle,
+    gp = utils::modifyList(element_gp, gp), margin = margin,
+    expand_x = expand_x, expand_y = expand_y, debug = element$debug)
 }
+
 
 
 #' @export
@@ -235,13 +192,13 @@ element_grob.element_line <- function(element, x = 0:1, y = 0:1,
   default.units = "npc", id.lengths = NULL, ...) {
 
   # The gp settings can override element_gp
-  gp <- gpar(lwd=len0_null(size * .pt), col=colour, lty=linetype, lineend = lineend)
+  gp <- gpar(lwd = len0_null(size * .pt), col = colour, lty = linetype, lineend = lineend)
   element_gp <- gpar(lwd = len0_null(element$size * .pt), col = element$colour,
     lty = element$linetype, lineend = element$lineend)
 
   polylineGrob(
     x, y, default.units = default.units,
-    gp = modifyList(element_gp, gp),
+    gp = utils::modifyList(element_gp, gp),
     id.lengths = id.lengths, ...
   )
 }
@@ -286,7 +243,6 @@ el_def <- function(class = NULL, inherit = NULL, description = NULL) {
   axis.ticks.y        = el_def("element_line", "axis.ticks"),
   axis.title.x        = el_def("element_text", "axis.title"),
   axis.title.y        = el_def("element_text", "axis.title"),
-  axis.ticks.margin   = el_def("unit"),
 
   legend.background   = el_def("element_rect", "rect"),
   legend.margin       = el_def("unit"),
@@ -312,14 +268,17 @@ el_def <- function(class = NULL, inherit = NULL, description = NULL) {
   panel.grid.major.y  = el_def("element_line", "panel.grid.major"),
   panel.grid.minor.x  = el_def("element_line", "panel.grid.minor"),
   panel.grid.minor.y  = el_def("element_line", "panel.grid.minor"),
+  panel.ontop         = el_def("logical"),
 
   strip.background    = el_def("element_rect", "rect"),
   strip.text.x        = el_def("element_text", "strip.text"),
   strip.text.y        = el_def("element_text", "strip.text"),
+  strip.switch.pad.grid = el_def("unit"),
+  strip.switch.pad.wrap = el_def("unit"),
 
   plot.background     = el_def("element_rect", "rect"),
   plot.title          = el_def("element_text", "title"),
-  plot.margin         = el_def("unit"),
+  plot.margin         = el_def("margin"),
 
   aspect.ratio        = el_def("character")
 )
@@ -350,7 +309,9 @@ validate_element <- function(el, elname) {
     # but sometimes its a vector like c(0,0)
     if (!is.character(el) && !is.numeric(el))
       stop("Element ", elname, " must be a string or numeric vector.")
-
+  } else if (eldef$class == "margin") {
+    if (!is.unit(el) && length(el) == 4)
+      stop("Element ", elname, " must be a unit vector of length 4.")
   } else if (!inherits(el, eldef$class) && !inherits(el, "element_blank")) {
       stop("Element ", elname, " must be a ", eldef$class, " object.")
   }

@@ -16,72 +16,48 @@
 #' ggplot(dsub, aes(x = cut, y = carat, fill = clarity)) +
 #'   geom_boxplot(outlier.size = 0) +
 #'   geom_point(pch = 21, position = position_jitterdodge())
-position_jitterdodge <- function (jitter.width = NULL,
-                                  jitter.height = NULL,
-                                  dodge.width = NULL) {
+position_jitterdodge <- function(jitter.width = NULL, jitter.height = 0,
+                                 dodge.width = 0.75) {
 
-  PositionJitterDodge$new(jitter.width = jitter.width,
-                          jitter.height = jitter.height,
-                          dodge.width = dodge.width)
+  ggproto(NULL, PositionJitterdodge,
+    jitter.width = jitter.width,
+    jitter.height = jitter.height,
+    dodge.width = dodge.width
+  )
 }
 
-PositionJitterDodge <- proto(Position, {
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+PositionJitterdodge <- ggproto("PositionJitterdodge", Position,
+  jitter.width = NULL,
+  jitter.height = NULL,
+  dodge.width = NULL,
 
-  jitter.width <- NULL
-  jitter.height <- NULL
-  dodge.width <- NULL
+  required_aes = c("x", "y", "fill"),
 
-  new <- function(.,
-                  jitter.width = NULL,
-                  jitter.height = NULL,
-                  dodge.width = NULL) {
-
-    .$proto(jitter.width=jitter.width,
-            jitter.height=jitter.height,
-            dodge.width=dodge.width)
-
-  }
-
-  objname <- "jitterdodge"
-
-  adjust <- function(., data) {
-
-    if (empty(data)) return(data.frame())
-    check_required_aesthetics(c("x", "y", "fill"), names(data), "position_jitterdodge")
-
-    ## Workaround to avoid this warning:
-    ## ymax not defined: adjusting position using y instead
-    if (!("ymax" %in% names(data))) {
-      data$ymax <- data$y
-    }
-
-    ## Adjust the x transformation based on the number of 'fill' variables
+  setup_params = function(self, data) {
+    width <- self$jitter.width %||% resolution(data$x, zero = FALSE) * 0.4
+    # Adjust the x transformation based on the number of 'fill' variables
     nfill <- length(levels(data$fill))
 
-    if (is.null(.$jitter.width)) {
-      .$jitter.width <- resolution(data$x, zero = FALSE) * 0.4
-    }
+    list(
+      dodge.width = self$dodge.width,
+      jitter.height = self$jitter.height,
+      jitter.width = width / (nfill + 2)
+    )
+  },
 
-    if (is.null(.$jitter.height)) {
-      .$jitter.height <- 0
-    }
 
-    trans_x <- NULL
-    trans_y <- NULL
-    if (.$jitter.width > 0) {
-      trans_x <- function(x) jitter(x, amount = .$jitter.width / (nfill + 2))
-    }
-    if (.$jitter.height > 0) {
-      trans_y <- function(x) jitter(x, amount = .$jitter.height)
-    }
+  compute_panel = function(data, params, scales) {
+    data <- collide(data, params$dodge.width, "position_jitterdodge", pos_dodge,
+      check.width = FALSE)
 
-    if (is.null(.$dodge.width)) {
-      .$dodge.width <- 0.75
-    }
-
-    ## dodge, then jitter
-    data <- collide(data, .$dodge.width, .$my_name(), pos_dodge, check.width = FALSE)
-    transform_position(data, trans_x, trans_y)
+    # then jitter
+    transform_position(data,
+      if (params$jitter.width > 0) function(x) jitter(x, amount = params$jitter.width),
+      if (params$jitter.height > 0) function(x) jitter(x, amount = params$jitter.height)
+    )
   }
-
-})
+)
