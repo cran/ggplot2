@@ -7,10 +7,15 @@
 #'   using \code{\link[MASS]{bandwidth.nrd}}.
 #' @section Computed variables:
 #' Same as \code{\link{stat_contour}}
-stat_density_2d <- function(mapping = NULL, data = NULL, geom = "density_2d",
-                           position = "identity", contour = TRUE,
-                           n = 100, h = NULL, na.rm = FALSE,
-                           show.legend = NA, inherit.aes = TRUE, ...) {
+stat_density_2d <- function(mapping = NULL, data = NULL,
+                            geom = "density_2d", position = "identity",
+                            ...,
+                            contour = TRUE,
+                            n = 100,
+                            h = NULL,
+                            na.rm = FALSE,
+                            show.legend = NA,
+                            inherit.aes = TRUE) {
   layer(
     data = data,
     mapping = mapping,
@@ -23,6 +28,7 @@ stat_density_2d <- function(mapping = NULL, data = NULL, geom = "density_2d",
       na.rm = na.rm,
       contour = contour,
       n = n,
+      h = h,
       ...
     )
   )
@@ -43,7 +49,8 @@ StatDensity2d <- ggproto("StatDensity2d", Stat,
   required_aes = c("x", "y"),
 
   compute_group = function(data, scales, na.rm = FALSE, h = NULL,
-                           contour = TRUE, n = 100) {
+                           contour = TRUE, n = 100, bins = NULL,
+                           binwidth = NULL) {
     if (is.null(h)) {
       h <- c(MASS::bandwidth.nrd(data$x), MASS::bandwidth.nrd(data$y))
     }
@@ -56,7 +63,7 @@ StatDensity2d <- ggproto("StatDensity2d", Stat,
     df$group <- data$group[1]
 
     if (contour) {
-      StatContour$compute_panel(df, scales)
+      StatContour$compute_panel(df, scales, bins, binwidth)
     } else {
       names(df) <- c("x", "y", "density", "group")
       df$level <- 1

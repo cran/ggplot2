@@ -7,6 +7,7 @@
 #'  \code{\link{geom_path}} for an unfilled polygon,
 #'  \code{\link{geom_ribbon}} for a polygon anchored on the x-axis
 #' @export
+#' @inheritParams layer
 #' @inheritParams geom_point
 #' @examples
 #' # When using geom_polygon, you will typically need two data frames:
@@ -46,9 +47,12 @@
 #'
 #' # And if the positions are in longitude and latitude, you can use
 #' # coord_map to produce different map projections.
-geom_polygon <- function(mapping = NULL, data = NULL, stat = "identity",
-                         position = "identity", na.rm = FALSE, show.legend = NA,
-                         inherit.aes = TRUE, ...) {
+geom_polygon <- function(mapping = NULL, data = NULL,
+                         stat = "identity", position = "identity",
+                         ...,
+                         na.rm = FALSE,
+                         show.legend = NA,
+                         inherit.aes = TRUE) {
   layer(
     data = data,
     mapping = mapping,
@@ -87,7 +91,7 @@ GeomPolygon <- ggproto("GeomPolygon", Geom,
       polygonGrob(munched$x, munched$y, default.units = "native",
         id = munched$group,
         gp = gpar(
-          col = alpha(first_rows$colour, first_rows$alpha),
+          col = first_rows$colour,
           fill = alpha(first_rows$fill, first_rows$alpha),
           lwd = first_rows$size * .pt,
           lty = first_rows$linetype
