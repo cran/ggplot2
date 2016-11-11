@@ -42,10 +42,12 @@ x axis label, and y axis label respectively.}
 \item{stat, position}{DEPRECATED.}
 }
 \description{
-\code{qplot} is the basic plotting function in the ggplot2 package,
-designed to be familiar if you're used to base \code{\link{plot}()}.
-It's a convenient wrapper for creating a number of different types of plots
-using a consistent calling scheme.
+\code{qplot} is a shortcut designed to be familiar if you're used to base
+\code{\link{plot}()}. It's a convenient wrapper for creating a number of
+different types of plots using a consistent calling scheme. It's great
+for allowing you to produce plots quickly, but I highly recommend
+learning \code{\link{ggplot}()} as it makes it easier to create
+complex graphics.
 }
 \examples{
 # Use data from data.frame
@@ -57,7 +59,7 @@ qplot(mpg, wt, data = mtcars, facets = vs ~ am)
 \donttest{
 qplot(1:10, rnorm(10), colour = runif(10))
 qplot(1:10, letters[1:10])
-mod <- lm(mpg ~ wt, data=mtcars)
+mod <- lm(mpg ~ wt, data = mtcars)
 qplot(resid(mod), fitted(mod))
 
 f <- function() {

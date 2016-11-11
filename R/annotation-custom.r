@@ -1,12 +1,13 @@
 #' @include geom-.r
 NULL
 
-#' Annotation: Custom grob.
+#' Annotation: Custom grob
 #'
 #' This is a special geom intended for use as static annotations
 #' that are the same in every panel. These annotations will not
 #' affect scales (i.e. the x and y axes will not grow to cover the range
-#' of the grob, and the grob will not be modified by any ggplot settings or mappings).
+#' of the grob, and the grob will not be modified by any ggplot settings
+#' or mappings).
 #'
 #' Most useful for adding tables, inset plots, and other grid-based decorations.
 #'
@@ -42,11 +43,11 @@ NULL
 #'   annotation_custom(grob = g, xmin = 1, xmax = 10, ymin = 8, ymax = 10)
 annotation_custom <- function(grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) {
   layer(
-    data = NULL,
+    data = dummy_data(),
     stat = StatIdentity,
     position = PositionIdentity,
     geom = GeomCustomAnn,
-    inherit.aes = TRUE,
+    inherit.aes = FALSE,
     params = list(
       grob = grob,
       xmin = xmin,

@@ -3,7 +3,7 @@
 \name{geom_quantile}
 \alias{geom_quantile}
 \alias{stat_quantile}
-\title{Add quantile lines from a quantile regression.}
+\title{Quantile regression}
 \usage{
 geom_quantile(mapping = NULL, data = NULL, stat = "quantile",
   position = "identity", ..., lineend = "butt", linejoin = "round",
@@ -48,8 +48,8 @@ to the paired geom/stat.}
 
 \item{linemitre}{Line mitre limit (number greater than 1)}
 
-\item{na.rm}{If \code{FALSE} (the default), removes missing values with
-a warning.  If \code{TRUE} silently removes missing values.}
+\item{na.rm}{If \code{FALSE}, the default, missing values are removed with
+a warning. If \code{TRUE}, missing values are silently removed.}
 
 \item{show.legend}{logical. Should this layer be included in the legends?
 \code{NA}, the default, includes if any aesthetics are mapped.
@@ -74,11 +74,12 @@ the default plot specification, e.g. \code{\link{borders}}.}
 function defined by \code{method}.}
 }
 \description{
-This can be used as a continuous analogue of a geom_boxplot.
+This fits a quantile regression to the data and draws the fitted quantiles
+with lines. This is as a continuous analogue to \code{\link{geom_boxplot}}.
 }
 \section{Aesthetics}{
 
-\Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "quantile")}
+\aesthetics{geom}{quantile}
 }
 
 \section{Computed variables}{

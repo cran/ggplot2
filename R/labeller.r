@@ -1,4 +1,4 @@
-#' Labeller functions
+#' Useful labeller functions
 #'
 #' Labeller functions are in charge of formatting the strip labels of
 #' facet grids and wraps. Most of them accept a \code{multi_line}
@@ -65,7 +65,6 @@
 #' @family facet
 #' @seealso \code{\link{labeller}()}, \code{\link{as_labeller}()},
 #'   \code{\link{label_bquote}()}
-#' @name labellers
 #' @examples
 #' mtcars$cyl2 <- factor(mtcars$cyl, labels = c("alpha", "beta", "gamma"))
 #' p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
@@ -87,6 +86,7 @@
 #' p + facet_grid(. ~ cyl2, labeller = label_parsed)
 #' p + facet_wrap(~vs + cyl2, labeller = label_parsed)
 #' }
+#' @name labellers
 NULL
 
 collapse_labels_lines <- function(labels) {
@@ -178,11 +178,12 @@ find_names <- function(expr) {
   }
 }
 
-#' Backquoted labeller
+#' Label with mathematical expressions
 #'
-#' \code{\link{label_bquote}()} offers a flexible way of labelling
+#' \code{label_bquote()} offers a flexible way of labelling
 #' facet rows or columns with plotmath expressions. Backquoted
 #' variables will be replaced with their value in the facet.
+#'
 #' @param rows Backquoted labelling expression for rows.
 #' @param cols Backquoted labelling expression for columns.
 #' @param default Default labeller function for the rows or the
@@ -281,6 +282,7 @@ resolve_labeller <- function(rows, cols, labels) {
 #' @param default Default labeller to process the labels produced by
 #'   lookup tables or modified by non-labeller functions.
 #' @seealso \code{\link{labeller}()}, \link{labellers}
+#' @keywords internal
 #' @export
 #' @examples
 #' p <- ggplot(mtcars, aes(disp, drat)) + geom_point()
@@ -322,7 +324,7 @@ as_labeller <- function(x, default = label_value, multi_line = TRUE) {
   structure(fun, class = "labeller")
 }
 
-#' Generic labeller function for facets
+#' Construct labelling specification
 #'
 #' This function makes it easy to assign different labellers to
 #' different factors. The labeller can be a function or it can be a
@@ -472,50 +474,53 @@ labeller <- function(..., .rows = NULL, .cols = NULL,
 }
 
 
-build_strip <- function(panel, label_df, labeller, theme, side = "right", switch = NULL) {
-  side <- match.arg(side, c("top", "left", "bottom", "right"))
-  horizontal <- side %in% c("top", "bottom")
+build_strip <- function(label_df, labeller, theme, horizontal) {
   labeller <- match.fun(labeller)
 
   # No labelling data, so return empty row/col
   if (empty(label_df)) {
-    if (horizontal) {
-      widths <- unit(rep(0, max(panel$layout$COL)), "null")
-      return(gtable_row_spacer(widths))
+    return(if (horizontal) {
+      list(top = NULL, bottom = NULL)
     } else {
-      heights <- unit(rep(0, max(panel$layout$ROW)), "null")
-      return(gtable_col_spacer(heights))
-    }
+      list(left = NULL, right = NULL)
+    })
   }
 
   # Create matrix of labels
   labels <- lapply(labeller(label_df), cbind)
   labels <- do.call("cbind", labels)
 
-  # Display the mirror of the y strip labels if switched
-  if (!is.null(switch) && switch %in% c("both", "y")) {
-    theme$strip.text.y$angle <- adjust_angle(theme$strip.text.y$angle)
-  }
-
-  # Render as grobs
-  grobs <- apply(labels, c(1, 2), ggstrip, theme = theme,
-    horizontal = horizontal)
-
-  # Create layout
-  name <- paste("strip", side, sep = "-")
   if (horizontal) {
-    # Each row is as high as the highest and as a wide as the panel
-    row_height <- function(row) max(plyr::laply(row, height_cm))
-    grobs <- t(grobs)
-    heights <- unit(apply(grobs, 1, row_height), "cm")
-    widths <- unit(rep(1, ncol(grobs)), "null")
+    grobs <- apply(labels, c(1, 2), ggstrip, theme = theme,
+      horizontal = horizontal)
+    heights <- unit(apply(grobs, 2, max_height), "cm")
+    grobs <- apply(grobs, 1, function(strips) {
+      gtable_matrix("strip", matrix(strips, ncol = 1), unit(1, "null"), heights, clip = "on")
+    })
+    list(
+      top = grobs,
+      bottom = grobs
+    )
   } else {
-    # Each row is wide as the widest and as high as the panel
-    col_width <- function(col) max(plyr::laply(col, width_cm))
-    widths <- unit(apply(grobs, 2, col_width), "cm")
-    heights <- unit(rep(1, nrow(grobs)), "null")
+    grobs_right <- apply(labels, c(1, 2), ggstrip, theme = theme,
+      horizontal = horizontal)
+    grobs_right <- grobs_right[, rev(seq_len(ncol(grobs_right))), drop = FALSE]
+    widths <- unit(apply(grobs_right, 2, max_width), "cm")
+    grobs_right <- apply(grobs_right, 1, function(strips) {
+      gtable_matrix("strip", matrix(strips, nrow = 1), widths, unit(1, "null"), clip = "on")
+    })
+    theme$strip.text.y$angle <- adjust_angle(theme$strip.text.y$angle)
+    grobs_left <- apply(labels, c(1, 2), ggstrip, theme = theme,
+      horizontal = horizontal)
+    widths <- unit(apply(grobs_left, 2, max_width), "cm")
+    grobs_left <- apply(grobs_left, 1, function(strips) {
+      gtable_matrix("strip", matrix(strips, nrow = 1), widths, unit(1, "null"), clip = "off")
+    })
+    list(
+      left = grobs_left,
+      right = grobs_right
+    )
   }
-  gtable_matrix(name, grobs, heights = heights, widths = widths)
 }
 
 # Grob for strip labels

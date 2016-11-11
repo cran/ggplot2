@@ -2,7 +2,7 @@
 % Please edit documentation in R/coord-polar.r
 \name{coord_polar}
 \alias{coord_polar}
-\title{Polar coordinates.}
+\title{Polar coordinates}
 \usage{
 coord_polar(theta = "x", start = 0, direction = 1)
 }
@@ -46,7 +46,7 @@ df <- data.frame(
   value = c(20, 80)
 )
 ggplot(df, aes(x = "", y = value, fill = variable)) +
-  geom_bar(width = 1, stat = "identity") +
+  geom_col(width = 1) +
   scale_fill_manual(values = c("red", "yellow")) +
   coord_polar("y", start = pi / 3) +
   labs(title = "Pac man")

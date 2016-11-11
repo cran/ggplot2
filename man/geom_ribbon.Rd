@@ -3,7 +3,7 @@
 \name{geom_ribbon}
 \alias{geom_area}
 \alias{geom_ribbon}
-\title{Ribbons and area plots.}
+\title{Ribbons and area plots}
 \usage{
 geom_ribbon(mapping = NULL, data = NULL, stat = "identity",
   position = "identity", ..., na.rm = FALSE, show.legend = NA,
@@ -44,8 +44,8 @@ often aesthetics, used to set an aesthetic to a fixed value, like
 \code{color = "red"} or \code{size = 3}. They may also be parameters
 to the paired geom/stat.}
 
-\item{na.rm}{If \code{FALSE} (the default), removes missing values with
-a warning.  If \code{TRUE} silently removes missing values.}
+\item{na.rm}{If \code{FALSE}, the default, missing values are removed with
+a warning. If \code{TRUE}, missing values are silently removed.}
 
 \item{show.legend}{logical. Should this layer be included in the legends?
 \code{NA}, the default, includes if any aesthetics are mapped.
@@ -57,20 +57,21 @@ that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link{borders}}.}
 }
 \description{
-For each continuous x value, \code{geom_interval} displays a y interval.
-\code{geom_area} is a special case of \code{geom_ribbon}, where the
-minimum of the range is fixed to 0.
+For each x value, \code{geom_ribbon} displays a y interval defined
+by \code{ymin} and \code{ymax}. \code{geom_area} is a special case of
+\code{geom_ribbon}, where the \code{ymin} is fixed to 0.
 }
 \details{
 An area plot is the continuous analog of a stacked bar chart (see
 \code{\link{geom_bar}}), and can be used to show how composition of the
-whole varies over the range of x.  Choosing the order in which different
+whole varies over the range of x. Choosing the order in which different
 components is stacked is very important, as it becomes increasing hard to
-see the individual pattern as you move up the stack.
+see the individual pattern as you move up the stack. See
+\code{\link{position_stack}} for the details of stacking algorithm.
 }
 \section{Aesthetics}{
 
-\Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "ribbon")}
+\aesthetics{geom}{ribbon}
 }
 \examples{
 # Generate data

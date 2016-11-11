@@ -1,9 +1,10 @@
 #' Horizontal error bars
 #'
-#' @section Aesthetics:
-#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "errorbarh")}
+#' A rotated version of \code{\link{geom_errorbar}}.
 #'
-#' @seealso \code{\link{geom_errorbar}}: vertical error bars
+#' @section Aesthetics:
+#' \aesthetics{geom}{errorbarh}
+#'
 #' @inheritParams layer
 #' @inheritParams geom_point
 #' @export

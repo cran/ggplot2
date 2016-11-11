@@ -62,7 +62,7 @@ ggplot(mod, aes(.fitted, sqrt(abs(.stdresid)))) +
 
 plot(mod, which = 4)
 ggplot(mod, aes(seq_along(.cooksd), .cooksd)) +
-  geom_bar(stat = "identity")
+  geom_col()
 
 plot(mod, which = 5)
 ggplot(mod, aes(.hat, .stdresid)) +
@@ -85,4 +85,5 @@ ggplot(mod, aes(.hat, .cooksd)) +
   geom_point(aes(size = .cooksd / .hat)) +
   scale_size_area()
 }
+\keyword{internal}
 

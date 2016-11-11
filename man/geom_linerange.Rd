@@ -5,7 +5,7 @@
 \alias{geom_errorbar}
 \alias{geom_linerange}
 \alias{geom_pointrange}
-\title{Vertical intervals: lines, crossbars & errorbars.}
+\title{Vertical intervals: lines, crossbars & errorbars}
 \usage{
 geom_crossbar(mapping = NULL, data = NULL, stat = "identity",
   position = "identity", ..., fatten = 2.5, na.rm = FALSE,
@@ -58,8 +58,8 @@ to the paired geom/stat.}
 middle bar in \code{geom_crossbar()} and the middle point in
 \code{geom_pointrange()}.}
 
-\item{na.rm}{If \code{FALSE} (the default), removes missing values with
-a warning.  If \code{TRUE} silently removes missing values.}
+\item{na.rm}{If \code{FALSE}, the default, missing values are removed with
+a warning. If \code{TRUE}, missing values are silently removed.}
 
 \item{show.legend}{logical. Should this layer be included in the legends?
 \code{NA}, the default, includes if any aesthetics are mapped.
@@ -72,11 +72,11 @@ the default plot specification, e.g. \code{\link{borders}}.}
 }
 \description{
 Various ways of representing a vertical interval defined by \code{x},
-\code{ymin} and \code{ymax}.
+\code{ymin} and \code{ymax}. Each case draws a single graphical object.
 }
 \section{Aesthetics}{
 
-\Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "linerange")}
+\aesthetics{geom}{linerange}
 }
 \examples{
 #' # Create a simple example dataset
@@ -103,18 +103,19 @@ p +
 # specify the dodge width
 p <- ggplot(df, aes(trt, resp, fill = group))
 p +
- geom_bar(position = "dodge", stat = "identity") +
+ geom_col(position = "dodge") +
  geom_errorbar(aes(ymin = lower, ymax = upper), position = "dodge", width = 0.25)
 
 # Because the bars and errorbars have different widths
 # we need to specify how wide the objects we are dodging are
 dodge <- position_dodge(width=0.9)
 p +
-  geom_bar(position = dodge, stat = "identity") +
+  geom_col(position = dodge) +
   geom_errorbar(aes(ymin = lower, ymax = upper), position = dodge, width = 0.25)
 }
 \seealso{
 \code{\link{stat_summary}} for examples of these guys in use,
- \code{\link{geom_smooth}} for continuous analog
+ \code{\link{geom_smooth}} for continuous analog,
+ \code{\link{geom_errorbarh}} for a horizontal error bar.
 }
 

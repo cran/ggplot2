@@ -1,7 +1,9 @@
 #' @include geom-map.r
 NULL
 
-#' Annotation: maps.
+#' Annotation: a maps
+#'
+#' Display a fixed map on a plot.
 #'
 #' @param map data frame representing a map.  Most map objects can be
 #'   converted into the right format by using \code{\link{fortify}}
@@ -34,7 +36,7 @@ annotation_map <- function(map, ...) {
   stopifnot(all(c("x", "y", "id") %in% names(map)))
 
   layer(
-    data = NULL,
+    data = dummy_data(),
     stat = StatIdentity,
     geom = GeomAnnotationMap,
     position = PositionIdentity,

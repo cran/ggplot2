@@ -4,7 +4,7 @@
 \alias{geom_bin2d}
 \alias{stat_bin2d}
 \alias{stat_bin_2d}
-\title{Add heatmap of 2d bin counts.}
+\title{Heatmap of 2d bin counts}
 \usage{
 geom_bin2d(mapping = NULL, data = NULL, stat = "bin2d",
   position = "identity", ..., na.rm = FALSE, show.legend = NA,
@@ -42,8 +42,8 @@ often aesthetics, used to set an aesthetic to a fixed value, like
 \code{color = "red"} or \code{size = 3}. They may also be parameters
 to the paired geom/stat.}
 
-\item{na.rm}{If \code{FALSE} (the default), removes missing values with
-a warning.  If \code{TRUE} silently removes missing values.}
+\item{na.rm}{If \code{FALSE}, the default, missing values are removed with
+a warning. If \code{TRUE}, missing values are silently removed.}
 
 \item{show.legend}{logical. Should this layer be included in the legends?
 \code{NA}, the default, includes if any aesthetics are mapped.
@@ -66,11 +66,14 @@ horizontal directions. Overrides \code{bins} if both set.}
 \item{drop}{if \code{TRUE} removes all cells with 0 counts.}
 }
 \description{
-Add heatmap of 2d bin counts.
+Divides the plane into rectangles, counts the number of cases in
+each rectangle, and then (by default) maps the number of cases to the
+rectangle's fill. This is a useful alternative to \code{\link{geom_point}}
+in the presence of overplotting.
 }
 \section{Aesthetics}{
 
-\Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("stat", "bin2d")}
+\aesthetics{stat}{bin2d}
 }
 \examples{
 d <- ggplot(diamonds, aes(x, y)) + xlim(4, 10) + ylim(4, 10)

@@ -1,4 +1,4 @@
-#' Add a smoothed conditional mean.
+#' Smoothed conditional means
 #'
 #' Aids the eye in seeing patterns in the presence of overplotting.
 #' \code{geom_smooth} and \code{stat_smooth} are effectively aliases: they
@@ -13,7 +13,7 @@
 #' scale, and then back-transformed to the response scale.
 #'
 #' @section Aesthetics:
-#' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "smooth")}
+#' \aesthetics{geom}{smooth}
 #'
 #' @inheritParams layer
 #' @inheritParams geom_point
