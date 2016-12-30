@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
   fig.retina = NULL
 )
 ```
+<meta charset="utf-8">
 
 I'm very pleased to announce ggplot2 2.2.0. It includes four major new features:
 
@@ -29,7 +30,7 @@ I'm very pleased to announce ggplot2 2.2.0. It includes four major new features:
 * Improved theme options.
 * Better stacking.
 
-As well as numerous bug fixes and minor improvements, as described in the [release notes](http://github.com/hadley/ggplot2/releases/tag/v2.2.0).
+It also includes as numerous bug fixes and minor improvements, as described in the [release notes](http://github.com/hadley/ggplot2/releases/tag/v2.2.0).
 
 The majority of this work was carried out by [Thomas Pederson](https://github.com/thomasp85), who I was lucky to have as my "ggplot2 intern" this summer. Make sure to check out his other visualisation packages: [ggraph](https://github.com/thomasp85/ggraph), [ggforce](https://github.com/thomasp85/ggforce), and [tweenr](https://github.com/thomasp85/tweenr).
 
@@ -118,6 +119,9 @@ The facet and layout implementation has been moved to ggproto and received a lar
 
 ## Theming
 
+*   The `theme()` function now has named arguments so autocomplete
+    and documentation suggestions are vastly improved.
+
 *   Blank elements can now be overridden again so you get the expected 
     behavior when setting e.g. `axis.line.x`. 
     
@@ -135,7 +139,7 @@ The facet and layout implementation has been moved to ggproto and received a lar
     ```
 
 *   Control of legend styling has been improved. The whole legend area can be 
-    aligned according to the plot area and a box can be drawn around all legends:
+    aligned with the plot area and a box can be drawn around all legends:
     
     ```{r theme-2}
     ggplot(mpg, aes(displ, hwy, shape = drv, colour = fl)) + 
@@ -162,9 +166,6 @@ The facet and layout implementation has been moved to ggproto and received a lar
 *   The default themes has been tweaked by 
     [Jean-Olivier Irisson](http://www.obs-vlfr.fr/~irisson/) making them better
     match `theme_grey()`.
-
-*   Lastly, the `theme()` function now has named arguments so autocomplete
-    and documentation suggestions are vastly improved.
 
 ## Stacking bars
   

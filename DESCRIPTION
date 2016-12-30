@@ -1,5 +1,5 @@
 Package: ggplot2
-Version: 2.2.0
+Version: 2.2.1
 Title: Create Elegant Data Visualisations Using the Grammar of Graphics
 Description: A system for 'declaratively' creating graphics,
     based on "The Grammar of Graphics". You provide the data, tell 'ggplot2'
@@ -71,12 +71,12 @@ Collate: 'ggproto.r' 'aaa-.r' 'aes-calculated.r'
         'utilities-grid.r' 'utilities-help.r' 'utilities-matrix.r'
         'utilities-resolution.r' 'utilities-table.r' 'zxx.r' 'zzz.r'
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.1.9000
 NeedsCompilation: no
-Packaged: 2016-11-09 13:44:31 UTC; hadley
+Packaged: 2016-12-30 17:10:52 UTC; hadley
 Author: Hadley Wickham [aut, cre],
   Winston Chang [aut],
   RStudio [cph]
 Maintainer: Hadley Wickham <hadley@rstudio.com>
 Repository: CRAN
-Date/Publication: 2016-11-11 12:24:31
+Date/Publication: 2016-12-30 22:45:17
