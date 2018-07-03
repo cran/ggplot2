@@ -6,6 +6,8 @@
 \alias{ggplot2-package}
 \title{ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics}
 \description{
+\if{html}{\figure{logo.png}{options: align='right'}}
+
 A system for 'declaratively' creating graphics,
 based on "The Grammar of Graphics". You provide the data, tell 'ggplot2'
 how to map variables to aesthetics, what graphical primitives to use,
@@ -25,7 +27,12 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Winston Chang \email{winston@rstudio.com}
+  \item Winston Chang
+  \item Lionel Henry
+  \item Thomas Lin Pedersen
+  \item Kohske Takahashi
+  \item Claus Wilke
+  \item Kara Woo
 }
 
 Other contributors:

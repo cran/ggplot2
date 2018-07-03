@@ -1,9 +1,9 @@
 #' Fortify method for classes from the sp package.
 #'
 #' To figure out the correct variable name for region, inspect
-#' \code{as.data.frame(model)}.
+#' `as.data.frame(model)`.
 #'
-#' @param model \code{SpatialPolygonsDataFrame} to convert into a dataframe.
+#' @param model `SpatialPolygonsDataFrame` to convert into a dataframe.
 #' @param data not used by this method
 #' @param region name of variable used to split up regions
 #' @param ... not used by this method
@@ -107,4 +107,17 @@ fortify.Line <- function(model, data, ...) {
   names(df) <- c("long", "lat")
   df$order <- 1:nrow(df)
   df
+}
+
+
+#' @export
+#' @method fortify sfc
+fortify.sfc <- function(model, data, ...) {
+  sf::st_sf(geometry = model)
+}
+
+#' @export
+#' @method fortify sfg
+fortify.sfg <- function(model, data, ...) {
+  sf::st_sf(geometry = sf::st_sfc(model))
 }
