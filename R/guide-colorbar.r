@@ -244,7 +244,7 @@ guide_geom.colorbar <- function(guide, layers, default_mapping) {
   guide_layers <- plyr::llply(layers, function(layer) {
     matched <- matched_aes(layer, guide, default_mapping)
 
-    if (length(matched) && ((is.na(layer$show.legend) || layer$show.legend))) {
+    if (length(matched) > 0 && (isTRUE(is.na(layer$show.legend)) || isTRUE(layer$show.legend))) {
       layer
     } else {
       # This layer does not use this guide
@@ -507,7 +507,7 @@ guide_gengrob.colorbar <- function(guide, theme) {
   grob.background <- element_render(theme, "legend.background")
 
   # padding
-  padding <- convertUnit(theme$legend.margin %||% margin(), "cm")
+  padding <- convertUnit(theme$legend.margin %||% margin(), "cm", valueOnly = TRUE)
   widths <- c(padding[4], widths, padding[2])
   heights <- c(padding[1], heights, padding[3])
 

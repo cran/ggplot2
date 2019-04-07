@@ -254,7 +254,7 @@ guide_geom.legend <- function(guide, layers, default_mapping) {
         include <- is.na(layer$show.legend[matched]) ||
           layer$show.legend[matched]
       } else {
-        include <- is.na(layer$show.legend) || layer$show.legend
+        include <- isTRUE(is.na(layer$show.legend)) || isTRUE(layer$show.legend)
       }
 
       if (include) {
@@ -270,7 +270,7 @@ guide_geom.legend <- function(guide, layers, default_mapping) {
       }
     } else {
       # This layer does not contribute to the legend
-      if (is.na(layer$show.legend) || !layer$show.legend) {
+      if (isTRUE(is.na(layer$show.legend)) || !isTRUE(layer$show.legend)) {
         # Default is to exclude it
         return(NULL)
       } else {
@@ -654,7 +654,7 @@ guide_gengrob.legend <- function(guide, theme) {
   krows <- rep(vps$key.row, each = ngeom)
 
   # padding
-  padding <- convertUnit(theme$legend.margin %||% margin(), "cm")
+  padding <- convertUnit(theme$legend.margin %||% margin(), "cm", valueOnly = TRUE)
   widths <- c(padding[4], widths, padding[2])
   heights <- c(padding[1], heights, padding[3])
 
