@@ -36,7 +36,8 @@ data. All objects will be fortified to produce a data frame. See
 
 A \code{function} will be called with a single argument,
 the plot data. The return value must be a \code{data.frame}, and
-will be used as the layer data.}
+will be used as the layer data. A \code{function} can be created
+from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
 \item{position}{Position adjustment, either as a string, or the result of
 a call to a position adjustment function.}
@@ -102,6 +103,30 @@ and then standardising each bar to have the same height.
 \item \code{group}
 \item \code{linetype}
 \item \code{size}
+}
+Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
+
+
+\code{geom_col()} understands the following aesthetics (required aesthetics are in bold):
+\itemize{
+\item \strong{\code{x}}
+\item \strong{\code{y}}
+\item \code{alpha}
+\item \code{colour}
+\item \code{fill}
+\item \code{group}
+\item \code{linetype}
+\item \code{size}
+}
+Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
+
+
+\code{stat_count()} understands the following aesthetics (required aesthetics are in bold):
+\itemize{
+\item \strong{\code{x}}
+\item \code{group}
+\item \code{weight}
+\item \code{y}
 }
 Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
 }

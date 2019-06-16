@@ -1,9 +1,9 @@
 #' @param method Smoothing method (function) to use, accepts either a character vector,
 #'   e.g. `"auto"`, `"lm"`, `"glm"`, `"gam"`, `"loess"` or a function, e.g.
-#'   `MASS::rlm` or `mgcv::gam`, `base::lm`, or `base::loess`.
+#'   `MASS::rlm` or `mgcv::gam`, `stats::lm`, or `stats::loess`.
 #'
 #'   For `method = "auto"` the smoothing method is chosen based on the
-#'   size of the largest group (across all panels). [loess()] is
+#'   size of the largest group (across all panels). [stats::loess()] is
 #'   used for less than 1,000 observations; otherwise [mgcv::gam()] is
 #'   used with `formula = y ~ s(x, bs = "cs")`. Somewhat anecdotally,
 #'   `loess` gives a better appearance, but is \eqn{O(N^{2})}{O(N^2)} in memory,
@@ -106,7 +106,7 @@ StatSmooth <- ggproto("StatSmooth", Stat,
                            na.rm = FALSE) {
     if (length(unique(data$x)) < 2) {
       # Not enough data to perform fit
-      return(data.frame())
+      return(new_data_frame())
     }
 
     if (is.null(data$weight)) data$weight <- 1
