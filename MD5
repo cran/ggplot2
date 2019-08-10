@@ -1,7 +1,7 @@
-96cd5385ccf244f03400c1f410d1615d *DESCRIPTION
+28e18d8de5e0873a8172d96f7312e810 *DESCRIPTION
 4641e94ec96f98fabc56ff9cc48be14b *LICENSE
 ebba5de5c83311e01125348eacd33f46 *NAMESPACE
-16eef1209979a1c61b14c5e452e6acc0 *NEWS.md
+340fd8d756f3c3d4be3612baf66633b7 *NEWS.md
 5051571a927add8501200317b19977f7 *R/aaa-.r
 6c6f6176e43eace4931f310a5e4d9fac *R/aes-calculated.r
 3b8af777fec7700ccbaac020289680f0 *R/aes-colour-fill-alpha.r
@@ -117,8 +117,8 @@ e15bcbed2c42197c945b5d71de942420 *R/position-identity.r
 dc7e0c73fb851c510e0d60834868cc9e *R/position-jitter.r
 36472c8d9c7678b06102d071a98c3d1e *R/position-jitterdodge.R
 e5d6fc437850804effcb253465d647b0 *R/position-nudge.R
-ed3b70af02803caaf3396e5969e72c61 *R/position-stack.r
-e7981b8ccf6b806819ae8c98d07ca86a *R/quick-plot.r
+3b147e7a90e3ec70407b0170731db740 *R/position-stack.r
+a654cca7da15663cb212b9ff9dfdda33 *R/quick-plot.r
 6e5ee3be403e66c8e671820462d9d366 *R/range.r
 6d6d055caf27d08332fd5d9cdfe01ed6 *R/save.r
 8f309640faf0cdf31e748b7306fba631 *R/scale-.r
@@ -201,13 +201,13 @@ d419c85de9cb971b7ebec959a836f72c *data/seals.rda
 feb0b9906cfa349a1700f3c2e31f3f18 *inst/CITATION
 33ca178da2ea75df3bd6a5551c633ada *inst/doc/extending-ggplot2.R
 1dff43aa45f155240e89f7107e94855c *inst/doc/extending-ggplot2.Rmd
-d3049ec6d5e1c0f7eb191d5aa3b644b7 *inst/doc/extending-ggplot2.html
+b17d5f8fb4e635b262fb89e6cb22e4c1 *inst/doc/extending-ggplot2.html
 f25189ed9d6561a0710ab4ba1bd0dd38 *inst/doc/ggplot2-specs.R
 86e1ff4e1d75229564aaf304727d4be5 *inst/doc/ggplot2-specs.Rmd
 0bab2014f4dc0c4862be197d7b3dbb32 *inst/doc/ggplot2-specs.html
 0121eda7fc0e8e87ee95af1165553063 *inst/doc/profiling.R
 07a1941898adce58be21c421004d577d *inst/doc/profiling.Rmd
-80ddc05b6be73e0fcb33ffbd2e6d228a *inst/doc/profiling.html
+820bece2513a9c6b3882bb194d896e3b *inst/doc/profiling.html
 3a4891ee5205fdb60d1f77cffddc4449 *man/absoluteGrob.Rd
 5d0743f26243c5a4e351126fbacf8b35 *man/add_theme.Rd
 26291bf86dfce0b022b9cb84f8432276 *man/aes.Rd
@@ -584,7 +584,7 @@ b745e2b8d5deaf9b09be16ea7c6582e9 *tests/figs/themes/theme-void-large.svg
 155c5a88d06dc51d67956031f9dffe80 *tests/figs/themes/ticks_length.svg
 b33b549fe5cb7cb88ce01368326aefac *tests/figs/themes/width-is-3-times-height.svg
 d61ade7569d3176888310444bed0e4ef *tests/testthat.R
-7dedc5f1850dab8a2848ffd0893a2b5f *tests/testthat/Rplots.pdf
+b41d3e146bc13fca66afae129966c114 *tests/testthat/Rplots.pdf
 ba81109daa40a2c1d211674d43d42372 *tests/testthat/helper-facet.r
 c6e22f9854059871bc3318971b251866 *tests/testthat/helper-plot-data.r
 42b4f793fe5a8c4ccfefd8a9643566fe *tests/testthat/helper-vdiffr.R
@@ -601,7 +601,7 @@ e22a23597ee37b3b1d2d9c6415793c9c *tests/testthat/test-coord-map.R
 f167af6b0a89df232356d91e0d6988fb *tests/testthat/test-coord-polar.r
 cca300837a2099d51ed73774a298d6ff *tests/testthat/test-coord-train.r
 a0a3a56717301430b5b4ff56ac4b74f9 *tests/testthat/test-coord-transform.R
-47c0cb03cda9ce69c937aab11e5e2238 *tests/testthat/test-coord_sf.R
+f9744b01418dfbdfb8bffb10be228f18 *tests/testthat/test-coord_sf.R
 b5cbb6236fbf7ea70e9e1c56bf4c66b9 *tests/testthat/test-data.r
 688834bdd1c2d21de97d9274f8287714 *tests/testthat/test-draw-key.R
 3ed4a767df90a6a831d62045a4e2b617 *tests/testthat/test-empty-data.r
@@ -643,7 +643,7 @@ f4979c887792ed92a5a2144d93463013 *tests/testthat/test-munch.r
 47fc9191b0f151faa6ed30b11ad882f2 *tests/testthat/test-plot-summary-api.R
 5df014778a3d894c281fd7ce702ef69a *tests/testthat/test-position-dodge2.R
 c1d3f0e71a165864379dbcb0048c5dd8 *tests/testthat/test-position-nudge.R
-73237666cf8604a16d1b2f86e2cd2405 *tests/testthat/test-position-stack.R
+f87da79ef8606524dee23db17771b870 *tests/testthat/test-position-stack.R
 ec5f7f8b1e72ebcb53ca90e9d6e8eab3 *tests/testthat/test-position_dodge.R
 eb386ab52d4eea5093a8de5bf5cacc7a *tests/testthat/test-qplot.r
 45d224fd74d9159fcaa8ca08e66d3176 *tests/testthat/test-range.r
