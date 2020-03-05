@@ -6,15 +6,37 @@
 \alias{stat_summary_hex}
 \title{Bin and summarise in 2d (rectangle & hexagons)}
 \usage{
-stat_summary_2d(mapping = NULL, data = NULL, geom = "tile",
-  position = "identity", ..., bins = 30, binwidth = NULL,
-  drop = TRUE, fun = "mean", fun.args = list(), na.rm = FALSE,
-  show.legend = NA, inherit.aes = TRUE)
+stat_summary_2d(
+  mapping = NULL,
+  data = NULL,
+  geom = "tile",
+  position = "identity",
+  ...,
+  bins = 30,
+  binwidth = NULL,
+  drop = TRUE,
+  fun = "mean",
+  fun.args = list(),
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
 
-stat_summary_hex(mapping = NULL, data = NULL, geom = "hex",
-  position = "identity", ..., bins = 30, binwidth = NULL,
-  drop = TRUE, fun = "mean", fun.args = list(), na.rm = FALSE,
-  show.legend = NA, inherit.aes = TRUE)
+stat_summary_hex(
+  mapping = NULL,
+  data = NULL,
+  geom = "hex",
+  position = "identity",
+  ...,
+  bins = 30,
+  binwidth = NULL,
+  drop = TRUE,
+  fun = "mean",
+  fun.args = list(),
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
 }
 \arguments{
 \item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
@@ -103,11 +125,13 @@ d + stat_summary_2d()
 
 # Specifying function
 d + stat_summary_2d(fun = function(x) sum(x^2))
+d + stat_summary_2d(fun = ~ sum(.x^2))
 d + stat_summary_2d(fun = var)
 d + stat_summary_2d(fun = "quantile", fun.args = list(probs = 0.1))
 
 if (requireNamespace("hexbin")) {
 d + stat_summary_hex()
+d + stat_summary_hex(fun = ~ sum(.x^2))
 }
 }
 \seealso{

@@ -4,13 +4,13 @@
 #' The function is called with a grid of evenly spaced values along the x axis,
 #' and the results are drawn (by default) with a line.
 #'
-#' @eval rd_aesthetics("stat", "function")
+#'
 #' @param fun Function to use. Either 1) an anonymous function in the base or
 #'   rlang formula syntax (see [rlang::as_function()])
 #'   or 2) a quoted or character name referencing a function; see examples. Must
 #'   be vectorised.
 #' @param n Number of points to interpolate along
-#' @param args List of additional arguments to pass to `fun`
+#' @param args List of additional arguments passed on to the function defined by `fun`.
 #' @param xlim Optionally, restrict the range of the function to this range.
 #' @inheritParams layer
 #' @inheritParams geom_point
@@ -64,6 +64,15 @@ stat_function <- function(mapping = NULL, data = NULL,
                           na.rm = FALSE,
                           show.legend = NA,
                           inherit.aes = TRUE) {
+
+  # Warn if supplied mapping and/or data is going to be overwritten
+  if (!is.null(mapping)) {
+    warn("`mapping` is not used by stat_function()")
+  }
+  if (!is.null(data)) {
+    warn("`data` is not used by stat_function()")
+  }
+
   layer(
     data = data,
     mapping = mapping,
@@ -88,7 +97,7 @@ stat_function <- function(mapping = NULL, data = NULL,
 #' @usage NULL
 #' @export
 StatFunction <- ggproto("StatFunction", Stat,
-  default_aes = aes(y = stat(y)),
+  default_aes = aes(y = after_stat(y)),
 
   compute_group = function(data, scales, fun, xlim = NULL, n = 101, args = list()) {
     range <- xlim %||% scales$x$dimension()

@@ -2,12 +2,21 @@
 % Please edit documentation in R/stat-ellipse.R
 \name{stat_ellipse}
 \alias{stat_ellipse}
-\title{Compute normal confidence ellipses}
+\title{Compute normal data ellipses}
 \usage{
-stat_ellipse(mapping = NULL, data = NULL, geom = "path",
-  position = "identity", ..., type = "t", level = 0.95,
-  segments = 51, na.rm = FALSE, show.legend = NA,
-  inherit.aes = TRUE)
+stat_ellipse(
+  mapping = NULL,
+  data = NULL,
+  geom = "path",
+  position = "identity",
+  ...,
+  type = "t",
+  level = 0.95,
+  segments = 51,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
 }
 \arguments{
 \item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
@@ -47,7 +56,7 @@ The default \code{"t"} assumes a multivariate t-distribution, and
 representing the euclidean distance from the center.
 This ellipse probably won't appear circular unless \code{coord_fixed()} is applied.}
 
-\item{level}{The confidence level at which to draw an ellipse (default is 0.95),
+\item{level}{The level at which to draw an ellipse,
 or, if \code{type="euclid"}, the radius of the circle to be drawn.}
 
 \item{segments}{The number of segments to be used in drawing the ellipse.}
@@ -68,7 +77,7 @@ the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
 }
 \description{
 The method for calculating the ellipses has been modified from
-\code{car::ellipse} (Fox and Weisberg, 2011)
+\code{car::dataEllipse} (Fox and Weisberg, 2011)
 }
 \examples{
 ggplot(faithful, aes(waiting, eruptions)) +

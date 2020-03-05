@@ -83,10 +83,10 @@ Facet <- ggproto("Facet", NULL,
   params = list(),
 
   compute_layout = function(data, params) {
-    stop("Not implemented", call. = FALSE)
+    abort("Not implemented")
   },
   map_data = function(data, layout, params) {
-    stop("Not implemented", call. = FALSE)
+    abort("Not implemented")
   },
   init_scales = function(layout, x_scale = NULL, y_scale = NULL, params) {
     scales <- list()
@@ -125,7 +125,7 @@ Facet <- ggproto("Facet", NULL,
     rep(list(zeroGrob()), length(unique(layout$PANEL)))
   },
   draw_panels = function(panels, layout, x_scales, y_scales, ranges, coord, data, theme, params) {
-    stop("Not implemented", call. = FALSE)
+    abort("Not implemented")
   },
   draw_labels = function(panels, layout, x_scales, y_scales, ranges, coord, data, theme, labels, params) {
     panel_dim <-  find_panel(panels)
@@ -155,6 +155,7 @@ Facet <- ggproto("Facet", NULL,
     panels
   },
   setup_params = function(data, params) {
+    params$.possible_columns <- unique(unlist(lapply(data, names)))
     params
   },
   setup_data = function(data, params) {
@@ -276,7 +277,7 @@ df.grid <- function(a, b) {
 
 as_facets_list <- function(x) {
   if (inherits(x, "uneval")) {
-    stop("Please use `vars()` to supply facet variables", call. = FALSE)
+    abort("Please use `vars()` to supply facet variables")
   }
   if (is_quosures(x)) {
     x <- quos_auto_name(x)
@@ -417,11 +418,13 @@ is_facets <- function(x) {
 # when evaluating an expression, you want to see any errors. That does
 # mean you can't have background data when faceting by an expression,
 # but that seems like a reasonable tradeoff.
-eval_facets <- function(facets, data, env = globalenv()) {
-  vars <- compact(lapply(facets, eval_facet, data, env = env))
-  tibble::as_tibble(vars)
+eval_facets <- function(facets, data, possible_columns = NULL) {
+  vars <- compact(lapply(facets, eval_facet, data, possible_columns = possible_columns))
+  new_data_frame(tibble::as_tibble(vars))
 }
-eval_facet <- function(facet, data, env = emptyenv()) {
+eval_facet <- function(facet, data, possible_columns = NULL) {
+  # Treat the case when `facet` is a quosure of a symbol specifically
+  # to issue a friendlier warning
   if (quo_is_symbol(facet)) {
     facet <- as.character(quo_get_expr(facet))
 
@@ -433,7 +436,22 @@ eval_facet <- function(facet, data, env = emptyenv()) {
     return(out)
   }
 
-  eval_tidy(facet, data, env)
+  # Key idea: use active bindings so that column names missing in this layer
+  # but present in others raise a custom error
+  env <- new_environment(data)
+  missing_columns <- setdiff(possible_columns, names(data))
+  undefined_error <- function(e) abort("", class = "ggplot2_missing_facet_var")
+  bindings <- rep_named(missing_columns, list(undefined_error))
+  env_bind_active(env, !!!bindings)
+
+  # Create a data mask and install a data pronoun manually (see ?new_data_mask)
+  mask <- new_data_mask(env)
+  mask$.data <- as_data_pronoun(mask)
+
+  tryCatch(
+    eval_tidy(facet, mask),
+    ggplot2_missing_facet_var = function(e) NULL
+  )
 }
 
 layout_null <- function() {
@@ -446,11 +464,7 @@ check_layout <- function(x) {
     return()
   }
 
-  stop(
-    "Facet layout has bad format. ",
-    "It must contain columns 'PANEL', 'SCALE_X', and 'SCALE_Y'",
-    call. = FALSE
-  )
+  abort("Facet layout has bad format. It must contain columns 'PANEL', 'SCALE_X', and 'SCALE_Y'")
 }
 
 
@@ -528,10 +542,11 @@ panel_rows <- function(table) {
 #' @keywords internal
 #' @export
 combine_vars <- function(data, env = emptyenv(), vars = NULL, drop = TRUE) {
+  possible_columns <- unique(unlist(lapply(data, names)))
   if (length(vars) == 0) return(new_data_frame())
 
   # For each layer, compute the facet values
-  values <- compact(lapply(data, eval_facets, facets = vars, env = env))
+  values <- compact(lapply(data, eval_facets, facets = vars, possible_columns = possible_columns))
 
   # Form the base data.frame which contains all combinations of faceting
   # variables that appear in the data
@@ -541,12 +556,10 @@ combine_vars <- function(data, env = emptyenv(), vars = NULL, drop = TRUE) {
     missing_txt <- vapply(missing, var_list, character(1))
     name <- c("Plot", paste0("Layer ", seq_len(length(data) - 1)))
 
-    stop(
-      "At least one layer must contain all faceting variables: ",
-      var_list(names(vars)), ".\n",
-      paste0("* ", name, " is missing ", missing_txt, collapse = "\n"),
-      call. = FALSE
-    )
+    abort(glue(
+      "At least one layer must contain all faceting variables: {var_list(names(vars))}.\n",
+      glue_collapse(glue("* {name} is missing {missing_txt}"), "\n", last = "\n")
+    ))
   }
 
   base <- unique(rbind_dfs(values[has_all]))
@@ -563,11 +576,11 @@ combine_vars <- function(data, env = emptyenv(), vars = NULL, drop = TRUE) {
     if (drop) {
       new <- unique_combs(new)
     }
-    base <- rbind(base, df.grid(old, new))
+    base <- unique(rbind(base, df.grid(old, new)))
   }
 
   if (empty(base)) {
-    stop("Faceting variables must have at least one value", call. = FALSE)
+    abort("Faceting variables must have at least one value")
   }
 
   base

@@ -4,12 +4,26 @@ test_that("stat_bin throws error when y aesthetic is present", {
   dat <- data_frame(x = c("a", "b", "c"), y = c(1, 5, 10))
 
   expect_error(ggplot_build(ggplot(dat, aes(x, y)) + stat_bin()),
-    "must not be used with a y aesthetic.")
+    "can only have an x or y aesthetic.")
 
   expect_error(
     ggplot_build(ggplot(dat, aes(x)) + stat_bin(y = 5)),
     "StatBin requires a continuous x"
   )
+})
+
+test_that("stat_bin works in both directions", {
+  p <- ggplot(mpg, aes(hwy)) + stat_bin()
+  x <- layer_data(p)
+  expect_false(x$flipped_aes[1])
+
+  p <- ggplot(mpg, aes(y = hwy)) + stat_bin()
+  y <- layer_data(p)
+  expect_true(y$flipped_aes[1])
+
+  x$flipped_aes <- NULL
+  y$flipped_aes <- NULL
+  expect_identical(x, flip_data(y, TRUE)[,names(x)])
 })
 
 test_that("bins specifies the number of bins", {
@@ -144,7 +158,7 @@ test_that("stat_count throws error when y aesthetic present", {
 
   expect_error(
     ggplot_build(ggplot(dat, aes(x, y)) + stat_count()),
-    "must not be used with a y aesthetic.")
+    "can only have an x or y aesthetic.")
 
   expect_error(
     ggplot_build(ggplot(dat, aes(x)) + stat_count(y = 5)),
@@ -168,6 +182,6 @@ test_that("stat_count preserves x order for continuous and discrete", {
   mtcars$carb3 <- factor(mtcars$carb, levels = c(4,1,2,3,6,8))
   b <- ggplot_build(ggplot(mtcars, aes(carb3)) + geom_bar())
   expect_identical(b$data[[1]]$x, 1:6)
-  expect_identical(b$layout$panel_params[[1]]$x.labels, c("4","1","2","3","6","8"))
+  expect_identical(b$layout$panel_params[[1]]$x$get_labels(), c("4","1","2","3","6","8"))
   expect_identical(b$data[[1]]$y, c(10,7,10,3,1,1))
 })

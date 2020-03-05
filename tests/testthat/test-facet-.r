@@ -180,11 +180,11 @@ test_that("shrink parameter affects scaling", {
   expect_equal(r1$x[[1]], c(1, 1))
   expect_equal(r1$y[[1]], c(1, 3))
 
-  l2 <- ggplot(df, aes(1, y)) + stat_summary(fun.y = "mean")
+  l2 <- ggplot(df, aes(1, y)) + stat_summary(fun = "mean")
   r2 <- pranges(l2)
   expect_equal(r2$y[[1]], c(2, 2))
 
-  l3 <- ggplot(df, aes(1, y)) + stat_summary(fun.y = "mean") +
+  l3 <- ggplot(df, aes(1, y)) + stat_summary(fun = "mean") +
     facet_null(shrink = FALSE)
   r3 <- pranges(l3)
   expect_equal(r3$y[[1]], c(1, 3))
@@ -204,6 +204,124 @@ test_that("facet gives clear error if ", {
   )
 })
 
+# Variable combinations ---------------------------------------------------
+
+test_that("zero-length vars in combine_vars() generates zero combinations", {
+  df <- data_frame(letter = c("a", "b"))
+  expect_equal(nrow(combine_vars(list(df), vars = vars())), 0)
+  expect_equal(ncol(combine_vars(list(df), vars = vars())), 0)
+})
+
+test_that("at least one layer must contain all facet variables in combine_vars()", {
+  df <- data_frame(letter = c("a", "b"))
+  expect_silent(combine_vars(list(df), vars = vars(letter = letter)))
+  expect_error(
+    combine_vars(list(df), vars = vars(letter = number)),
+    "At least one layer"
+  )
+})
+
+test_that("at least one combination must exist in combine_vars()", {
+  df <- data_frame(letter = character(0))
+  expect_error(
+    combine_vars(list(df), vars = vars(letter = letter)),
+    "Faceting variables must have at least one value"
+  )
+})
+
+test_that("combine_vars() generates the correct combinations", {
+  df_one <- data_frame(
+    letter = c("a", "b"),
+    number = c(1, 2),
+    boolean = c(TRUE, FALSE),
+    factor = factor(c("level1", "level2"))
+  )
+
+  df_all <- expand.grid(
+    letter = c("a", "b"),
+    number = c(1, 2),
+    boolean = c(TRUE, FALSE),
+    factor = factor(c("level1", "level2")),
+    stringsAsFactors = FALSE
+  )
+
+  vars_all <- vars(letter = letter, number =  number, boolean = boolean, factor = factor)
+
+  expect_equivalent(
+    combine_vars(list(df_one), vars = vars_all),
+    df_one
+  )
+
+  expect_equivalent(
+    combine_vars(list(df_all), vars = vars_all),
+    df_all
+  )
+
+  # with drop = FALSE the rows are ordered in the opposite order
+  # NAs are dropped with drop = FALSE (except for NA factor values);
+  # NAs are kept with with drop = TRUE
+  # drop keeps all combinations of data, regardless of the combinations in which
+  # they appear in the data (in addition to keeping unused factor levels)
+  expect_equivalent(
+    combine_vars(list(df_one), vars = vars_all, drop = FALSE),
+    df_all[order(df_all$letter, df_all$number, df_all$boolean, df_all$factor), ]
+  )
+})
+
+test_that("drop = FALSE in combine_vars() keeps unused factor levels", {
+  df <- data_frame(x = factor("a", levels = c("a", "b")))
+  expect_equivalent(
+    combine_vars(list(df), vars = vars(x = x), drop = TRUE),
+    data_frame(x = factor("a"))
+  )
+  expect_equivalent(
+    combine_vars(list(df), vars = vars(x = x), drop = FALSE),
+    data_frame(x = factor(c("a", "b")))
+  )
+})
+
+test_that("combine_vars() generates the correct combinations with multiple data frames", {
+  df <- expand.grid(letter = c("a", "b"), number = c(1, 2), boolean = c(TRUE, FALSE))
+
+  vars <- vars(letter = letter, number = number)
+  expect_identical(
+    combine_vars(list(df), vars = vars),
+    combine_vars(list(df, df), vars = vars)
+  )
+  expect_identical(
+    combine_vars(list(df), vars = vars),
+    combine_vars(list(df, df[character(0)]), vars = vars)
+  )
+  expect_identical(
+    combine_vars(list(df), vars = vars),
+    combine_vars(list(df, df["letter"]), vars = vars)
+  )
+  expect_identical(
+    combine_vars(list(df), vars = vars),
+    combine_vars(list(df, df[c("letter", "number")]), vars = vars)
+  )
+})
+
+test_that("eval_facet() is tolerant for missing columns (#2963)", {
+  expect_null(eval_facet(quo(2 * x), data_frame(foo = 1), possible_columns = c("x")))
+  expect_null(eval_facet(quo(2 * .data$x), data_frame(foo = 1), possible_columns = c("x")))
+
+  # Even if there's the same name of external variable, eval_facet() returns NULL before
+  # reaching to the variable
+  bar <- 2
+  expect_null(eval_facet(quo(2 * bar), data_frame(foo = 1), possible_columns = c("bar")))
+  # If there's no same name of columns, the external variable is used
+  expect_equal(
+    eval_facet(quo(2 * bar), data_frame(foo = 1), possible_columns = c("x")),
+    4
+  )
+
+  # If the expression contains any non-existent variable, it fails
+  expect_error(
+    eval_facet(quo(no_such_variable * x), data_frame(foo = 1), possible_columns = c("x")),
+    "object 'no_such_variable' not found"
+  )
+})
 
 # Visual tests ------------------------------------------------------------
 

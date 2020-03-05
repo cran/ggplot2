@@ -19,7 +19,7 @@ unrowname <- function(x) {
   } else if (is.matrix(x)) {
     dimnames(x)[1] <- list(NULL)
   } else {
-    stop("Can only remove rownames from data.frame and matrix objects", call. = FALSE)
+    abort("Can only remove rownames from data.frame and matrix objects")
   }
   x
 }
@@ -193,7 +193,7 @@ revalue <- function(x, replace) {
     lev[match(names(replace), lev)] <- replace
     levels(x) <- lev
   } else if (!is.null(x)) {
-    stop("x is not a factor or character vector", call. = FALSE)
+    abort("x is not a factor or character vector")
   }
   x
 }
@@ -239,14 +239,14 @@ as.quoted <- function(x, env = parent.frame()) {
   } else if (is.call(x)) {
     as.list(x)[-1]
   } else {
-    stop("Only knows how to quote characters, calls, and formula", call. = FALSE)
+    abort("Only knows how to quote characters, calls, and formula")
   }
   attributes(x) <- list(env = env, class = 'quoted')
   x
 }
 # round a number to a given precision
 round_any <- function(x, accuracy, f = round) {
-  if (!is.numeric(x)) stop("x must be numeric", call. = FALSE)
+  if (!is.numeric(x)) abort("`x` must be numeric")
   f(x/accuracy) * accuracy
 }
 #' Bind data frames together by common column names
@@ -273,15 +273,22 @@ rbind_dfs <- function(dfs) {
   allocated <- rep(FALSE, length(columns))
   names(allocated) <- columns
   col_levels <- list()
+  ord_levels <- list()
   for (df in dfs) {
     new_columns <- intersect(names(df), columns[!allocated])
     for (col in new_columns) {
       if (is.factor(df[[col]])) {
+        all_ordered <- all(vapply(dfs, function(df) {
+          val <- .subset2(df, col)
+          is.null(val) || is.ordered(val)
+        }, logical(1)))
         all_factors <- all(vapply(dfs, function(df) {
           val <- .subset2(df, col)
           is.null(val) || is.factor(val)
         }, logical(1)))
-        if (all_factors) {
+        if (all_ordered) {
+          ord_levels[[col]] <- unique(unlist(lapply(dfs, function(df) levels(.subset2(df, col)))))
+        } else if (all_factors) {
           col_levels[[col]] <- unique(unlist(lapply(dfs, function(df) levels(.subset2(df, col)))))
         }
         out[[col]] <- rep(NA_character_, total)
@@ -317,6 +324,9 @@ rbind_dfs <- function(dfs) {
         out[[col]][rng] <- df[[col]]
       }
     }
+  }
+  for (col in names(ord_levels)) {
+    out[[col]] <- ordered(out[[col]], levels = ord_levels[[col]])
   }
   for (col in names(col_levels)) {
     out[[col]] <- factor(out[[col]], levels = col_levels[[col]])

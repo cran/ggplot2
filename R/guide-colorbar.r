@@ -51,7 +51,8 @@
 #' @export
 #' @family guides
 #' @examples
-#' df <- reshape2::melt(outer(1:4, 1:4), varnames = c("X1", "X2"))
+#' df <- expand.grid(X1 = 1:10, X2 = 1:10)
+#' df$value <- df$X1 * df$X2
 #'
 #' p1 <- ggplot(df, aes(X1, X2)) + geom_tile(aes(fill = value))
 #' p2 <- p1 + geom_point(aes(size = value))
@@ -116,7 +117,7 @@ guide_colourbar <- function(
   # bar
   barwidth = NULL,
   barheight = NULL,
-  nbin = 20,
+  nbin = 300,
   raster = TRUE,
 
   # frame
@@ -195,12 +196,14 @@ guide_train.colorbar <- function(guide, scale, aesthetic = NULL) {
 
   # do nothing if scale are inappropriate
   if (length(intersect(scale$aesthetics, guide$available_aes)) == 0) {
-    warning("colourbar guide needs appropriate scales: ",
-            paste(guide$available_aes, collapse = ", "))
+    warn(glue(
+      "colourbar guide needs appropriate scales: ",
+      glue_collapse(guide$available_aes, ", ", last = " or ")
+    ))
     return(NULL)
   }
   if (scale$is_discrete()) {
-    warning("colourbar guide needs continuous scales.")
+    warn("colourbar guide needs continuous scales.")
     return(NULL)
   }
 
@@ -244,10 +247,15 @@ guide_geom.colorbar <- function(guide, layers, default_mapping) {
   guide_layers <- lapply(layers, function(layer) {
     matched <- matched_aes(layer, guide, default_mapping)
 
-    if (length(matched) > 0 && (isTRUE(is.na(layer$show.legend)) || isTRUE(layer$show.legend))) {
+    if (length(matched) == 0) {
+      # This layer does not use this guide
+      return(NULL)
+    }
+
+    # check if this layer should be included
+    if (include_layer_in_guide(layer, matched)) {
       layer
     } else {
-      # This layer does not use this guide
       NULL
     }
   })
@@ -264,13 +272,17 @@ guide_gengrob.colorbar <- function(guide, theme) {
   # settings of location and size
   if (guide$direction == "horizontal") {
     label.position <- guide$label.position %||% "bottom"
-    if (!label.position %in% c("top", "bottom")) stop("label position \"", label.position, "\" is invalid")
+    if (!label.position %in% c("top", "bottom")) {
+      abort(glue("label position '{label.position}' is invalid"))
+    }
 
     barwidth <- width_cm(guide$barwidth %||% (theme$legend.key.width * 5))
     barheight <- height_cm(guide$barheight %||% theme$legend.key.height)
   } else { # guide$direction == "vertical"
     label.position <- guide$label.position %||% "right"
-    if (!label.position %in% c("left", "right")) stop("label position \"", label.position, "\" is invalid")
+    if (!label.position %in% c("left", "right")) {
+      abort(glue("label position '{label.position}' is invalid"))
+    }
 
     barwidth <- width_cm(guide$barwidth %||% theme$legend.key.width)
     barheight <- height_cm(guide$barheight %||% (theme$legend.key.height * 5))
@@ -548,25 +560,3 @@ guide_gengrob.colorbar <- function(guide, theme) {
 #' @export
 #' @rdname guide_colourbar
 guide_colorbar <- guide_colourbar
-
-#' Calculate the default hjust and vjust settings depending on legend
-#' direction and position.
-#'
-#' @noRd
-label_just_defaults.colorbar <- function(direction, position) {
-  if (direction == "horizontal") {
-    switch(
-      position,
-      "top" = list(hjust = 0.5, vjust = 0),
-      list(hjust = 0.5, vjust = 1)
-    )
-  }
-  else {
-    switch(
-      position,
-      "left" = list(hjust = 1, vjust = 0.5),
-      list(hjust = 0, vjust = 0.5)
-    )
-  }
-}
-

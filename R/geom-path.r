@@ -9,9 +9,11 @@
 #' An alternative parameterisation is [geom_segment()], where each line
 #' corresponds to a single case which provides the start and end coordinates.
 #'
+#' @eval rd_orientation()
+#'
 #' @eval rd_aesthetics("geom", "path")
 #' @inheritParams layer
-#' @inheritParams geom_point
+#' @inheritParams geom_bar
 #' @param lineend Line end style (round, butt, square).
 #' @param linejoin Line join style (round, mitre, bevel).
 #' @param linemitre Line mitre limit (number greater than 1).
@@ -34,6 +36,9 @@
 #' ggplot(economics, aes(date, unemploy)) + geom_line()
 #' ggplot(economics_long, aes(date, value01, colour = variable)) +
 #'   geom_line()
+#'
+#' # You can get a timeseries that run vertically by setting the orientation
+#' ggplot(economics, aes(unemploy, date)) + geom_line(orientation = "y")
 #'
 #' # geom_step() is useful when you want to highlight exactly when
 #' # the y value changes
@@ -135,8 +140,7 @@ GeomPath <- ggproto("GeomPath", Geom,
     data <- data[kept, ]
 
     if (!all(kept) && !params$na.rm) {
-      warning("Removed ", sum(!kept), " rows containing missing values",
-        " (geom_path).", call. = FALSE)
+      warn(glue("Removed {sum(!kept)} row(s) containing missing values (geom_path)."))
     }
 
     data
@@ -170,9 +174,7 @@ GeomPath <- ggproto("GeomPath", Geom,
     solid_lines <- all(attr$solid)
     constant <- all(attr$constant)
     if (!solid_lines && !constant) {
-      stop("geom_path: If you are using dotted or dashed lines",
-        ", colour, size and linetype must be constant over the line",
-        call. = FALSE)
+      abort("geom_path: If you are using dotted or dashed lines, colour, size and linetype must be constant over the line")
     }
 
     # Work out grouping variables for grobs
@@ -236,7 +238,7 @@ keep_mid_true <- function(x) {
 #' @export
 #' @rdname geom_path
 geom_line <- function(mapping = NULL, data = NULL, stat = "identity",
-                      position = "identity", na.rm = FALSE,
+                      position = "identity", na.rm = FALSE, orientation = NA,
                       show.legend = NA, inherit.aes = TRUE, ...) {
   layer(
     data = data,
@@ -248,6 +250,7 @@ geom_line <- function(mapping = NULL, data = NULL, stat = "identity",
     inherit.aes = inherit.aes,
     params = list(
       na.rm = na.rm,
+      orientation = orientation,
       ...
     )
   )
@@ -259,13 +262,24 @@ geom_line <- function(mapping = NULL, data = NULL, stat = "identity",
 #' @export
 #' @include geom-path.r
 GeomLine <- ggproto("GeomLine", GeomPath,
+  setup_params = function(data, params) {
+    params$flipped_aes <- has_flipped_aes(data, params, ambiguous = TRUE)
+    params
+  },
+
+  extra_params = c("na.rm", "orientation"),
+
   setup_data = function(data, params) {
-    data[order(data$PANEL, data$group, data$x), ]
+    data$flipped_aes <- params$flipped_aes
+    data <- flip_data(data, params$flipped_aes)
+    data <- data[order(data$PANEL, data$group, data$x), ]
+    flip_data(data, params$flipped_aes)
   }
 )
 
-#' @param direction direction of stairs: 'vh' for vertical then horizontal, or
-#'   'hv' for horizontal then vertical.
+#' @param direction direction of stairs: 'vh' for vertical then horizontal,
+#'   'hv' for horizontal then vertical, or 'mid' for step half-way between
+#'   adjacent x-values.
 #' @export
 #' @rdname geom_path
 geom_step <- function(mapping = NULL, data = NULL, stat = "identity",
@@ -299,12 +313,12 @@ GeomStep <- ggproto("GeomStep", GeomPath,
   }
 )
 
-# Calculate stairsteps
-# Used by [geom_step()]
-#
-# @keyword internal
-stairstep <- function(data, direction="hv") {
-  direction <- match.arg(direction, c("hv", "vh"))
+#' Calculate stairsteps for `geom_step()`
+#' Used by `GeomStep()`
+#'
+#' @noRd
+stairstep <- function(data, direction = "hv") {
+  direction <- match.arg(direction, c("hv", "vh", "mid"))
   data <- as.data.frame(data)[order(data$x), ]
   n <- nrow(data)
 
@@ -316,16 +330,27 @@ stairstep <- function(data, direction="hv") {
   if (direction == "vh") {
     xs <- rep(1:n, each = 2)[-2*n]
     ys <- c(1, rep(2:n, each = 2))
-  } else {
+  } else if (direction == "hv") {
     ys <- rep(1:n, each = 2)[-2*n]
     xs <- c(1, rep(2:n, each = 2))
+  } else if (direction == "mid") {
+    xs <- rep(1:(n-1), each = 2)
+    ys <- rep(1:n, each = 2)
+  } else {
+    abort("Parameter `direction` is invalid.")
   }
 
-  new_data_frame(c(
-    list(
-      x = data$x[xs],
-      y = data$y[ys]
-    ),
-    data[xs, setdiff(names(data), c("x", "y"))]
-  ))
+  if (direction == "mid") {
+    gaps <- data$x[-1] - data$x[-n]
+    mid_x <- data$x[-n] + gaps/2 # map the mid-point between adjacent x-values
+    x <- c(data$x[1], mid_x[xs], data$x[n])
+    y <- c(data$y[ys])
+    data_attr <- data[c(1,xs,n), setdiff(names(data), c("x", "y"))]
+  } else {
+    x <- data$x[xs]
+    y <- data$y[ys]
+    data_attr <- data[xs, setdiff(names(data), c("x", "y"))]
+  }
+
+  new_data_frame(c(list(x = x, y = y), data_attr))
 }

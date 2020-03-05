@@ -84,7 +84,7 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
     }
 
     if (length(x_labels) != length(x_breaks)) {
-      stop("Breaks and labels along x direction are different lengths", call. = FALSE)
+      abort("Breaks and labels along x direction are different lengths")
     }
     graticule$degree_label[graticule$type == "E"] <- x_labels
 
@@ -109,7 +109,7 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
     }
 
     if (length(y_labels) != length(y_breaks)) {
-      stop("Breaks and labels along y direction are different lengths", call. = FALSE)
+      abort("Breaks and labels along y direction are different lengths")
     }
     graticule$degree_label[graticule$type == "N"] <- y_labels
 
@@ -127,8 +127,10 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
 
   setup_panel_params = function(self, scale_x, scale_y, params = list()) {
     # Bounding box of the data
-    x_range <- scale_range(scale_x, self$limits$x, self$expand)
-    y_range <- scale_range(scale_y, self$limits$y, self$expand)
+    expansion_x <- default_expansion(scale_x, expand = self$expand)
+    x_range <- expand_limits_scale(scale_x, expansion_x, coord_limits = self$limits$x)
+    expansion_y <- default_expansion(scale_y, expand = self$expand)
+    y_range <- expand_limits_scale(scale_y, expansion_y, coord_limits = self$limits$y)
     bbox <- c(
       x_range[1], y_range[1],
       x_range[2], y_range[2]
@@ -165,10 +167,7 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
 
   backtransform_range = function(panel_params) {
     # this does not actually return backtransformed ranges in the general case, needs fixing
-    warning(
-      "range backtransformation not implemented in this coord; results may be wrong.",
-      call. = FALSE
-    )
+    warn("range backtransformation not implemented in this coord; results may be wrong.")
     list(x = panel_params$x_range, y = panel_params$y_range)
   },
 
@@ -192,6 +191,8 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
 
     diff(panel_params$y_range) / diff(panel_params$x_range) / ratio
   },
+
+  labels = function(labels, panel_params) labels,
 
   render_bg = function(self, panel_params, theme) {
     el <- calc_element("panel.grid.major", theme)
@@ -243,10 +244,10 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
     tick_labels <- c(ticks1$degree_label, ticks2$degree_label)
 
     if (length(tick_positions) > 0) {
-      top <- guide_axis(
+      top <- draw_axis(
         tick_positions,
         tick_labels,
-        position = "top",
+        axis_position = "top",
         theme = theme
       )
     } else {
@@ -279,10 +280,10 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
     tick_labels <- c(ticks1$degree_label, ticks2$degree_label)
 
     if (length(tick_positions) > 0) {
-      bottom <- guide_axis(
+      bottom <- draw_axis(
         tick_positions,
         tick_labels,
-        position = "bottom",
+        axis_position = "bottom",
         theme = theme
       )
     } else {
@@ -321,10 +322,10 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
     tick_labels <- c(ticks1$degree_label, ticks2$degree_label)
 
     if (length(tick_positions) > 0) {
-      right <- guide_axis(
+      right <- draw_axis(
         tick_positions,
         tick_labels,
-        position = "right",
+        axis_position = "right",
         theme = theme
       )
     } else {
@@ -357,10 +358,10 @@ CoordSf <- ggproto("CoordSf", CoordCartesian,
     tick_labels <- c(ticks1$degree_label, ticks2$degree_label)
 
     if (length(tick_positions) > 0) {
-      left <- guide_axis(
+      left <- draw_axis(
         tick_positions,
         tick_labels,
-        position = "left",
+        axis_position = "left",
         theme = theme
       )
     } else {
@@ -432,20 +433,14 @@ coord_sf <- function(xlim = NULL, ylim = NULL, expand = TRUE,
   if (is.character(label_axes)) {
     label_axes <- parse_axes_labeling(label_axes)
   } else if (!is.list(label_axes)) {
-    stop(
-      "Panel labeling format not recognized.",
-      call. = FALSE
-    )
+    abort("Panel labeling format not recognized.")
     label_axes <- list(left = "N", bottom = "E")
   }
 
   if (is.character(label_graticule)) {
     label_graticule <- unlist(strsplit(label_graticule, ""))
   } else {
-    stop(
-      "Graticule labeling format not recognized.",
-      call. = FALSE
-    )
+    abort("Graticule labeling format not recognized.")
     label_graticule <- ""
   }
 

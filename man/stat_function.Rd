@@ -4,10 +4,20 @@
 \alias{stat_function}
 \title{Compute function for each x value}
 \usage{
-stat_function(mapping = NULL, data = NULL, geom = "path",
-  position = "identity", ..., fun, xlim = NULL, n = 101,
-  args = list(), na.rm = FALSE, show.legend = NA,
-  inherit.aes = TRUE)
+stat_function(
+  mapping = NULL,
+  data = NULL,
+  geom = "path",
+  position = "identity",
+  ...,
+  fun,
+  xlim = NULL,
+  n = 101,
+  args = list(),
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
 }
 \arguments{
 \item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
@@ -49,7 +59,7 @@ be vectorised.}
 
 \item{n}{Number of points to interpolate along}
 
-\item{args}{List of additional arguments to pass to \code{fun}}
+\item{args}{List of additional arguments passed on to the function defined by \code{fun}.}
 
 \item{na.rm}{If \code{FALSE}, the default, missing values are removed with
 a warning. If \code{TRUE}, missing values are silently removed.}
@@ -70,16 +80,6 @@ This stat makes it easy to superimpose a function on top of an existing plot.
 The function is called with a grid of evenly spaced values along the x axis,
 and the results are drawn (by default) with a line.
 }
-\section{Aesthetics}{
-
-\code{stat_function()} understands the following aesthetics (required aesthetics are in bold):
-\itemize{
-\item \code{group}
-\item \code{y}
-}
-Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
-}
-
 \section{Computed variables}{
 
 \describe{
