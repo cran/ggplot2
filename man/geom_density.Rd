@@ -84,7 +84,7 @@ that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
 
 \item{outline.type}{Type of the outline of the area; \code{"both"} draws both the
-upper and lower lines, \code{"upper"}/\code{"lower"} draws the either lines only.
+upper and lower lines, \code{"upper"}/\code{"lower"} draws the respective lines only.
 \code{"full"} draws a closed polygon around the area.}
 
 \item{geom, stat}{Use to override the default connection between
@@ -93,7 +93,7 @@ upper and lower lines, \code{"upper"}/\code{"lower"} draws the either lines only
 \item{bw}{The smoothing bandwidth to be used.
 If numeric, the standard deviation of the smoothing kernel.
 If character, a rule to choose the bandwidth, as listed in
-\code{\link[stats:bw.nrd]{stats::bw.nrd()}}.}
+\code{\link[stats:bandwidth]{stats::bw.nrd()}}.}
 
 \item{adjust}{A multiplicate bandwidth adjustment. This makes it possible
 to adjust the bandwidth while still using the a bandwidth estimator.
@@ -105,12 +105,12 @@ For example, \code{adjust = 1/2} means use half of the default bandwidth.}
 estimated, should be a power of two, see \code{\link[=density]{density()}} for
 details}
 
-\item{trim}{This parameter only matters if you are displaying multiple
-densities in one plot. If \code{FALSE}, the default, each density is
-computed on the full range of the data. If \code{TRUE}, each density
-is computed over the range of that group: this typically means the
-estimated x values will not line-up, and hence you won't be able to
-stack density values.}
+\item{trim}{If \code{FALSE}, the default, each density is computed on the
+full range of the data. If \code{TRUE}, each density is computed over the
+range of that group: this typically means the estimated x values will
+not line-up, and hence you won't be able to stack density values.
+This parameter only matters if you are displaying multiple densities in
+one plot or if you are manually adjusting the scale limits.}
 }
 \description{
 Computes and draws kernel density estimate, which is a smoothed version of

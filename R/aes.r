@@ -217,16 +217,16 @@ is_position_aes <- function(vars) {
 #' evaluation to capture the variable names. `aes_` and `aes_string`
 #' require you to explicitly quote the inputs either with `""` for
 #' `aes_string()`, or with `quote` or `~` for `aes_()`.
-#' (`aes_q` is an alias to `aes_`). This makes `aes_` and
-#' `aes_string` easy to program with.
+#' (`aes_q()` is an alias to `aes_()`). This makes `aes_()` and
+#' `aes_string()` easy to program with.
 #'
-#' `aes_string` and `aes_` are particularly useful when writing
+#' `aes_string()` and `aes_()` are particularly useful when writing
 #' functions that create plots because you can use strings or quoted
 #' names/calls to define the aesthetic mappings, rather than having to use
 #' [substitute()] to generate a call to `aes()`.
 #'
 #' I recommend using `aes_()`, because creating the equivalents of
-#' `aes(colour = "my colour")` or \code{aes{x = `X$1`}}
+#' `aes(colour = "my colour")` or \code{aes(x = `X$1`)}
 #' with `aes_string()` is quite clunky.
 #'
 #'

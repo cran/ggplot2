@@ -22,17 +22,17 @@ properties (aesthetics) of geoms. \code{\link[=aes]{aes()}} uses non-standard
 evaluation to capture the variable names. \code{aes_} and \code{aes_string}
 require you to explicitly quote the inputs either with \code{""} for
 \code{aes_string()}, or with \code{quote} or \code{~} for \code{aes_()}.
-(\code{aes_q} is an alias to \code{aes_}). This makes \code{aes_} and
-\code{aes_string} easy to program with.
+(\code{aes_q()} is an alias to \code{aes_()}). This makes \code{aes_()} and
+\code{aes_string()} easy to program with.
 }
 \details{
-\code{aes_string} and \code{aes_} are particularly useful when writing
+\code{aes_string()} and \code{aes_()} are particularly useful when writing
 functions that create plots because you can use strings or quoted
 names/calls to define the aesthetic mappings, rather than having to use
 \code{\link[=substitute]{substitute()}} to generate a call to \code{aes()}.
 
 I recommend using \code{aes_()}, because creating the equivalents of
-\code{aes(colour = "my colour")} or \code{aes{x = `X$1`}}
+\code{aes(colour = "my colour")} or \code{aes(x = `X$1`)}
 with \code{aes_string()} is quite clunky.
 }
 \section{Life cycle}{

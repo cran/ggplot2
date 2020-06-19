@@ -1,6 +1,6 @@
 #' Summarise y values at unique/binned x
 #'
-#' `stat_summary` operates on unique `x` or `y`; `stat_summary_bin`
+#' `stat_summary()` operates on unique `x` or `y`; `stat_summary_bin()`
 #' operates on binned `x` or `y`. They are more flexible versions of
 #' [stat_bin()]: instead of just counting, they can compute any
 #' aggregate.
@@ -226,11 +226,13 @@ summarise_by_x <- function(data, summary, ...) {
 #' @return A data frame with columns `y`, `ymin`, and `ymax`.
 #' @name hmisc
 #' @examples
+#' if (requireNamespace("Hmisc", quietly = TRUE)) {
 #' x <- rnorm(100)
 #' mean_cl_boot(x)
 #' mean_cl_normal(x)
 #' mean_sdl(x)
 #' median_hilow(x)
+#' }
 NULL
 
 wrap_hmisc <- function(fun) {
