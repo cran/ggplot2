@@ -73,6 +73,14 @@ test_that("a warning is generated when guides are drawn at a location that doesn
   expect_warning(ggplot_gtable(built), "Position guide is perpendicular")
 })
 
+test_that("a warning is not generated when a guide is specified with duplicate breaks", {
+  plot <- ggplot(mpg, aes(class, hwy)) +
+    geom_point() +
+    scale_y_continuous(breaks = c(20, 20))
+  built <- expect_silent(ggplot_build(plot))
+  expect_silent(ggplot_gtable(built))
+})
+
 test_that("a warning is generated when more than one position guide is drawn at a location", {
   plot <- ggplot(mpg, aes(class, hwy)) +
     geom_point() +
@@ -523,4 +531,18 @@ test_that("coloursteps guide can be styled correctly", {
   expect_doppelganger("guide_bins can show ticks",
     p + guides(colour = guide_coloursteps(ticks = TRUE))
   )
+})
+
+test_that("a warning is generated when guides(<scale> = FALSE) is specified", {
+  df <- data_frame(x = c(1, 2, 4),
+                   y = c(6, 5, 7))
+
+  # warn on guide(<scale> = FALSE)
+  expect_warning(g <- guides(colour = FALSE), "`guides(<scale> = FALSE)` is deprecated.", fixed = TRUE)
+  expect_equal(g[["colour"]], "none")
+
+  # warn on scale_*(guide = FALSE)
+  p <- ggplot(df, aes(x, y, colour = x)) + scale_colour_continuous(guide = FALSE)
+  built <- expect_silent(ggplot_build(p))
+  expect_warning(ggplot_gtable(built), "It is deprecated to specify `guide = FALSE`")
 })

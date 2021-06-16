@@ -12,6 +12,7 @@
 \alias{scale_fill_ordinal}
 \alias{scale_color_viridis_d}
 \alias{scale_color_viridis_c}
+\alias{scale_color_viridis_b}
 \title{Viridis colour scales from viridisLite}
 \usage{
 scale_colour_viridis_d(
@@ -175,6 +176,7 @@ v + scale_fill_viridis_b()
 Other colour scales: 
 \code{\link{scale_alpha}()},
 \code{\link{scale_colour_brewer}()},
+\code{\link{scale_colour_continuous}()},
 \code{\link{scale_colour_gradient}()},
 \code{\link{scale_colour_grey}()},
 \code{\link{scale_colour_hue}()},

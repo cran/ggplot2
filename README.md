@@ -55,7 +55,7 @@ ggplot(mpg, aes(displ, hwy, colour = class)) +
 
 ## Lifecycle
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 
 ggplot2 is now over 10 years old and is used by hundreds of thousands of
 people to make millions of plots. That means, by-and-large, ggplot2
@@ -84,8 +84,8 @@ documentation pages. Currently, there are three good places to start:
     get you up to speed with the essentials of ggplot2 as quickly as
     possible.
 
-2.  If you’d like to follow a webinar, try \[Plotting Anything with
-    ggplot2\]\[<https://youtu.be/h29g21z0a68>\] by Thomas Lin Pedersen.
+2.  If you’d like to follow a webinar, try [Plotting Anything with
+    ggplot2](https://youtu.be/h29g21z0a68) by Thomas Lin Pedersen.
 
 3.  If you want to dive into making common graphics as quickly as
     possible, I recommend [The R Graphics

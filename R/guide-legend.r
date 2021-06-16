@@ -91,17 +91,19 @@
 #' p1 + guides(fill = guide_legend(label.position = "left", label.hjust = 1))
 #'
 #' # label styles
-#' p1 + scale_fill_continuous(breaks = c(5, 10, 15),
-#'   labels = paste("long", c(5, 10, 15)),
-#'   guide = guide_legend(
-#'     direction = "horizontal",
-#'     title.position = "top",
-#'     label.position = "bottom",
-#'     label.hjust = 0.5,
-#'     label.vjust = 1,
-#'     label.theme = element_text(angle = 90)
+#' p1 +
+#'   scale_fill_continuous(
+#'     breaks = c(5, 10, 15),
+#'     labels = paste("long", c(5, 10, 15)),
+#'     guide = guide_legend(
+#'       direction = "horizontal",
+#'       title.position = "top",
+#'       label.position = "bottom",
+#'       label.hjust = 0.5,
+#'       label.vjust = 1,
+#'       label.theme = element_text(angle = 90)
+#'     )
 #'   )
-#' )
 #'
 #' # Set aesthetic of legend key
 #' # very low alpha value make it difficult to see legend key
@@ -245,7 +247,7 @@ guide_merge.legend <- function(guide, new_guide) {
 guide_geom.legend <- function(guide, layers, default_mapping) {
   # arrange common data for vertical and horizontal guide
   guide$geoms <- lapply(layers, function(layer) {
-    matched <- matched_aes(layer, guide, default_mapping)
+    matched <- matched_aes(layer, guide)
 
     # check if this layer should be included
     include <- include_layer_in_guide(layer, matched)
@@ -259,7 +261,7 @@ guide_geom.legend <- function(guide, layers, default_mapping) {
       n <- vapply(layer$aes_params, length, integer(1))
       params <- layer$aes_params[n == 1]
 
-      aesthetics <- layer$mapping
+      aesthetics <- layer$computed_mapping
       modifiers <- aesthetics[is_scaled_aes(aesthetics) | is_staged_aes(aesthetics)]
 
       data <- tryCatch(
@@ -279,7 +281,7 @@ guide_geom.legend <- function(guide, layers, default_mapping) {
     list(
       draw_key = layer$geom$draw_key,
       data = data,
-      params = c(layer$geom_params, layer$stat_params)
+      params = c(layer$computed_geom_params, layer$computed_stat_params)
     )
   })
 
