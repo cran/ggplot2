@@ -1,5 +1,5 @@
 Package: ggplot2
-Version: 3.3.4
+Version: 3.3.5
 Title: Create Elegant Data Visualisations Using the Grammar of Graphics
 Description: A system for 'declaratively' creating graphics,
     based on "The Grammar of Graphics". You provide the data, tell 'ggplot2'
@@ -32,7 +32,7 @@ Suggests: covr, ragg, dplyr, ggplot2movies, hexbin, Hmisc, interp,
         knitr, lattice, mapproj, maps, maptools, multcomp, munsell,
         nlme, profvis, quantreg, RColorBrewer, rgeos, rmarkdown, rpart,
         sf (>= 0.7-3), svglite (>= 1.2.0.9001), testthat (>= 2.1.0),
-        vdiffr (>= 0.3.0), xml2
+        vdiffr (>= 1.0.0), xml2
 Enhances: sp
 License: MIT + file LICENSE
 URL: https://ggplot2.tidyverse.org,
@@ -102,7 +102,7 @@ RoxygenNote: 7.1.1
 Encoding: UTF-8
 Config/Needs/website: ggtext, tidyr, forcats, tidyverse/tidytemplate
 NeedsCompilation: no
-Packaged: 2021-06-15 08:04:48 UTC; thomas
+Packaged: 2021-06-24 12:25:35 UTC; thomas
 Author: Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
   Winston Chang [aut] (<https://orcid.org/0000-0002-1576-2126>),
   Lionel Henry [aut],
@@ -116,4 +116,4 @@ Author: Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
   RStudio [cph, fnd]
 Maintainer: Thomas Lin Pedersen <thomas.pedersen@rstudio.com>
 Repository: CRAN
-Date/Publication: 2021-06-16 04:20:07 UTC
+Date/Publication: 2021-06-25 11:30:09 UTC
