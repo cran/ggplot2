@@ -1,7 +1,7 @@
-a04ef5ae3a84d5e93f3ace8bffcc203e *DESCRIPTION
+a8b6cc5e9caf3ac315d5d881cab319ae *DESCRIPTION
 286a02e6cc9b0d29955b363afd8dcf98 *LICENSE
 f13d521da6df50e964f097fadb6b4312 *NAMESPACE
-b90aaf5ccb21875471935b31715b68f5 *NEWS.md
+d04b76f023f5cd6de984ada7e80bc1aa *NEWS.md
 5051571a927add8501200317b19977f7 *R/aaa-.r
 bb29fe3c88076c8519e807b4b9df118b *R/aes-colour-fill-alpha.r
 a13792015456d519b5aa492d75f62f68 *R/aes-evaluation.r
@@ -94,7 +94,7 @@ a1ad1cfc5e907487d6d7bb9b9453e414 *R/grob-null.r
 6259c7938dd7ec176c954dfc5903aa28 *R/guide-bins.R
 d8a44b5473deeda0cdef74dae2df0a33 *R/guide-colorbar.r
 8db5f435db8f20081da5a0d2e76e6bf2 *R/guide-colorsteps.R
-9f2397e1839f58a26a292a7fe44d5629 *R/guide-legend.r
+900ba624c83f3c618f31037037e40b66 *R/guide-legend.r
 7e7d95332ceeb70c3cce022b50a792e0 *R/guides-.r
 46669be6380845f7612c2fe6a4965600 *R/guides-axis.r
 ad1aab9f73a34aca5347f363ef1ca74e *R/guides-grid.r
@@ -133,7 +133,7 @@ ea7acb97d6f17be2cd426c5791c5dd1f *R/scale-binned.R
 f4b91097e2b0be493c96daedb5dcef3c *R/scale-colour.r
 114c41ba652fb095a7aefb1a081872f7 *R/scale-continuous.r
 67dfab2703b645da12c220c52a226678 *R/scale-date.r
-d2256ee78096d992cd27cd251e804f32 *R/scale-discrete-.r
+336369f91eac59050b9e1057b32ec4be *R/scale-discrete-.r
 ae69e211fe662870bb38370a53abb4a9 *R/scale-expansion.r
 7384af0b529ecad261fa0e135c05ba27 *R/scale-gradient.r
 d2db3d974509d9d0bd0e0be07431990f *R/scale-grey.r
@@ -194,8 +194,8 @@ e72a2689dc0d2076b7492a6ebd165b62 *R/utilities-table.r
 7dfa5311a9a770ca9c41d6c5d25b462f *R/utilities.r
 f8fbeb4054f12deb43e40f0e5e2bc45b *R/zxx.r
 66ab4858fdf78f7de012360dd3abccf8 *R/zzz.r
-6e68aa1be53da27fe0504ec877355094 *README.md
-c1570cebad5887ae67eb759a1c9f500a *build/vignette.rds
+697741da18fc6a54a10d864781b99fab *README.md
+d07c1613b76a6fe309df081c211ed495 *build/vignette.rds
 7fd28ad1feab3e3c773313672cd1b3be *data/diamonds.rda
 cf47b6ee0b396c32f0f1896c8bae5fc7 *data/economics.rda
 3ef10c615e22597d7604434455df3998 *data/economics_long.rda
@@ -210,13 +210,13 @@ d419c85de9cb971b7ebec959a836f72c *data/seals.rda
 feb0b9906cfa349a1700f3c2e31f3f18 *inst/CITATION
 b093a73dd8023300d6abbd2c63513c57 *inst/doc/extending-ggplot2.R
 f680d980af0800aa3bf052bb9944cf95 *inst/doc/extending-ggplot2.Rmd
-82be69229915571f7f900a98c9fa0c12 *inst/doc/extending-ggplot2.html
+e7795f46d82db6d81b06431b72b6bdcc *inst/doc/extending-ggplot2.html
 a4312f98726aaa2d3eb87ac5c8189aca *inst/doc/ggplot2-in-packages.R
 a4a8a27ca13d532bcd407c7a6edd0db7 *inst/doc/ggplot2-in-packages.Rmd
-d9534d25e7f7b2f5e87f68b1aad891a8 *inst/doc/ggplot2-in-packages.html
+a6a3d219d28179556ad333bd131fe073 *inst/doc/ggplot2-in-packages.html
 e55096be6e7575cdfca9411cf7d742df *inst/doc/ggplot2-specs.R
 2618399c87098685c0287ffc13598636 *inst/doc/ggplot2-specs.Rmd
-399a15dbeae38ecf5516f39634fa7400 *inst/doc/ggplot2-specs.html
+c266477f2c2ea222a06c72c978b2cb74 *inst/doc/ggplot2-specs.html
 6e82ba4ff88474cfd93e87aaef992fcd *man/absoluteGrob.Rd
 5d0743f26243c5a4e351126fbacf8b35 *man/add_theme.Rd
 e82fbe2e6244406375452760c85998b0 *man/aes.Rd
@@ -414,7 +414,7 @@ b9463c641ffcbbb59fdbd4f0a8f555ff *man/vars.Rd
 383cad5462bbfd4c96e49448bf5bfed5 *man/zeroGrob.Rd
 d61ade7569d3176888310444bed0e4ef *tests/testthat.R
 23a597a162956a2c748043772eb795e2 *tests/testthat/Rplot001.png
-d6be87390153371b501988f8145e6bdc *tests/testthat/Rplots.pdf
+de1e5160aaf8b4d00eb7b6a1c9bfe936 *tests/testthat/Rplots.pdf
 ffb0058105b0f9ee5cc082b29b4328eb *tests/testthat/_snaps/aes/alpha-set-in-alpha.svg
 a36afb28dddae6a5b54ea8616a80cda4 *tests/testthat/_snaps/aes/alpha-set-in-colour.svg
 56d3a95205d07b08d070d755f6064cfa *tests/testthat/_snaps/aes/stat-count-width-0-5.svg
@@ -655,7 +655,7 @@ f0ce7b2f04c8db984ad6347792360016 *tests/testthat/test-coord-polar.r
 cca300837a2099d51ed73774a298d6ff *tests/testthat/test-coord-train.r
 62269faf3a54c66aa6d4e413ec2d31e9 *tests/testthat/test-coord-transform.R
 760b1a65cc158a32f23466fdb21ceef8 *tests/testthat/test-coord_sf.R
-3d9b22c4bbf528c10da0fd9a9c2b3f72 *tests/testthat/test-data.r
+2181067e66e56f8941828ed3e647f557 *tests/testthat/test-data.r
 688834bdd1c2d21de97d9274f8287714 *tests/testthat/test-draw-key.R
 3ed4a767df90a6a831d62045a4e2b617 *tests/testthat/test-empty-data.r
 787740feedf69dbfe9f02e83aafb3b6e *tests/testthat/test-error.R
