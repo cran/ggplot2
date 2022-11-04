@@ -122,7 +122,7 @@ ScaleDiscretePosition <- ggproto("ScaleDiscretePosition", ScaleDiscrete,
     if (is.discrete(x)) {
       x <- seq_along(limits)[match(as.character(x), limits)]
     }
-    new_mapped_discrete(x)
+    mapped_discrete(x)
   },
 
   rescale = function(self, x, limits = self$get_limits(), range = self$dimension(limits = limits)) {
@@ -141,25 +141,25 @@ ScaleDiscretePosition <- ggproto("ScaleDiscretePosition", ScaleDiscrete,
   }
 )
 
-# TODO: This is a clear candidate for vctrs once we adopt it
-new_mapped_discrete <- function(x) {
-  if (is.null(x)) {
-    return(x)
-  }
-  if (!is.numeric(x)) {
-    abort("`mapped_discrete` objects can only be created from numeric vectors")
-  }
+# Can't use vctrs - vctrs is too restrictive for mapped_discrete
+new_mapped_discrete <- function(x = double()) {
+  # Check the storage mode is double but don't error on additional attributes
+  vec_assert(as.vector(x), double())
   class(x) <- c("mapped_discrete", "numeric")
   x
+}
+mapped_discrete <- function(x = double()) {
+  if (is.null(x)) return(NULL)
+  new_mapped_discrete(vec_cast(x, double()))
 }
 is_mapped_discrete <- function(x) inherits(x, "mapped_discrete")
 #' @export
 c.mapped_discrete <- function(..., recursive = FALSE) {
-  new_mapped_discrete(c(unlist(lapply(list(...), unclass))))
+  mapped_discrete(unlist(lapply(list(...), unclass)))
 }
 #' @export
 `[.mapped_discrete` <- function(x, ..., drop = TRUE) {
-  new_mapped_discrete(NextMethod())
+  mapped_discrete(NextMethod())
 }
 #' @export
 `[<-.mapped_discrete` <- function(x, ..., value) {
@@ -167,9 +167,47 @@ c.mapped_discrete <- function(..., recursive = FALSE) {
     return(x)
   }
   value <- as.numeric(unclass(value))
-  new_mapped_discrete(NextMethod())
+  mapped_discrete(NextMethod())
 }
 #' @export
 as.data.frame.mapped_discrete <- function (x, ...) {
   as.data.frame.vector(x = unclass(x), ...)
 }
+
+#' @export
+vec_ptype2.mapped_discrete.mapped_discrete <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_ptype2.mapped_discrete.double <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_ptype2.double.mapped_discrete <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_ptype2.mapped_discrete.integer <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_ptype2.integer.mapped_discrete <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_ptype2.mapped_discrete.character <- function(x, y, ...) character()
+#' @export
+vec_ptype2.character.mapped_discrete <- function(x, y, ...) character()
+#' @export
+vec_ptype2.mapped_discrete.factor <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_ptype2.factor.mapped_discrete <- function(x, y, ...) new_mapped_discrete()
+#' @export
+vec_cast.mapped_discrete.mapped_discrete <- function(x, to, ...) x
+#' @export
+vec_cast.mapped_discrete.integer <- function(x, to, ...) mapped_discrete(x)
+#' @export
+vec_cast.integer.mapped_discrete <- function(x, to, ...) as.integer(as.vector(x))
+#' @export
+vec_cast.mapped_discrete.double <- function(x, to, ...) new_mapped_discrete(x)
+#' @export
+vec_cast.double.mapped_discrete <- function(x, to, ...) as.vector(x)
+#' @export
+vec_cast.character.mapped_discrete <- function(x, to, ...) as.character(as.vector(x))
+#' @export
+vec_cast.mapped_discrete.factor <- function(x, to, ...) mapped_discrete(as.vector(unclass(x)))
+#' @export
+vec_cast.factor.mapped_discrete <- function(x, to, ...) factor(as.vector(x), ...)
+#' @export
+vec_cast.mapped_discrete.logical <- function(x, to, ...) mapped_discrete(x)
+

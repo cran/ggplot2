@@ -132,8 +132,9 @@ manual_scale <- function(aesthetic, values = NULL, breaks = waiver(), ..., limit
     force(values)
   }
 
-  if (is.null(limits)) {
-    limits <- names(values)
+  if (is.null(limits) && !is.null(names(values))) {
+    # Limits as function to access `values` names later on (#4619)
+    limits <- function(x) intersect(x, names(values)) %||% character()
   }
 
   # order values according to breaks
@@ -148,7 +149,7 @@ manual_scale <- function(aesthetic, values = NULL, breaks = waiver(), ..., limit
 
   pal <- function(n) {
     if (n > length(values)) {
-      abort(glue("Insufficient values in manual scale. {n} needed but only {length(values)} provided."))
+      cli::cli_abort("Insufficient values in manual scale. {n} needed but only {length(values)} provided.")
     }
     values
   }

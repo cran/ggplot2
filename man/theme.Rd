@@ -91,6 +91,7 @@ theme(
   strip.background,
   strip.background.x,
   strip.background.y,
+  strip.clip,
   strip.placement,
   strip.text,
   strip.text.x,
@@ -255,6 +256,11 @@ inherits from \code{rect}). Horizontal facet background (\code{strip.background.
 & vertical facet background (\code{strip.background.y}) inherit from
 \code{strip.background} or can be specified separately}
 
+\item{strip.clip}{should strip background edges and strip labels be clipped
+to the extend of the strip background? Options are \code{"on"} to clip, \code{"off"}
+to disable clipping or \code{"inherit"} (default) to take the clipping setting
+from the parent viewport.}
+
 \item{strip.placement}{placement of strip with respect to axes,
 either "inside" or "outside". Only important when axes and strips are
 on the same side of the plot.}
@@ -332,9 +338,9 @@ p1 + theme(
 
 # Axes ----------------------------------------------------------------------
 # Change styles of axes texts and lines
-p1 + theme(axis.line = element_line(size = 3, colour = "grey80"))
+p1 + theme(axis.line = element_line(linewidth = 3, colour = "grey80"))
 p1 + theme(axis.text = element_text(colour = "blue"))
-p1 + theme(axis.ticks = element_line(size = 2))
+p1 + theme(axis.ticks = element_line(linewidth = 2))
 
 # Change the appearance of the y-axis title
 p1 + theme(axis.title.y = element_text(size = rel(1.5), angle = 90))

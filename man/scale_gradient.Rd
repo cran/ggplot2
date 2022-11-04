@@ -126,6 +126,7 @@ number of breaks given by the transformation.}
 \item \code{waiver()} for the default labels computed by the
 transformation object
 \item A character vector giving labels (must be same length as \code{breaks})
+\item An expression vector (must be the same length as breaks). See ?plotmath for details.
 \item A function that takes the breaks as input and returns labels
 as output. Also accepts rlang \link[rlang:as_function]{lambda} function
 notation.
@@ -221,6 +222,7 @@ luminance. The \pkg{munsell} package makes this easy to do using the
 Munsell colour system.
 }
 \examples{
+set.seed(1)
 df <- data.frame(
   x = runif(100),
   y = runif(100),

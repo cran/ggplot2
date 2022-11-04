@@ -14,6 +14,7 @@
 #' @rdname scale_shape
 #' @export
 #' @examples
+#' set.seed(596)
 #' dsmall <- diamonds[sample(nrow(diamonds), 100), ]
 #'
 #' (d <- ggplot(dsmall, aes(carat, price)) + geom_point(aes(shape = cut)))
@@ -54,7 +55,7 @@ scale_shape_discrete <- scale_shape
 #' @export
 #' @usage NULL
 scale_shape_ordinal <- function(...) {
-  warn("Using shapes for an ordinal variable is not advised")
+  cli::cli_warn("Using shapes for an ordinal variable is not advised")
   scale_shape(...)
 }
 
@@ -62,5 +63,8 @@ scale_shape_ordinal <- function(...) {
 #' @export
 #' @usage NULL
 scale_shape_continuous <- function(...) {
-  abort("A continuous variable can not be mapped to shape")
+  cli::cli_abort(c(
+    "A continuous variable cannot be mapped to the {.field shape} aesthetic",
+    "i" = "choose a different aesthetic or use {.fn scale_shape_binned}"
+  ))
 }

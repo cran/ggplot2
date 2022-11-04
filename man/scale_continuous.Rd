@@ -93,6 +93,7 @@ number of breaks given by the transformation.}
 \item \code{waiver()} for the default labels computed by the
 transformation object
 \item A character vector giving labels (must be same length as \code{breaks})
+\item An expression vector (must be the same length as breaks). See ?plotmath for details.
 \item A function that takes the breaks as input and returns labels
 as output. Also accepts rlang \link[rlang:as_function]{lambda} function
 notation.
@@ -196,6 +197,7 @@ p1 + scale_x_continuous(
 
 # Typically you'll pass a function to the `labels` argument.
 # Some common formats are built into the scales package:
+set.seed(1)
 df <- data.frame(
   x = rnorm(10) * 100000,
   y = seq(0, 1, length.out = 10)

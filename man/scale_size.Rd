@@ -72,6 +72,7 @@ Also accepts rlang \link[rlang:as_function]{lambda} function notation.
 \item \code{waiver()} for the default labels computed by the
 transformation object
 \item A character vector giving labels (must be same length as \code{breaks})
+\item An expression vector (must be the same length as breaks). See ?plotmath for details.
 \item A function that takes the breaks as input and returns labels
 as output. Also accepts rlang \link[rlang:as_function]{lambda} function
 notation.
@@ -164,6 +165,13 @@ to a size of 0. \code{scale_size_binned()} is a binned version of \code{scale_si
 scales by area (but does not ensure 0 equals an area of zero). For a binned
 equivalent of \code{scale_size_area()} use \code{scale_size_binned_area()}.
 }
+\note{
+Historically the size aesthetic was used for two different things:
+Scaling the size of object (like points and glyphs) and scaling the width
+of lines. From ggplot2 3.4.0 the latter has been moved to its own linewidth
+aesthetic. For backwards compatibility using size is still possible, but it
+is highly advised to switch to the new linewidth aesthetic for these cases.
+}
 \examples{
 p <- ggplot(mpg, aes(displ, hwy, size = hwy)) +
    geom_point()
@@ -187,5 +195,6 @@ p + scale_radius()
 }
 \seealso{
 \code{\link[=scale_size_area]{scale_size_area()}} if you want 0 values to be mapped
-to points with size 0.
+to points with size 0. \code{\link[=scale_linewidth]{scale_linewidth()}} if you want to scale the width
+of lines.
 }

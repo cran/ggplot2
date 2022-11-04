@@ -44,18 +44,18 @@
 #' @param fun.min,fun,fun.max Alternatively, supply three individual
 #'   functions that are each passed a vector of values and should return a
 #'   single number.
-#' @param fun.ymin,fun.y,fun.ymax Deprecated, use the versions specified above
-#'   instead.
+#' @param fun.ymin,fun.y,fun.ymax `r lifecycle::badge("deprecated")` Use the
+#'   versions specified above instead.
 #' @param fun.args Optional additional arguments passed on to the functions.
 #' @export
 #' @examples
 #' d <- ggplot(mtcars, aes(cyl, mpg)) + geom_point()
-#' d + stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 2)
+#' d + stat_summary(fun.data = "mean_cl_boot", colour = "red", linewidth = 2, size = 3)
 #'
 #' # Orientation follows the discrete axis
 #' ggplot(mtcars, aes(mpg, factor(cyl))) +
 #'   geom_point() +
-#'   stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 2)
+#'   stat_summary(fun.data = "mean_cl_boot", colour = "red", linewidth = 2, size = 3)
 #'
 #' # You can supply individual functions to summarise the value at
 #' # each x:
@@ -138,17 +138,19 @@ stat_summary <- function(mapping = NULL, data = NULL,
                          orientation = NA,
                          show.legend = NA,
                          inherit.aes = TRUE,
-                         fun.y, fun.ymin, fun.ymax) {
-  if (!missing(fun.y)) {
-    warn("`fun.y` is deprecated. Use `fun` instead.")
+                         fun.y = deprecated(),
+                         fun.ymin = deprecated(),
+                         fun.ymax = deprecated()) {
+  if (lifecycle::is_present(fun.y)) {
+    deprecate_warn0("3.3.0", "stat_summary(fun.y)", "stat_summary(fun)")
     fun = fun %||% fun.y
   }
-  if (!missing(fun.ymin)) {
-    warn("`fun.ymin` is deprecated. Use `fun.min` instead.")
+  if (lifecycle::is_present(fun.ymin)) {
+    deprecate_warn0("3.3.0", "stat_summary(fun.ymin)", "stat_summary(fun.min)")
     fun.min = fun.min %||% fun.ymin
   }
-  if (!missing(fun.ymax)) {
-    warn("`fun.ymax` is deprecated. Use `fun.max` instead.")
+  if (lifecycle::is_present(fun.ymax)) {
+    deprecate_warn0("3.3.0", "stat_summary(fun.ymax)", "stat_summary(fun.max)")
     fun.max = fun.max %||% fun.ymax
   }
   layer(
@@ -159,7 +161,7 @@ stat_summary <- function(mapping = NULL, data = NULL,
     position = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
-    params = list(
+    params = list2(
       fun.data = fun.data,
       fun = fun,
       fun.max = fun.max,
@@ -234,6 +236,7 @@ summarise_by_x <- function(data, summary, ...) {
 #' @name hmisc
 #' @examples
 #' if (requireNamespace("Hmisc", quietly = TRUE)) {
+#' set.seed(1)
 #' x <- rnorm(100)
 #' mean_cl_boot(x)
 #' mean_cl_normal(x)
@@ -248,10 +251,10 @@ wrap_hmisc <- function(fun) {
     check_installed("Hmisc")
 
     fun <- getExportedValue("Hmisc", fun)
-    result <- do.call(fun, list(x = quote(x), ...))
+    result <- fun(x = x, ...)
 
     rename(
-      new_data_frame(as.list(result)),
+      data_frame0(!!!as.list(result)),
       c(Median = "y", Mean = "y", Lower = "ymin", Upper = "ymax")
     )
   }
@@ -283,11 +286,17 @@ median_hilow <- wrap_hmisc("smedian.hilow")
 #' }
 #' @export
 #' @examples
+#' set.seed(1)
 #' x <- rnorm(100)
 #' mean_se(x)
 mean_se <- function(x, mult = 1) {
   x <- stats::na.omit(x)
   se <- mult * sqrt(stats::var(x) / length(x))
   mean <- mean(x)
-  new_data_frame(list(y = mean, ymin = mean - se, ymax = mean + se), n = 1)
+  data_frame0(
+    y = mean,
+    ymin = mean - se,
+    ymax = mean + se,
+    .size = 1
+  )
 }

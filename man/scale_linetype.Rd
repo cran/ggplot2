@@ -59,6 +59,7 @@ omitted.}
 \item \code{waiver()} for the default labels computed by the
 transformation object
 \item A character vector giving labels (must be same length as \code{breaks})
+\item An expression vector (must be the same length as breaks). See ?plotmath for details.
 \item A function that takes the breaks as input and returns labels
 as output. Also accepts rlang \link[rlang:as_function]{lambda} function
 notation.
@@ -91,7 +92,7 @@ df_lines <- data.frame(
   )
 )
 ggplot(df_lines) +
-  geom_hline(aes(linetype = linetype, yintercept = 0), size = 2) +
+  geom_hline(aes(linetype = linetype, yintercept = 0), linewidth = 2) +
   scale_linetype_identity() +
   facet_grid(linetype ~ .) +
   theme_void(20)

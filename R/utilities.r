@@ -23,7 +23,7 @@ scales::alpha
 # @param character vector of present aesthetics
 # @param name of object for error message
 # @keyword internal
-check_required_aesthetics <- function(required, present, name) {
+check_required_aesthetics <- function(required, present, name, call = caller_env()) {
   if (is.null(required)) return()
 
   required <- strsplit(required, "|", fixed = TRUE)
@@ -38,11 +38,11 @@ check_required_aesthetics <- function(required, present, name) {
   }
   missing_aes <- lapply(required, setdiff, present)
   if (any(vapply(missing_aes, length, integer(1)) == 0)) return()
-
-  abort(glue(
-    "{name} requires the following missing aesthetics: ",
-    glue_collapse(lapply(missing_aes, glue_collapse, sep = ", ", last = " and "), sep = " or ")
-  ))
+  message <- "{.fn {name}} requires the following missing aesthetics: {.field {missing_aes[[1]]}}"
+  if (length(missing_aes) > 1) {
+    message <- paste0(message, " {.strong or} {.field {missing_aes[[2]]}}")
+  }
+  cli::cli_abort(message, call = call)
 }
 
 # Concatenate a named list for output
@@ -61,7 +61,7 @@ clist <- function(l) {
 #
 # @keyword internal
 uniquecols <- function(df) {
-  df <- df[1, sapply(df, function(x) length(unique(x)) == 1), drop = FALSE]
+  df <- df[1, sapply(df, function(x) length(unique0(x)) == 1), drop = FALSE]
   rownames(df) <- 1:nrow(df)
   df
 }
@@ -84,7 +84,7 @@ uniquecols <- function(df) {
 remove_missing <- function(df, na.rm = FALSE, vars = names(df), name = "",
                            finite = FALSE) {
   if (!is.logical(na.rm)) {
-    abort("`na.rm` must be logical")
+    cli::cli_abort("{.arg na.rm} must be logical scalar")
   }
 
   missing <- detect_missing(df, vars, finite)
@@ -92,11 +92,13 @@ remove_missing <- function(df, na.rm = FALSE, vars = names(df), name = "",
   if (any(missing)) {
     df <- df[!missing, ]
     if (!na.rm) {
-      if (name != "") name <- paste(" (", name, ")", sep = "")
-      str <- if (finite) "non-finite" else "missing"
-      warning_wrap(
-        "Removed ", sum(missing), " rows containing ", str, " values", name, "."
+      if (name != "") name <- paste(" ({.fn ", name, "})", sep = "")
+      msg <- paste0(
+        "Removed {sum(missing)} rows containing ",
+        if (finite) "non-finite" else "missing",
+        " values", name, "."
       )
+      cli::cli_warn(msg)
     }
   }
 
@@ -152,7 +154,7 @@ is_complete <- function(x) {
 should_stop <- function(expr) {
   res <- try(print(force(expr)), TRUE)
   if (!inherits(res, "try-error")) {
-    abort("No error!")
+    cli::cli_abort("No error!")
   }
   invisible()
 }
@@ -185,7 +187,8 @@ binned_pal <- function(palette) {
 
 #' Give a deprecation error, warning, or message, depending on version number.
 #'
-#' This function is deprecated.
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param version The last version of ggplot2 where this function was good
 #'   (in other words, the last version where it was not deprecated).
@@ -193,6 +196,7 @@ binned_pal <- function(palette) {
 #' @keywords internal
 #' @export
 gg_dep <- function(version, msg) {
+  deprecate_warn0("3.3.0", "gg_dep()")
   .Deprecated()
   v <- as.package_version(version)
   cv <- utils::packageVersion("ggplot2")
@@ -202,15 +206,15 @@ gg_dep <- function(version, msg) {
   #  current minor number is more than 1 greater than last-good minor number,
   #  give error.
   if (cv[[1,1]] > v[[1,1]]  ||  cv[[1,2]] > v[[1,2]] + 1) {
-    abort(glue(text))
+    cli::cli_abort(text)
 
   # If minor number differs by one, give warning
   } else if (cv[[1,2]] > v[[1,2]]) {
-    warn(glue(text))
+    cli::cli_warn(text)
 
   # If only subminor number is greater, give message
   } else if (cv[[1,3]] > v[[1,3]]) {
-    message(glue(text))
+    cli::cli_inform(text)
   }
 
   invisible()
@@ -232,11 +236,11 @@ to_lower_ascii <- function(x) chartr(upper_ascii, lower_ascii, x)
 to_upper_ascii <- function(x) chartr(lower_ascii, upper_ascii, x)
 
 tolower <- function(x) {
-  abort("Please use `to_lower_ascii()`, which works fine in all locales.")
+  cli::cli_abort("Please use {.fn to_lower_ascii}, which works fine in all locales.")
 }
 
 toupper <- function(x) {
-  abort("Please use `to_upper_ascii()`, which works fine in all locales.")
+  cli::cli_abort("Please use {.fn to_upper_ascii}, which works fine in all locales.")
 }
 
 # Convert a snake_case string to camelCase
@@ -298,27 +302,6 @@ deparse2 <- function(x) {
   }
 }
 
-message_wrap <- function(...) {
-  msg <- paste(..., collapse = "", sep = "")
-  wrapped <- strwrap(msg, width = getOption("width") - 2)
-  message(paste0(wrapped, collapse = "\n"))
-}
-
-warning_wrap <- function(...) {
-  msg <- paste(..., collapse = "", sep = "")
-  wrapped <- strwrap(msg, width = getOption("width") - 2)
-  warn(glue_collapse(wrapped, "\n", last = "\n"))
-}
-
-var_list <- function(x) {
-  x <- encodeString(x, quote = "`")
-  if (length(x) > 5) {
-    x <- c(x[1:5], paste0("and ", length(x) - 5, " more"))
-  }
-
-  paste0(x, collapse = ", ")
-}
-
 dispatch_args <- function(f, ...) {
   args <- list(...)
   formals <- formals(f)
@@ -343,7 +326,7 @@ find_args <- function(...) {
 
 # Used in annotations to ensure printed even when no
 # global data
-dummy_data <- function() new_data_frame(list(x = NA), n = 1)
+dummy_data <- function() data_frame0(x = NA, .size = 1)
 
 with_seed_null <- function(seed, code) {
   if (is.null(seed)) {
@@ -365,10 +348,16 @@ seq_asc <- function(to, from) {
 #' @importFrom tibble tibble
 NULL
 
+# Wrapping vctrs data_frame constructor with no name repair
+data_frame0 <- function(...) data_frame(..., .name_repair = "minimal")
+
+# Wrapping unique0() to accept NULL
+unique0 <- function(x, ...) if (is.null(x)) x else vec_unique(x, ...)
+
 # Check inputs with tibble but allow column vectors (see #2609 and #2374)
 as_gg_data_frame <- function(x) {
   x <- lapply(x, validate_column_vec)
-  new_data_frame(x)
+  data_frame0(!!!x)
 }
 validate_column_vec <- function(x) {
   if (is_column_vec(x)) {
@@ -392,7 +381,7 @@ is_column_vec <- function(x) {
 #
 parse_safe <- function(text) {
   if (!is.character(text)) {
-    abort("`text` must be a character vector")
+    cli::cli_abort("{.arg text} must be a character vector")
   }
   out <- vector("expression", length(text))
   for (i in seq_along(text)) {
@@ -556,14 +545,14 @@ has_flipped_aes <- function(data, params = list(), main_is_orthogonal = NA,
   if (group_has_equal) {
     if (has_x) {
       if (length(x) == 1) return(FALSE)
-      x_groups <- vapply(split(data$x, data$group), function(x) length(unique(x)), integer(1))
+      x_groups <- vapply(split(data$x, data$group), function(x) length(unique0(x)), integer(1))
       if (all(x_groups == 1)) {
         return(FALSE)
       }
     }
     if (has_y) {
       if (length(y) == 1) return(TRUE)
-      y_groups <- vapply(split(data$y, data$group), function(x) length(unique(x)), integer(1))
+      y_groups <- vapply(split(data$y, data$group), function(x) length(unique0(x)), integer(1))
       if (all(y_groups == 1)) {
         return(TRUE)
       }
@@ -601,4 +590,135 @@ split_with_index <- function(x, f, n = max(f)) {
   f <- as.integer(f)
   attributes(f) <- list(levels = as.character(seq_len(n)), class = "factor")
   unname(split(x, f))
+}
+
+is_bang <- function(x) {
+  is_call(x, "!", n = 1)
+}
+
+is_triple_bang <- function(x) {
+  if (!is_bang(x)) {
+    return(FALSE)
+  }
+
+  x <- x[[2]]
+  if (!is_bang(x)) {
+    return(FALSE)
+  }
+
+  x <- x[[2]]
+  if (!is_bang(x)) {
+    return(FALSE)
+  }
+
+  TRUE
+}
+
+# Restart handler for using vec_rbind with mix of types
+# Ordered is coerced to factor
+# If a character vector is present the other is converted to character
+with_ordered_restart <- function(expr, .call) {
+  withCallingHandlers(
+    expr,
+    vctrs_error_incompatible_type = function(cnd) {
+      x <- cnd[["x"]]
+      y <- cnd[["y"]]
+
+      class_x <- class(x)[1]
+      class_y <- class(y)[1]
+
+      restart <- FALSE
+
+      if (is.ordered(x) || is.ordered(y)) {
+        restart <- TRUE
+        if (is.ordered(x)) {
+          x <- factor(as.character(x), levels = levels(x))
+        } else {
+          y <- factor(as.character(y), levels = levels(y))
+        }
+      } else if (is.character(x) || is.character(y)) {
+        restart <- TRUE
+        if (is.character(x)) {
+          y <- as.character(y)
+        } else {
+          x <- as.character(x)
+        }
+      } else if (is.factor(x) || is.factor(y)) {
+        restart <- TRUE
+        lev <- c()
+        if (is.factor(x)) {
+          lev <- c(lev, levels(x))
+        }
+        if (is.factor(y)) {
+          lev <- c(lev, levels(y))
+        }
+        x <- factor(as.character(x), levels = unique(lev))
+        y <- factor(as.character(y), levels = unique(lev))
+      }
+
+      # Don't recurse and let ptype2 error keep its course
+      if (!restart) {
+        return(zap())
+      }
+
+      msg <- paste0("Combining variables of class <", class_x, "> and <", class_y, ">")
+      desc <- paste0(
+        "Please ensure your variables are compatible before plotting (location: ",
+        format_error_call(.call),
+        ")"
+      )
+
+      deprecate_soft0(
+        "3.4.0",
+        I(msg),
+        details = desc
+      )
+
+      x_arg <- cnd[["x_arg"]]
+      y_arg <- cnd[["y_arg"]]
+      call <- cnd[["call"]]
+
+      # Recurse with factor methods and restart with the result
+      if (inherits(cnd, "vctrs_error_ptype2")) {
+        out <- vec_ptype2(x, y, x_arg = x_arg, y_arg = y_arg, call = call)
+        restart <- "vctrs_restart_ptype2"
+      } else if (inherits(cnd, "vctrs_error_cast")) {
+        out <- vec_cast(x, y, x_arg = x_arg, to_arg = y_arg, call = call)
+        restart <- "vctrs_restart_cast"
+      } else {
+        return(zap())
+      }
+
+      # Old-R compat for `tryInvokeRestart()`
+      try_restart <- function(restart, ...) {
+        if (!is_null(findRestart(restart))) {
+          invokeRestart(restart, ...)
+        }
+      }
+      try_restart(restart, out)
+    }
+  )
+}
+
+vec_rbind0 <- function(..., .error_call = current_env(), .call = caller_env()) {
+  with_ordered_restart(
+    vec_rbind(..., .error_call = .error_call),
+    .call
+  )
+}
+
+attach_plot_env <- function(env) {
+  old_env <- getOption("ggplot2_plot_env")
+  options(ggplot2_plot_env = env)
+  withr::defer_parent(options(ggplot2_plot_env = old_env))
+}
+
+deprecate_soft0 <- function(..., user_env = NULL) {
+  user_env <- user_env %||% getOption("ggplot2_plot_env") %||% caller_env(2)
+  lifecycle::deprecate_soft(..., user_env = user_env)
+}
+
+deprecate_warn0 <- function(..., user_env = NULL) {
+  user_env <- user_env %||% getOption("ggplot2_plot_env") %||% caller_env(2)
+  lifecycle::deprecate_warn(..., user_env = user_env)
 }

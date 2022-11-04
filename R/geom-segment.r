@@ -11,7 +11,7 @@
 #' @eval rd_aesthetics("geom", "segment")
 #' @inheritParams layer
 #' @inheritParams geom_point
-#' @param arrow specification for arrow heads, as created by arrow().
+#' @param arrow specification for arrow heads, as created by [grid::arrow()].
 #' @param arrow.fill fill colour to use for the arrow head (if closed). `NULL`
 #'        means use `colour` aesthetic.
 #' @param lineend Line end style (round, butt, square).
@@ -38,10 +38,12 @@
 #'   arrow = arrow(length = unit(0.03, "npc"))
 #' )
 #'
+#' if (requireNamespace('maps', quietly = TRUE)) {
 #' ggplot(seals, aes(long, lat)) +
 #'   geom_segment(aes(xend = long + delta_long, yend = lat + delta_lat),
 #'     arrow = arrow(length = unit(0.1,"cm"))) +
 #'   borders("state")
+#' }
 #'
 #' # Use lineend and linejoin to change the style of the segments
 #' df2 <- expand.grid(
@@ -59,12 +61,13 @@
 #'   xlim(0.5, 2)
 #'
 #' # You can also use geom_segment to recreate plot(type = "h") :
+#' set.seed(1)
 #' counts <- as.data.frame(table(x = rpois(100,5)))
 #' counts$x <- as.numeric(as.character(counts$x))
 #' with(counts, plot(x, Freq, type = "h", lwd = 10))
 #'
 #' ggplot(counts, aes(x, Freq)) +
-#'   geom_segment(aes(xend = x, yend = 0), size = 10, lineend = "butt")
+#'   geom_segment(aes(xend = x, yend = 0), linewidth = 10, lineend = "butt")
 geom_segment <- function(mapping = NULL, data = NULL,
                          stat = "identity", position = "identity",
                          ...,
@@ -83,7 +86,7 @@ geom_segment <- function(mapping = NULL, data = NULL,
     position = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
-    params = list(
+    params = list2(
       arrow = arrow,
       arrow.fill = arrow.fill,
       lineend = lineend,
@@ -100,15 +103,16 @@ geom_segment <- function(mapping = NULL, data = NULL,
 #' @export
 GeomSegment <- ggproto("GeomSegment", Geom,
   required_aes = c("x", "y", "xend", "yend"),
-  non_missing_aes = c("linetype", "size", "shape"),
-  default_aes = aes(colour = "black", size = 0.5, linetype = 1, alpha = NA),
-
-  draw_panel = function(data, panel_params, coord, arrow = NULL, arrow.fill = NULL,
+  non_missing_aes = c("linetype", "linewidth", "shape"),
+  default_aes = aes(colour = "black", linewidth = 0.5, linetype = 1, alpha = NA),
+  draw_panel = function(self, data, panel_params, coord, arrow = NULL, arrow.fill = NULL,
                         lineend = "butt", linejoin = "round", na.rm = FALSE) {
-
+    data <- check_linewidth(data, snake_class(self))
     data <- remove_missing(data, na.rm = na.rm,
-      c("x", "y", "xend", "yend", "linetype", "size", "shape"),
-      name = "geom_segment")
+      c("x", "y", "xend", "yend", "linetype", "linewidth", "shape"),
+      name = "geom_segment"
+    )
+
     if (empty(data)) return(zeroGrob())
 
     if (coord$is_linear()) {
@@ -119,7 +123,7 @@ GeomSegment <- ggproto("GeomSegment", Geom,
         gp = gpar(
           col = alpha(coord$colour, coord$alpha),
           fill = alpha(arrow.fill, coord$alpha),
-          lwd = coord$size * .pt,
+          lwd = coord$linewidth * .pt,
           lty = coord$linetype,
           lineend = lineend,
           linejoin = linejoin
@@ -132,12 +136,14 @@ GeomSegment <- ggproto("GeomSegment", Geom,
     starts <- subset(data, select = c(-xend, -yend))
     ends <- rename(subset(data, select = c(-x, -y)), c("xend" = "x", "yend" = "y"))
 
-    pieces <- rbind(starts, ends)
+    pieces <- vec_rbind0(starts, ends)
     pieces <- pieces[order(pieces$group),]
 
     GeomPath$draw_panel(pieces, panel_params, coord, arrow = arrow,
       lineend = lineend)
   },
 
-  draw_key = draw_key_path
+  draw_key = draw_key_path,
+
+  rename_size = TRUE
 )

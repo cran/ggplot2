@@ -1,5 +1,3 @@
-context("geom_boxplot")
-
 # thanks wch for providing the test code
 test_that("geom_boxplot range includes all outliers", {
   dat <- data_frame(x = 1, y = c(-(1:20) ^ 3, (1:20) ^ 3) )
@@ -77,7 +75,7 @@ test_that("boxplots with a group size >1 error", {
     geom_boxplot(stat = "identity")
 
   expect_equal(nrow(layer_data(p, 1)), 3)
-  expect_error(layer_grob(p, 1), "Can't draw more than one boxplot")
+  expect_snapshot_error(layer_grob(p, 1))
 })
 
 # Visual tests ------------------------------------------------------------

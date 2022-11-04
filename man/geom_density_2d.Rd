@@ -71,10 +71,10 @@ stat_density_2d_filled(
 )
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
-\code{\link[=aes_]{aes_()}}. If specified and \code{inherit.aes = TRUE} (the
-default), it is combined with the default mapping at the top level of the
-plot. You must supply \code{mapping} if there is no plot mapping.}
+\item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}}. If specified and
+\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
+at the top level of the plot. You must supply \code{mapping} if there is no plot
+mapping.}
 
 \item{data}{The data to be displayed in this layer. There are three
 options:
@@ -91,17 +91,26 @@ the plot data. The return value must be a \code{data.frame}, and
 will be used as the layer data. A \code{function} can be created
 from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
-\item{position}{Position adjustment, either as a string, or the result of
-a call to a position adjustment function.}
+\item{position}{Position adjustment, either as a string naming the adjustment
+(e.g. \code{"jitter"} to use \code{position_jitter}), or the result of a call to a
+position adjustment function. Use the latter if you need to change the
+settings of the adjustment.}
 
 \item{...}{
   Arguments passed on to \code{\link[=geom_contour]{geom_contour}}
   \describe{
-    \item{\code{bins}}{Number of contour bins. Overridden by \code{binwidth}.}
-    \item{\code{binwidth}}{The width of the contour bins. Overridden by \code{breaks}.}
-    \item{\code{breaks}}{Numeric vector to set the contour breaks. Overrides \code{binwidth}
-and \code{bins}. By default, this is a vector of length ten with \code{\link[=pretty]{pretty()}}
-breaks.}
+    \item{\code{binwidth}}{The width of the contour bins. Overridden by \code{bins}.}
+    \item{\code{bins}}{Number of contour bins. Overridden by \code{breaks}.}
+    \item{\code{breaks}}{One of:
+\itemize{
+\item Numeric vector to set the contour breaks
+\item A function that takes the range of the data and binwidth as input
+and returns breaks as output. A function can be created from a formula
+(e.g. ~ fullseq(.x, .y)).
+}
+
+Overrides \code{binwidth} and \code{bins}. By default, this is a vector of length
+ten with \code{\link[=pretty]{pretty()}} breaks.}
   }}
 
 \item{contour_var}{Character string identifying the variable to contour
@@ -161,7 +170,7 @@ bands.
 \item \code{colour}
 \item \code{group}
 \item \code{linetype}
-\item \code{size}
+\item \code{linewidth}
 }
 Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
 
@@ -175,7 +184,7 @@ Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
 \item \code{fill}
 \item \code{group}
 \item \code{linetype}
-\item \code{size}
+\item \code{linewidth}
 \item \code{subgroup}
 }
 Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
@@ -203,6 +212,16 @@ obtained before contouring, \code{density}, \code{ndensity}, and \code{count}. W
 of those should be used is determined by the \code{contour_var} parameter.
 }
 
+\section{Dropped variables}{
+
+\describe{
+\item{\code{z}}{After density estimation, the z values of individual data points are no longer available.}
+}
+
+If contouring is enabled, then similarly \code{density}, \code{ndensity}, and \code{count}
+are no longer available after the contouring pass.
+}
+
 \examples{
 m <- ggplot(faithful, aes(x = eruptions, y = waiting)) +
  geom_point() +
@@ -218,7 +237,7 @@ m + geom_density_2d_filled(alpha = 0.5)
 
 # contour bands and contour lines
 m + geom_density_2d_filled(alpha = 0.5) +
-  geom_density_2d(size = 0.25, colour = "black")
+  geom_density_2d(linewidth = 0.25, colour = "black")
 
 set.seed(4393)
 dsmall <- diamonds[sample(nrow(diamonds), 1000), ]

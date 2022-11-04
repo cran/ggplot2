@@ -33,7 +33,7 @@ to the paired geom/stat.}
 a warning. If \code{TRUE}, missing values are silently removed.}
 }
 \description{
-This function adds geoms to a plot, but unlike typical a geom function,
+This function adds geoms to a plot, but unlike a typical geom function,
 the properties of the geoms are not mapped from variables of a data frame,
 but are instead passed in as vectors. This is useful for adding small annotations
 (such as text labels) or if you have your data in vectors, and for some
@@ -45,6 +45,13 @@ limits of the plot so they are visible), but all other aesthetics are
 set. This means that layers created with this function will never
 affect the legend.
 }
+\section{Unsupported geoms}{
+
+Due to their special nature, reference line geoms \code{\link[=geom_abline]{geom_abline()}},
+\code{\link[=geom_hline]{geom_hline()}}, and \code{\link[=geom_vline]{geom_vline()}} can't be used with \code{\link[=annotate]{annotate()}}.
+You can use these geoms directory for annotations.
+}
+
 \examples{
 p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
 p + annotate("text", x = 4, y = 25, label = "Some text")
@@ -54,7 +61,7 @@ p + annotate("rect", xmin = 3, xmax = 4.2, ymin = 12, ymax = 21,
 p + annotate("segment", x = 2.5, xend = 4, y = 15, yend = 25,
   colour = "blue")
 p + annotate("pointrange", x = 3.5, y = 20, ymin = 12, ymax = 28,
-  colour = "red", size = 1.5)
+  colour = "red", size = 2.5, linewidth = 1.5)
 
 p + annotate("text", x = 2:3, y = 20:21, label = c("my label", "label 2"))
 

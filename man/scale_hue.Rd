@@ -71,18 +71,19 @@ omitted.}
 \item \code{waiver()} for the default labels computed by the
 transformation object
 \item A character vector giving labels (must be same length as \code{breaks})
+\item An expression vector (must be the same length as breaks). See ?plotmath for details.
 \item A function that takes the breaks as input and returns labels
 as output. Also accepts rlang \link[rlang:as_function]{lambda} function
 notation.
 }}
+    \item{\code{guide}}{A function used to create a guide or its name. See
+\code{\link[=guides]{guides()}} for more information.}
     \item{\code{expand}}{For position scales, a vector of range expansion constants used to add some
 padding around the data to ensure that they are placed some distance
 away from the axes. Use the convenience function \code{\link[=expansion]{expansion()}}
 to generate the values for the \code{expand} argument. The defaults are to
 expand the scale by 5\% on each side for continuous variables, and by
 0.6 units on each side for discrete variables.}
-    \item{\code{guide}}{A function used to create a guide or its name. See
-\code{\link[=guides]{guides()}} for more information.}
     \item{\code{position}}{For position scales, The position of the axis.
 \code{left} or \code{right} for y axes, \code{top} or \code{bottom} for x axes.}
     \item{\code{super}}{The super class to use for the constructed scale}
@@ -113,6 +114,7 @@ It does not generate colour-blind safe palettes.
 }
 \examples{
 \donttest{
+set.seed(596)
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
 (d <- ggplot(dsamp, aes(carat, price)) + geom_point(aes(colour = clarity)))
 

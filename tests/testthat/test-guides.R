@@ -1,5 +1,3 @@
-context("Guides")
-
 skip_on_cran() # This test suite is long-running (on cran) and is skipped
 
 test_that("colourbar trains without labels", {
@@ -60,9 +58,10 @@ test_that("axis_label_overlap_priority always returns the correct number of elem
 })
 
 test_that("axis_label_element_overrides errors when angles are outside the range [0, 90]", {
-  expect_is(axis_label_element_overrides("bottom", 0), "element")
+  expect_s3_class(axis_label_element_overrides("bottom", 0), "element")
   expect_error(axis_label_element_overrides("bottom", 91), "`angle` must")
   expect_error(axis_label_element_overrides("bottom", -91), "`angle` must")
+  expect_snapshot_error(axis_label_element_overrides("test", 0))
 })
 
 test_that("a warning is generated when guides are drawn at a location that doesn't make sense", {
@@ -89,7 +88,12 @@ test_that("a warning is generated when more than one position guide is drawn at 
       y.sec = guide_axis(position = "left")
     )
   built <- expect_silent(ggplot_build(plot))
-  expect_warning(ggplot_gtable(built), "Discarding guide")
+
+  # TODO: These multiple warnings should be summarized nicely. Until this gets
+  #       fixed, this test ignores all the following errors than the first one.
+  suppressWarnings(
+    expect_warning(ggplot_gtable(built), "Discarding guide")
+  )
 })
 
 test_that("a warning is not generated when properly changing the position of a guide_axis()", {
@@ -128,7 +132,7 @@ test_that("Using non-position guides for position scales results in an informati
     scale_x_continuous(guide = guide_legend())
 
   built <- ggplot_build(p)
-  expect_error(ggplot_gtable(built), "does not implement guide_transform()")
+  expect_snapshot_error(ggplot_gtable(built))
 })
 
 test_that("guide merging for guide_legend() works as expected", {
@@ -179,10 +183,67 @@ test_that("guide merging for guide_legend() works as expected", {
   expect_equal(repeated_identical_labels[[1]]$key$.label, c("label1", "label1", "label2"))
 })
 
+test_that("size = NA doesn't throw rendering errors", {
+  df = data.frame(
+    x = c(1, 2),
+    group = c("a","b")
+  )
+  p <- ggplot(df, aes(x = x, y = 0, colour = group)) +
+    geom_point(size = NA, na.rm = TRUE)
+
+  expect_silent(plot(p))
+})
+
+test_that("guide specifications are properly checked", {
+  expect_snapshot_error(validate_guide("test"))
+  expect_snapshot_error(validate_guide(1))
+
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, shape = factor(gear))) +
+    guides(shape = "colourbar")
+
+  expect_snapshot_error(ggplotGrob(p))
+
+  p <- p + guides(shape = guide_legend(title.position = "leftish"))
+
+  expect_snapshot_error(ggplotGrob(p))
+
+  expect_snapshot_error(guide_transform(guide_colorbar()))
+
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, colour = gear)) +
+    guides(colour = guide_colorbar(label.position = "top"))
+  expect_snapshot_error(ggplotGrob(p))
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, colour = gear)) +
+    guides(colour = guide_colorbar(direction = "horizontal", label.position = "left"))
+  expect_snapshot_error(ggplotGrob(p))
+
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, colour = gear)) +
+    guides(colour = guide_legend(label.position = "test"))
+  expect_snapshot_error(ggplotGrob(p))
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, colour = gear)) +
+    guides(colour = guide_legend(nrow = 2, ncol = 2))
+  expect_snapshot_error(ggplotGrob(p))
+})
+
+test_that("colorsteps and bins checks the breaks format", {
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, colour = paste("A", gear))) +
+    guides(colour = "colorsteps")
+  expect_snapshot_error(suppressWarnings(ggplotGrob(p)))
+  p <- ggplot(mtcars) +
+    geom_point(aes(mpg, disp, colour = paste("A", gear))) +
+    guides(colour = "bins")
+  expect_snapshot_error(suppressWarnings(ggplotGrob(p)))
+})
+
 # Visual tests ------------------------------------------------------------
 
 test_that("axis guides are drawn correctly", {
-  theme_test_axis <- theme_test() + theme(axis.line = element_line(size = 0.5))
+  theme_test_axis <- theme_test() + theme(axis.line = element_line(linewidth = 0.5))
   test_draw_axis <- function(n_breaks = 3,
                              break_positions = seq_len(n_breaks) / (n_breaks + 1),
                              labels = as.character,
@@ -252,21 +313,24 @@ test_that("axis guides are drawn correctly", {
 
 test_that("axis guides are drawn correctly in plots", {
   expect_doppelganger("align facet labels, facets horizontal",
-    qplot(hwy, reorder(model, hwy), data = mpg) +
+    ggplot(mpg, aes(hwy, reorder(model, hwy))) +
+      geom_point() +
       facet_grid(manufacturer ~ ., scales = "free", space = "free") +
       theme_test() +
       theme(strip.text.y = element_text(angle = 0))
   )
   expect_doppelganger("align facet labels, facets vertical",
-    qplot(reorder(model, hwy), hwy, data = mpg) +
+    ggplot(mpg, aes(reorder(model, hwy), hwy)) +
+      geom_point() +
       facet_grid(. ~ manufacturer, scales = "free", space = "free") +
       theme_test() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
   )
   expect_doppelganger("thick axis lines",
-    qplot(wt, mpg, data = mtcars) +
+    ggplot(mtcars, aes(wt, mpg)) +
+      geom_point() +
       theme_test() +
-      theme(axis.line = element_line(size = 5, lineend = "square"))
+      theme(axis.line = element_line(linewidth = 5, lineend = "square"))
   )
 })
 
@@ -307,6 +371,24 @@ test_that("guides have the final say in x and y", {
     )
 
   expect_doppelganger("position guide titles", plot)
+})
+
+test_that("Axis titles won't be blown away by coord_*()", {
+  df <- data_frame(x = 1, y = 1)
+  plot <- ggplot(df, aes(x, y)) +
+    geom_point() +
+    guides(
+      x = guide_axis(title = "x (primary)"),
+      y = guide_axis(title = "y (primary)"),
+      x.sec = guide_axis(title = "x (secondary)"),
+      y.sec = guide_axis(title = "y (secondary)")
+    )
+
+  expect_doppelganger("guide titles with coord_trans()", plot + coord_trans())
+  # TODO
+  # expect_doppelganger("guide titles with coord_polar()", plot + coord_polar())
+  # TODO
+  # expect_doppelganger("guide titles with coord_sf()", plot + coord_sf())
 })
 
 test_that("guides are positioned correctly", {
@@ -468,9 +550,9 @@ test_that("colorbar can be styled", {
           low = 'white', high = 'red',
           guide = guide_colorbar(
             frame.colour = "green",
-            frame.linewidth = 1.5,
+            frame.linewidth = 1.5 / .pt,
             ticks.colour = "black",
-            ticks.linewidth = 2.5
+            ticks.linewidth = 2.5 / .pt
             )
         )
     )
@@ -533,16 +615,63 @@ test_that("coloursteps guide can be styled correctly", {
   )
 })
 
+test_that("binning scales understand the different combinations of limits, breaks, labels, and show.limits", {
+  p <- ggplot(mpg, aes(cty, hwy, color = year)) +
+    geom_point()
+
+  expect_doppelganger("guide_bins understands coinciding limits and bins",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(1999, 2000, 2002, 2004, 2006),
+                           guide = 'bins')
+  )
+  expect_doppelganger("guide_bins understands coinciding limits and bins 2",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(2000, 2002, 2004, 2006, 2008),
+                           guide = 'bins')
+  )
+  expect_doppelganger("guide_bins understands coinciding limits and bins 3",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(1999, 2000, 2002, 2004, 2006),
+                           guide = 'bins', show.limits = TRUE)
+  )
+  expect_doppelganger("guide_bins sets labels when limits is in breaks",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(1999, 2000, 2002, 2004, 2006),
+                           labels = 1:5, guide = 'bins')
+  )
+  expect_snapshot_warning(ggplotGrob(p + scale_color_binned(labels = 1:4, show.limits = TRUE, guide = "bins")))
+
+  expect_doppelganger("guide_colorsteps understands coinciding limits and bins",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(1999, 2000, 2002, 2004, 2006))
+  )
+  expect_doppelganger("guide_colorsteps understands coinciding limits and bins 2",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(2000, 2002, 2004, 2006, 2008))
+  )
+  expect_doppelganger("guide_colorsteps understands coinciding limits and bins 3",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(1999, 2000, 2002, 2004, 2006),
+                           show.limits = TRUE)
+  )
+  expect_doppelganger("guide_colorsteps sets labels when limits is in breaks",
+    p + scale_color_binned(limits = c(1999, 2008),
+                           breaks = c(1999, 2000, 2002, 2004, 2006),
+                           labels = 1:5)
+  )
+  expect_snapshot_warning(ggplotGrob(p + scale_color_binned(labels = 1:4, show.limits = TRUE)))
+})
+
 test_that("a warning is generated when guides(<scale> = FALSE) is specified", {
   df <- data_frame(x = c(1, 2, 4),
                    y = c(6, 5, 7))
 
   # warn on guide(<scale> = FALSE)
-  expect_warning(g <- guides(colour = FALSE), "`guides(<scale> = FALSE)` is deprecated.", fixed = TRUE)
+  expect_warning(g <- guides(colour = FALSE), "The `<scale>` argument of `guides()` cannot be `FALSE`. Use \"none\" instead as of ggplot2 3.3.4.", fixed = TRUE)
   expect_equal(g[["colour"]], "none")
 
   # warn on scale_*(guide = FALSE)
   p <- ggplot(df, aes(x, y, colour = x)) + scale_colour_continuous(guide = FALSE)
   built <- expect_silent(ggplot_build(p))
-  expect_warning(ggplot_gtable(built), "It is deprecated to specify `guide = FALSE`")
+  expect_snapshot_warning(ggplot_gtable(built))
 })

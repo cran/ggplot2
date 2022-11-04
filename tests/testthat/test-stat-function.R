@@ -1,5 +1,3 @@
-context("stat_function")
-
 test_that("uses scale limits, not data limits", {
   dat <- data_frame(x = c(0.1, 1:100))
   dat$y <- dexp(dat$x)
@@ -62,7 +60,7 @@ test_that("works with discrete x", {
     stat_function(fun = as.numeric, geom = "point", n = 2)
   ret <- layer_data(base)
 
-  expect_equal(ret$x, new_mapped_discrete(1:2))
+  expect_equal(ret$x, mapped_discrete(1:2))
   expect_equal(ret$y, 1:2)
 })
 

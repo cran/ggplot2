@@ -20,7 +20,7 @@ stat_summary_hex <- function(mapping = NULL, data = NULL,
     position = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
-    params = list(
+    params = list2(
       bins = bins,
       binwidth = binwidth,
       drop = drop,
@@ -40,6 +40,8 @@ StatSummaryHex <- ggproto("StatSummaryHex", Stat,
   default_aes = aes(fill = after_stat(value)),
 
   required_aes = c("x", "y", "z"),
+
+  dropped_aes = "z", # z gets dropped during statistical transformation
 
   compute_group = function(data, scales, binwidth = NULL, bins = 30, drop = TRUE,
                            fun = "mean", fun.args = list()) {
