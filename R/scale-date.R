@@ -34,7 +34,10 @@
 #' @param timezone The timezone to use for display on the axes. The default
 #'   (`NULL`) uses the timezone encoded in the data.
 #' @family position scales
-#' @seealso [sec_axis()] for how to specify secondary axes
+#' @seealso
+#' [sec_axis()] for how to specify secondary axes
+#'
+#' The [position documentation][aes_position].
 #' @examples
 #' last_month <- Sys.Date() - 0:29
 #' set.seed(1)
@@ -239,7 +242,7 @@ scale_x_time <- function(name = waiver(),
     na.value = na.value,
     guide = guide,
     position = position,
-    trans = scales::hms_trans(),
+    transform = scales::transform_hms(),
     sec.axis = sec.axis
   )
 }
@@ -270,7 +273,7 @@ scale_y_time <- function(name = waiver(),
     na.value = na.value,
     guide = guide,
     position = position,
-    trans = scales::hms_trans(),
+    transform = scales::transform_hms(),
     sec.axis = sec.axis
   )
 }
@@ -285,13 +288,13 @@ scale_y_time <- function(name = waiver(),
 #'
 #' @export
 #' @keywords internal
-datetime_scale <- function(aesthetics, trans, palette,
-                           breaks = pretty_breaks(), minor_breaks = waiver(),
+datetime_scale <- function(aesthetics, transform, trans = deprecated(),
+                           palette, breaks = pretty_breaks(), minor_breaks = waiver(),
                            labels = waiver(), date_breaks = waiver(),
                            date_labels = waiver(),
                            date_minor_breaks = waiver(), timezone = NULL,
-                           guide = "legend", ...) {
-
+                           guide = "legend", call = caller_call(), ...) {
+  call <- call %||% current_call()
 
   # Backward compatibility
   if (is.character(breaks)) breaks <- breaks_width(breaks)
@@ -305,21 +308,16 @@ datetime_scale <- function(aesthetics, trans, palette,
   }
   if (!is.waive(date_labels)) {
     labels <- function(self, x) {
-      tz <- if (is.null(self$timezone)) "UTC" else self$timezone
-      date_format(date_labels, tz)(x)
+      tz <- self$timezone %||% "UTC"
+      label_date(date_labels, tz)(x)
     }
   }
-
-  name <- switch(trans,
-    date = "date",
-    time = "datetime"
-  )
 
   # x/y position aesthetics should use ScaleContinuousDate or
   # ScaleContinuousDatetime; others use ScaleContinuous
   if (all(aesthetics %in% c("x", "xmin", "xmax", "xend", "y", "ymin", "ymax", "yend"))) {
     scale_class <- switch(
-      trans,
+      transform,
       date = ScaleContinuousDate,
       time = ScaleContinuousDatetime
     )
@@ -327,20 +325,21 @@ datetime_scale <- function(aesthetics, trans, palette,
     scale_class <- ScaleContinuous
   }
 
-  trans <- switch(trans,
-    date = date_trans(),
-    time = time_trans(timezone)
+  transform <- switch(transform,
+    date = transform_date(),
+    time = transform_time(timezone)
   )
 
   sc <- continuous_scale(
     aesthetics,
-    name,
     palette = palette,
     breaks = breaks,
     minor_breaks = minor_breaks,
     labels = labels,
     guide = guide,
+    transform = transform,
     trans = trans,
+    call = call,
     ...,
     super = scale_class
   )
@@ -359,7 +358,7 @@ ScaleContinuousDatetime <- ggproto("ScaleContinuousDatetime", ScaleContinuous,
     tz <- attr(x, "tzone")
     if (is.null(self$timezone) && !is.null(tz)) {
       self$timezone <- tz
-      self$trans <- time_trans(self$timezone)
+      self$trans <- transform_time(self$timezone)
     }
     ggproto_parent(ScaleContinuous, self)$transform(x)
   },
@@ -406,7 +405,6 @@ ScaleContinuousDate <- ggproto("ScaleContinuousDate", ScaleContinuous,
       return(NULL)
     }
     breaks <- floor(breaks)
-    breaks[breaks >= limits[1] & breaks <= limits[2]]
   },
   break_info = function(self, range = NULL) {
     breaks <- ggproto_parent(ScaleContinuous, self)$break_info(range)

@@ -9,6 +9,10 @@
 #' @inheritDotParams discrete_scale -expand -position -na.value
 #' @param na.value The linetype to use for `NA` values.
 #' @rdname scale_linetype
+#' @seealso
+#' The documentation for [differentiation related aesthetics][aes_linetype_size_shape].
+#'
+#' Other linetype scales: [scale_linetype_manual()], [scale_linetype_identity()].
 #' @export
 #' @examples
 #' base <- ggplot(economics_long, aes(date, value01))
@@ -29,23 +33,32 @@
 #'   scale_linetype_identity() +
 #'   facet_grid(linetype ~ .) +
 #'   theme_void(20)
-scale_linetype <- function(..., na.value = "blank") {
-  discrete_scale("linetype", "linetype_d", linetype_pal(),
-    na.value = na.value, ...)
+scale_linetype <- function(name = waiver(), ..., na.value = "blank") {
+  discrete_scale(
+    "linetype", name = name,
+    palette = pal_linetype(),
+    na.value = na.value,
+    ...
+  )
 }
 
 #' @rdname scale_linetype
 #' @export
-scale_linetype_binned <- function(..., na.value = "blank") {
-  binned_scale("linetype", "linetype_b", binned_pal(linetype_pal()), ...)
+scale_linetype_binned <- function(name = waiver(), ..., na.value = "blank") {
+  binned_scale(
+    "linetype", name = name,
+    palette = pal_binned(pal_linetype()),
+    na.value = na.value,
+    ...
+  )
 }
 
 #' @rdname scale_linetype
 #' @export
 scale_linetype_continuous <- function(...) {
   cli::cli_abort(c(
-    "A continuous variable cannot be mapped to the {.field linetype} aesthetic",
-    "i" = "choose a different aesthetic or use {.fn scale_linetype_binned}"
+    "A continuous variable cannot be mapped to the {.field linetype} aesthetic.",
+    "i" = "Choose a different aesthetic or use {.fn scale_linetype_binned}."
   ))
 }
 #' @rdname scale_linetype

@@ -42,7 +42,7 @@ check_required_aesthetics <- function(required, present, name, call = caller_env
   if (length(missing_aes) > 1) {
     message <- paste0(message, " {.strong or} {.field {missing_aes[[2]]}}")
   }
-  cli::cli_abort(message, call = call)
+  cli::cli_abort(paste0(message, "."), call = call)
 }
 
 # Concatenate a named list for output
@@ -62,7 +62,7 @@ clist <- function(l) {
 # @keyword internal
 uniquecols <- function(df) {
   df <- df[1, sapply(df, is_unique), drop = FALSE]
-  rownames(df) <- 1:nrow(df)
+  rownames(df) <- seq_len(nrow(df))
   df
 }
 
@@ -91,9 +91,9 @@ remove_missing <- function(df, na.rm = FALSE, vars = names(df), name = "",
     if (!na.rm) {
       if (name != "") name <- paste(" ({.fn ", name, "})", sep = "")
       msg <- paste0(
-        "Removed {sum(missing)} rows containing ",
-        if (finite) "non-finite" else "missing",
-        " values", name, "."
+        "Removed {sum(missing)} row{?s} containing ",
+        if (finite) "non-finite" else "missing values or values",
+        " outside the scale range", name, "."
       )
       cli::cli_warn(msg)
     }
@@ -178,7 +178,7 @@ rescale01 <- function(x) {
   (x - rng[1]) / (rng[2] - rng[1])
 }
 
-binned_pal <- function(palette) {
+pal_binned <- function(palette) {
   function(x) {
     palette(length(x))
   }
@@ -199,7 +199,7 @@ gg_dep <- function(version, msg) {
   .Deprecated()
   v <- as.package_version(version)
   cv <- utils::packageVersion("ggplot2")
-  text <- "{msg} (Defunct; last used in version {version})"
+  text <- "{msg} (Defunct; last used in version {version})."
 
   # If current major number is greater than last-good major number, or if
   #  current minor number is more than 1 greater than last-good minor number,
@@ -276,7 +276,7 @@ is.discrete <- function(x) {
 # the names of any columns that are not.
 # We define "data" as atomic types or lists, not functions or otherwise.
 # The `inherits(x, "Vector")` check is for checking S4 classes from Bioconductor
-# and wether they can be expected to follow behavior typical of vectors. See
+# and whether they can be expected to follow behavior typical of vectors. See
 # also #3835
 check_nondata_cols <- function(x) {
   idx <- (vapply(x, function(x) {
@@ -320,7 +320,7 @@ find_args <- function(...) {
   vals <- mget(args, envir = env)
   vals <- vals[!vapply(vals, is_missing_arg, logical(1))]
 
-  modify_list(vals, list(..., `...` = NULL))
+  modify_list(vals, dots_list(..., `...` = NULL, .ignore_empty = "all"))
 }
 
 # Used in annotations to ensure printed even when no
@@ -429,11 +429,11 @@ switch_orientation <- function(aesthetics) {
 #' features in the data correspond to:
 #'
 #' - `main_is_orthogonal`: This argument controls how the existence of only a `x`
-#'   or `y` aesthetic is understood. If `TRUE` then the exisiting aesthetic
+#'   or `y` aesthetic is understood. If `TRUE` then the existing aesthetic
 #'   would be then secondary axis. This behaviour is present in [stat_ydensity()]
-#'   and [stat_boxplot()]. If `FALSE` then the exisiting aesthetic is the main
+#'   and [stat_boxplot()]. If `FALSE` then the existing aesthetic is the main
 #'   axis as seen in e.g. [stat_bin()], [geom_count()], and [stat_density()].
-#' - `range_is_orthogonal`: This argument controls whether the existance of
+#' - `range_is_orthogonal`: This argument controls whether the existence of
 #'   range-like aesthetics (e.g. `xmin` and `xmax`) represents the main or
 #'   secondary axis. If `TRUE` then the range is given for the secondary axis as
 #'   seen in e.g. [geom_ribbon()] and [geom_linerange()].
@@ -513,7 +513,7 @@ has_flipped_aes <- function(data, params = list(), main_is_orthogonal = NA,
   xmax <- data$xmax %||% params$xmax
   ymax <- data$ymax %||% params$ymax
 
-  # Does a single x or y aesthetic corespond to a specific orientation
+  # Does a single x or y aesthetic correspond to a specific orientation
   if (!is.na(main_is_orthogonal) && xor(is.null(x), is.null(y))) {
     return(is.null(y) == main_is_orthogonal)
   }
@@ -596,6 +596,69 @@ split_with_index <- function(x, f, n = max(f)) {
 
 is_bang <- function(x) {
   is_call(x, "!", n = 1)
+}
+
+# Puts all columns with 'AsIs' type in a '.ignore' column.
+
+
+
+#' Ignoring and exposing data
+#'
+#' The `.ignore_data()` function is used to hide `<AsIs>` columns during
+#' scale interactions in `ggplot_build()`. The `.expose_data()` function is
+#' used to restore hidden columns.
+#'
+#' @param data A list of `<data.frame>`s.
+#'
+#' @return A modified list of `<data.frame>s`
+#' @export
+#' @keywords internal
+#' @name ignoring_data
+#'
+#' @examples
+#' data <- list(
+#'   data.frame(x = 1:3, y = I(1:3)),
+#'   data.frame(w = I(1:3), z = 1:3)
+#' )
+#'
+#' ignored <- .ignore_data(data)
+#' str(ignored)
+#'
+#' .expose_data(ignored)
+.ignore_data <- function(data) {
+  if (!is_bare_list(data)) {
+    data <- list(data)
+  }
+  lapply(data, function(df) {
+    is_asis <- vapply(df, inherits, logical(1), what = "AsIs")
+    if (!any(is_asis)) {
+      return(df)
+    }
+    df <- unclass(df)
+    # We trust that 'df' is a valid data.frame with equal length columns etc,
+    # so we can use the more performant `new_data_frame()`
+    new_data_frame(c(
+      df[!is_asis],
+      list(.ignored = new_data_frame(df[is_asis]))
+    ))
+  })
+}
+
+# Restores all columns packed into the '.ignored' column.
+#' @rdname ignoring_data
+#' @export
+.expose_data <- function(data) {
+  if (!is_bare_list(data)) {
+    data <- list(data)
+  }
+  lapply(data, function(df) {
+    is_ignored <- which(names(df) == ".ignored")
+    if (length(is_ignored) == 0) {
+      return(df)
+    }
+    df <- unclass(df)
+    new_data_frame(c(df[-is_ignored], df[[is_ignored[1]]]))
+  })
 }
 
 is_triple_bang <- function(x) {
@@ -708,6 +771,25 @@ vec_rbind0 <- function(..., .error_call = current_env(), .call = caller_env()) {
     vec_rbind(..., .error_call = .error_call),
     .call
   )
+}
+
+# This function is used to vectorise the following pattern:
+#
+# obj$name1 <- obj$name1 %||% value
+# obj$name2 <- obj$name2 %||% value
+#
+# and express this pattern as:
+#
+# replace_null(obj, name1 = value, name2 = value)
+replace_null <- function(obj, ..., env = caller_env()) {
+  # Collect dots without evaluating
+  dots <- enexprs(...)
+  # Select arguments that are null in `obj`
+  nms  <- names(dots)
+  nms  <- nms[vapply(obj[nms], is.null, logical(1))]
+  # Replace those with the evaluated dots
+  obj[nms] <- inject(list(!!!dots[nms]), env = env)
+  obj
 }
 
 attach_plot_env <- function(env) {

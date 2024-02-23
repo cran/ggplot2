@@ -132,15 +132,21 @@ GeomPath <- ggproto("GeomPath", Geom,
 
   default_aes = aes(colour = "black", linewidth = 0.5, linetype = 1, alpha = NA),
 
+  non_missing_aes = c("linewidth", "colour", "linetype"),
+
   handle_na = function(self, data, params) {
     # Drop missing values at the start or end of a line - can't drop in the
     # middle since you expect those to be shown by a break in the line
-    complete <- stats::complete.cases(data[names(data) %in% c("x", "y", "linewidth", "colour", "linetype")])
+    aesthetics <- c(self$required_aes, self$non_missing_aes)
+    complete <- stats::complete.cases(data[names(data) %in% aesthetics])
     kept <- stats::ave(complete, data$group, FUN = keep_mid_true)
     data <- data[kept, ]
 
     if (!all(kept) && !params$na.rm) {
-      cli::cli_warn("Removed {sum(!kept)} row{?s} containing missing values ({.fn {snake_class(self)}}).")
+      cli::cli_warn(paste0(
+        "Removed {sum(!kept)} row{?s} containing missing values or values ",
+        "outside the scale range ({.fn {snake_class(self)}})."
+      ))
     }
 
     data
@@ -178,7 +184,7 @@ GeomPath <- ggproto("GeomPath", Geom,
     solid_lines <- all(attr$solid)
     constant <- all(attr$constant)
     if (!solid_lines && !constant) {
-      cli::cli_abort("{.fn {snake_class(self)}} can't have varying {.field colour}, {.field linewidth}, and/or {.field alpha} along the line when {.field linetype} isn't solid")
+      cli::cli_abort("{.fn {snake_class(self)}} can't have varying {.field colour}, {.field linewidth}, and/or {.field alpha} along the line when {.field linetype} isn't solid.")
     }
 
     # Work out grouping variables for grobs
@@ -188,6 +194,9 @@ GeomPath <- ggproto("GeomPath", Geom,
     end <-   c(group_diff, TRUE)
 
     if (!constant) {
+
+      arrow <- repair_segment_arrow(arrow, munched$group)
+
       segmentsGrob(
         munched$x[!end], munched$y[!end], munched$x[!start], munched$y[!start],
         default.units = "native", arrow = arrow,
@@ -342,11 +351,6 @@ stairstep <- function(data, direction = "hv") {
   } else if (direction == "mid") {
     xs <- rep(1:(n-1), each = 2)
     ys <- rep(1:n, each = 2)
-  } else {
-    cli::cli_abort(c(
-      "{.arg direction} is invalid.",
-      "i" = "Use either {.val vh}, {.val hv}, or {.va mid}"
-    ))
   }
 
   if (direction == "mid") {
@@ -362,4 +366,41 @@ stairstep <- function(data, direction = "hv") {
   }
 
   data_frame0(x = x, y = y, data_attr)
+}
+
+repair_segment_arrow <- function(arrow, group) {
+  # Early exit if there is no arrow
+  if (is.null(arrow)) {
+    return(arrow)
+  }
+
+  # Get group parameters
+  rle       <- vec_group_rle(group) # handles NAs better than base::rle()
+  n_groups  <- length(rle)
+  rle_len   <- field(rle, "length") - 1 # segments have 1 member less than lines
+  rle_end   <- cumsum(rle_len)
+  rle_start <- rle_end - rle_len + 1
+
+  # Recycle ends and lengths
+  ends <- rep(rep(arrow$ends,   length.out = n_groups), rle_len)
+  len  <- rep(rep(arrow$length, length.out = n_groups), rle_len)
+
+  # Repair ends
+  # Convert 'both' ends to first/last in multi-member groups
+  is_both <- which(ends == 3)
+  ends[setdiff(intersect(rle_start, is_both), rle_end)] <- 1L
+  ends[setdiff(intersect(rle_end, is_both), rle_start)] <- 2L
+  arrow$ends <- ends
+
+  # Repair lengths
+  zero <- unit(0, "mm")
+  # Set length of first segment to zero when ends is 'last'
+  len[intersect(setdiff(rle_start, rle_end), which(ends == 2))] <- zero
+  # Set length of last segment to zero when ends is 'first'
+  len[intersect(setdiff(rle_end, rle_start), which(ends == 1))] <- zero
+  # Set length of middle pieces to zero
+  len[setdiff(seq_along(len), c(rle_start, rle_end))] <- zero
+  arrow$length <- len
+
+  return(arrow)
 }

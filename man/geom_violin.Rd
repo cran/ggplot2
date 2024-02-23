@@ -13,6 +13,7 @@ geom_violin(
   ...,
   draw_quantiles = NULL,
   trim = TRUE,
+  bounds = c(-Inf, Inf),
   scale = "area",
   na.rm = FALSE,
   orientation = NA,
@@ -31,10 +32,12 @@ stat_ydensity(
   kernel = "gaussian",
   trim = TRUE,
   scale = "area",
+  drop = TRUE,
   na.rm = FALSE,
   orientation = NA,
   show.legend = NA,
-  inherit.aes = TRUE
+  inherit.aes = TRUE,
+  bounds = c(-Inf, Inf)
 )
 }
 \arguments{
@@ -74,6 +77,12 @@ at the given quantiles of the density estimate.}
 \item{trim}{If \code{TRUE} (default), trim the tails of the violins
 to the range of the data. If \code{FALSE}, don't trim the tails.}
 
+\item{bounds}{Known lower and upper bounds for estimated data. Default
+\code{c(-Inf, Inf)} means that there are no (finite) bounds. If any bound is
+finite, boundary effect of default density estimation will be corrected by
+reflecting tails outside \code{bounds} around their closest edge. Data points
+outside of bounds are removed with a warning.}
+
 \item{scale}{if "area" (default), all violins have the same area (before trimming
 the tails). If "count", areas are scaled proportionally to the number of
 observations. If "width", all violins have the same maximum width.}
@@ -103,13 +112,18 @@ the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
 \item{bw}{The smoothing bandwidth to be used.
 If numeric, the standard deviation of the smoothing kernel.
 If character, a rule to choose the bandwidth, as listed in
-\code{\link[stats:bandwidth]{stats::bw.nrd()}}.}
+\code{\link[stats:bandwidth]{stats::bw.nrd()}}. Note that automatic calculation of the bandwidth does
+not take weights into account.}
 
 \item{adjust}{A multiplicate bandwidth adjustment. This makes it possible
 to adjust the bandwidth while still using the a bandwidth estimator.
 For example, \code{adjust = 1/2} means use half of the default bandwidth.}
 
 \item{kernel}{Kernel. See list of available kernels in \code{\link[=density]{density()}}.}
+
+\item{drop}{Whether to discard groups with less than 2 observations
+(\code{TRUE}, default) or keep such groups for position adjustment purposes
+(\code{FALSE}).}
 }
 \description{
 A violin plot is a compact display of a continuous distribution. It is a
@@ -126,14 +140,14 @@ This geom treats each axis differently and, thus, can thus have two orientations
 
 \code{geom_violin()} understands the following aesthetics (required aesthetics are in bold):
 \itemize{
-\item \strong{\code{x}}
-\item \strong{\code{y}}
-\item \code{alpha}
-\item \code{colour}
-\item \code{fill}
-\item \code{group}
-\item \code{linetype}
-\item \code{linewidth}
+\item \strong{\code{\link[=aes_position]{x}}}
+\item \strong{\code{\link[=aes_position]{y}}}
+\item \code{\link[=aes_colour_fill_alpha]{alpha}}
+\item \code{\link[=aes_colour_fill_alpha]{colour}}
+\item \code{\link[=aes_colour_fill_alpha]{fill}}
+\item \code{\link[=aes_group_order]{group}}
+\item \code{\link[=aes_linetype_size_shape]{linetype}}
+\item \code{\link[=aes_linetype_size_shape]{linewidth}}
 \item \code{weight}
 }
 Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
