@@ -1,5 +1,5 @@
 Package: ggplot2
-Version: 3.5.0
+Version: 3.5.1
 Title: Create Elegant Data Visualisations Using the Grammar of Graphics
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@posit.co", role = "aut",
@@ -33,7 +33,7 @@ BugReports: https://github.com/tidyverse/ggplot2/issues
 Depends: R (>= 3.5)
 Imports: cli, glue, grDevices, grid, gtable (>= 0.1.1), isoband,
         lifecycle (> 1.0.1), MASS, mgcv, rlang (>= 1.1.0), scales (>=
-        1.3.0), stats, tibble, vctrs (>= 0.5.0), withr (>= 2.5.0)
+        1.3.0), stats, tibble, vctrs (>= 0.6.0), withr (>= 2.5.0)
 Suggests: covr, dplyr, ggplot2movies, hexbin, Hmisc, knitr, mapproj,
         maps, multcomp, munsell, nlme, profvis, quantreg, ragg (>=
         1.2.6), RColorBrewer, rmarkdown, rpart, sf (>= 0.7-3), svglite
@@ -44,7 +44,7 @@ Config/Needs/website: ggtext, tidyr, forcats, tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.1
 Collate: 'ggproto.R' 'ggplot-global.R' 'aaa-.R'
         'aes-colour-fill-alpha.R' 'aes-evaluation.R'
         'aes-group-order.R' 'aes-linetype-size-shape.R'
@@ -57,17 +57,17 @@ Collate: 'ggproto.R' 'ggplot-global.R' 'aaa-.R'
         'coord-cartesian-.R' 'coord-fixed.R' 'coord-flip.R'
         'coord-map.R' 'coord-munch.R' 'coord-polar.R'
         'coord-quickmap.R' 'coord-radial.R' 'coord-sf.R'
-        'coord-transform.R' 'data.R' 'facet-.R' 'facet-grid-.R'
-        'facet-null.R' 'facet-wrap.R' 'fortify-lm.R' 'fortify-map.R'
-        'fortify-multcomp.R' 'fortify-spatial.R' 'fortify.R' 'stat-.R'
-        'geom-abline.R' 'geom-rect.R' 'geom-bar.R' 'geom-bin2d.R'
-        'geom-blank.R' 'geom-boxplot.R' 'geom-col.R' 'geom-path.R'
-        'geom-contour.R' 'geom-count.R' 'geom-crossbar.R'
-        'geom-segment.R' 'geom-curve.R' 'geom-defaults.R'
-        'geom-ribbon.R' 'geom-density.R' 'geom-density2d.R'
-        'geom-dotplot.R' 'geom-errorbar.R' 'geom-errorbarh.R'
-        'geom-freqpoly.R' 'geom-function.R' 'geom-hex.R'
-        'geom-histogram.R' 'geom-hline.R' 'geom-jitter.R'
+        'coord-transform.R' 'data.R' 'docs_layer.R' 'facet-.R'
+        'facet-grid-.R' 'facet-null.R' 'facet-wrap.R' 'fortify-lm.R'
+        'fortify-map.R' 'fortify-multcomp.R' 'fortify-spatial.R'
+        'fortify.R' 'stat-.R' 'geom-abline.R' 'geom-rect.R'
+        'geom-bar.R' 'geom-bin2d.R' 'geom-blank.R' 'geom-boxplot.R'
+        'geom-col.R' 'geom-path.R' 'geom-contour.R' 'geom-count.R'
+        'geom-crossbar.R' 'geom-segment.R' 'geom-curve.R'
+        'geom-defaults.R' 'geom-ribbon.R' 'geom-density.R'
+        'geom-density2d.R' 'geom-dotplot.R' 'geom-errorbar.R'
+        'geom-errorbarh.R' 'geom-freqpoly.R' 'geom-function.R'
+        'geom-hex.R' 'geom-histogram.R' 'geom-hline.R' 'geom-jitter.R'
         'geom-label.R' 'geom-linerange.R' 'geom-point.R'
         'geom-pointrange.R' 'geom-quantile.R' 'geom-rug.R' 'geom-sf.R'
         'geom-smooth.R' 'geom-spoke.R' 'geom-text.R' 'geom-tile.R'
@@ -108,7 +108,7 @@ Collate: 'ggproto.R' 'ggplot-global.R' 'aaa-.R'
         'utilities-resolution.R' 'utilities-tidy-eval.R' 'zxx.R'
         'zzz.R'
 NeedsCompilation: no
-Packaged: 2024-02-21 12:29:53 UTC; thomas
+Packaged: 2024-04-22 10:39:16 UTC; thomas
 Author: Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
   Winston Chang [aut] (<https://orcid.org/0000-0002-1576-2126>),
   Lionel Henry [aut],
@@ -123,4 +123,4 @@ Author: Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
   Posit, PBC [cph, fnd]
 Maintainer: Thomas Lin Pedersen <thomas.pedersen@posit.co>
 Repository: CRAN
-Date/Publication: 2024-02-23 09:30:02 UTC
+Date/Publication: 2024-04-23 08:00:08 UTC

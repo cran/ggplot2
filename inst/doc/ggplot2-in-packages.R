@@ -28,34 +28,34 @@ mpg_drv_summary()
 ## -----------------------------------------------------------------------------
 mpg_drv_summary <- function() {
   ggplot(ggplot2::mpg) + 
-    geom_bar(aes(x = drv)) + 
-    coord_flip()
+    geom_bar(aes(y = drv)) + 
+    facet_wrap(vars(year))
 }
 
 ## -----------------------------------------------------------------------------
 mpg_drv_summary <- function() {
   ggplot(ggplot2::mpg) + 
-    geom_bar(aes(x = .data$drv)) + 
-    coord_flip()
+    geom_bar(aes(y = .data$drv)) +
+    facet_wrap(vars(.data$year))
 }
 
 ## -----------------------------------------------------------------------------
-col_summary <- function(df, col) {
+col_summary <- function(df, col, by) {
   ggplot(df) + 
-    geom_bar(aes(x = .data[[col]])) + 
-    coord_flip()
+    geom_bar(aes(y = .data[[col]])) + 
+    facet_wrap(vars(.data[[by]]))
 }
 
-col_summary(mpg, "drv")
+col_summary(mpg, "drv", "year")
 
 ## ----eval = (packageVersion("rlang") >= "0.3.4.9003")-------------------------
-col_summary <- function(df, col) {
+col_summary <- function(df, col, by) {
   ggplot(df) + 
-    geom_bar(aes(x = {{ col }})) + 
-    coord_flip()
+    geom_bar(aes(y = {{ col }})) + 
+    facet_wrap(vars({{ by }}))
 }
 
-col_summary(mpg, drv)
+col_summary(mpg, drv, year)
 
 ## -----------------------------------------------------------------------------
 mpg_drv_dist <- structure(

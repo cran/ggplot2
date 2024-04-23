@@ -35,6 +35,8 @@ NULL
 #'   `"all_x"` or `"all_y"`, only draws the labels at the interior axes in the
 #'   x- or y-direction respectively.
 #' @inheritParams facet_grid
+#' @seealso
+#' The `r link_book("facet wrap section", "facet#sec-facet-wrap")`
 #' @export
 #' @examples
 #' p <- ggplot(mpg, aes(displ, hwy)) + geom_point()
@@ -226,8 +228,8 @@ FacetWrap <- ggproto("FacetWrap", Facet,
     }
 
     facet_vals <- eval_facets(vars, data, params$.possible_columns)
-    facet_vals[] <- lapply(facet_vals[], as.factor)
-    layout[] <- lapply(layout[], as.factor)
+    facet_vals[] <- lapply(facet_vals[], as_unordered_factor)
+    layout[] <- lapply(layout[], as_unordered_factor)
 
     missing_facets <- setdiff(names(vars), names(facet_vals))
     if (length(missing_facets) > 0) {

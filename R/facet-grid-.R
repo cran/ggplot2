@@ -70,6 +70,8 @@ NULL
 #'   draws the labels at the interior axes in the x- or y-direction
 #'   respectively.
 #' @export
+#' @seealso
+#' The `r link_book("facet grid section", "facet#facet-grid")`
 #' @examples
 #' p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 #'
@@ -323,9 +325,9 @@ FacetGrid <- ggproto("FacetGrid", Facet,
       # Special case of no faceting
       data$PANEL <- NO_PANEL
     } else {
-      facet_vals[] <- lapply(facet_vals[], as.factor)
+      facet_vals[] <- lapply(facet_vals[], as_unordered_factor)
       facet_vals[] <- lapply(facet_vals[], addNA, ifany = TRUE)
-      layout[] <- lapply(layout[], as.factor)
+      layout[] <- lapply(layout[], as_unordered_factor)
 
       keys <- join_keys(facet_vals, layout, by = vars)
 

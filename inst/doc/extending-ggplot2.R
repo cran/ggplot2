@@ -172,7 +172,7 @@ ggplot(mpg, aes(displ, colour = drv)) +
 ## -----------------------------------------------------------------------------
 StatDensityCommon <- ggproto("StatDensity2", Stat, 
   required_aes = "x",
-  default_aes = aes(y = stat(density)),
+  default_aes = aes(y = after_stat(density)),
 
   compute_group = function(data, scales, bandwidth = 1) {
     d <- density(data$x, bw = bandwidth)
@@ -180,7 +180,7 @@ StatDensityCommon <- ggproto("StatDensity2", Stat,
   }  
 )
 
-ggplot(mpg, aes(displ, drv, colour = stat(density))) + 
+ggplot(mpg, aes(displ, drv, colour = after_stat(density))) + 
   stat_density_common(bandwidth = 1, geom = "point")
 
 ## -----------------------------------------------------------------------------
@@ -190,7 +190,7 @@ ggplot(mpg, aes(displ, fill = drv)) +
 ## -----------------------------------------------------------------------------
 StatDensityCommon <- ggproto("StatDensityCommon", Stat, 
   required_aes = "x",
-  default_aes = aes(y = stat(density)),
+  default_aes = aes(y = after_stat(density)),
 
   setup_params = function(data, params) {
     min <- min(data$x) - 3 * params$bandwidth
@@ -212,7 +212,7 @@ StatDensityCommon <- ggproto("StatDensityCommon", Stat,
 
 ggplot(mpg, aes(displ, fill = drv)) + 
   stat_density_common(bandwidth = 1, geom = "area", position = "stack")
-ggplot(mpg, aes(displ, drv, fill = stat(density))) + 
+ggplot(mpg, aes(displ, drv, fill = after_stat(density))) + 
   stat_density_common(bandwidth = 1, geom = "raster")
 
 ## ----GeomSimplePoint----------------------------------------------------------

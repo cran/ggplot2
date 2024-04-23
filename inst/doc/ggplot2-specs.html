@@ -570,12 +570,14 @@ of them and see which works best for your needs.</p>
 </div>
 <div id="font-size" class="section level3">
 <h3>Font size</h3>
-<p>The <code>size</code> of text is measured in mm. This is unusual, but
-makes the size of text consistent with the size of lines and points.
-Typically you specify font size using points (or pt for short), where 1
-pt = 0.35mm. ggplot2 provides this conversion factor in the variable
-<code>.pt</code>, so if you want to draw 12pt text, set
-<code>size = 12 / .pt</code>.</p>
+<p>The <code>size</code> of text is measured in mm by default. This is
+unusual, but makes the size of text consistent with the size of lines
+and points. Typically you specify font size using points (or pt for
+short), where 1 pt = 0.35mm. In <code>geom_text()</code> and
+<code>geom_label()</code>, you can set <code>size.unit = &quot;pt&quot;</code> to
+use points instead of millimeters. In addition, ggplot2 provides a
+conversion factor as the variable <code>.pt</code>, so if you want to
+draw 12pt text, you can also set <code>size = 12 / .pt</code>.</p>
 </div>
 <div id="justification" class="section level3">
 <h3>Justification</h3>
