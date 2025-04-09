@@ -109,9 +109,13 @@ guides <- function(...) {
   NULL
 }
 
+#' @export
+#' @rdname is_tests
+is_guides <- function(x) inherits(x, "Guides")
+
 update_guides <- function(p, guides) {
   p <- plot_clone(p)
-  if (inherits(p$guides, "Guides")) {
+  if (is_guides(p$guides)) {
     old <- p$guides
     new <- ggproto(NULL, old)
     new$add(guides)
@@ -151,7 +155,7 @@ Guides <- ggproto(
     if (is.null(guides)) {
       return(invisible())
     }
-    if (inherits(guides, "Guides")) {
+    if (is_guides(guides)) {
       guides <- guides$guides
     }
     self$guides <- defaults(guides, self$guides)
@@ -792,9 +796,7 @@ get_guide_data <- function(plot = last_plot(), aesthetic, panel = 1L) {
   check_string(aesthetic, allow_empty = FALSE)
   aesthetic <- standardise_aes_names(aesthetic)
 
-  if (!inherits(plot, "ggplot_built")) {
-    plot <- ggplot_build(plot)
-  }
+  plot <- ggplot_build(plot)
 
   if (!aesthetic %in% c("x", "y", "x.sec", "y.sec", "theta", "r")) {
     # Non position guides: check if aesthetic in colnames of key
@@ -900,7 +902,7 @@ validate_guide <- function(guide) {
       guide <- fun()
     }
   }
-  if (inherits(guide, "Guide")) {
+  if (is_guide(guide)) {
     return(guide)
   }
   if (inherits(guide, "guide") && is.list(guide)) {

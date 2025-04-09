@@ -5,8 +5,6 @@ NULL
 #'
 #' Colour bar guide shows continuous colour scales mapped onto values.
 #' Colour bar is available with `scale_fill` and `scale_colour`.
-#' For more information, see the inspiration for this function:
-#' \href{http://www.mathworks.com/help/techdoc/ref/colorbar.html}{Matlab's colorbar function}.
 #'
 #' Guides can be specified in each `scale_*` or in [guides()].
 #' `guide="legend"` in `scale_*` is syntactic sugar for
@@ -266,6 +264,7 @@ GuideColourbar <- ggproto(
   merge = function(self, params, new_guide, new_params) {
     new_params$key$.label <- new_params$key$.value <- NULL
     params$key <- vec_cbind(params$key, new_params$key)
+    params$aesthetic <- union(params$aesthetic, new_params$aesthetic)
     return(list(guide = self, params = params))
   },
 
