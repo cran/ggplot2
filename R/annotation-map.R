@@ -76,7 +76,7 @@ annotation_map <- function(map, ...) {
   )
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Geom
 #' @format NULL
 #' @usage NULL
 #' @export
@@ -95,9 +95,9 @@ GeomAnnotationMap <- ggproto("GeomAnnotationMap", GeomMap,
 
     polygonGrob(coords$x, coords$y, default.units = "native",
       id = grob_id,
-      gp = gpar(
+      gp = gg_par(
         col = data$colour, fill = alpha(data$fill, data$alpha),
-        lwd = data$linewidth * .pt)
+        lwd = data$linewidth)
       )
   },
 

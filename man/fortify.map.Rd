@@ -14,6 +14,8 @@
 \item{...}{not used by this method}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 This function turns a map into a data frame that can more easily be
 plotted with ggplot2.
 }
@@ -33,6 +35,6 @@ ggplot(tx, aes(long, lat)) +
 }
 }
 \seealso{
-\code{\link[=map_data]{map_data()}} and \code{\link[=borders]{borders()}}
+\code{\link[=map_data]{map_data()}} and \code{\link[=annotation_borders]{annotation_borders()}}
 }
 \keyword{internal}

@@ -16,10 +16,11 @@
 
 ---
 
-    Problem while converting geom to grob.
-    i Error occurred in the 1st layer.
-    Caused by error in `draw_panel()`:
-    ! `geom_raster()` only works with `coord_cartesian()`.
+    Code
+      b <- ggplotGrob(p)
+    Message
+      `geom_raster()` only works with linear coordinate systems, not `coord_polar()`.
+      i Falling back to drawing as `geom_rect()`.
 
 # geom_raster() fails with pattern fills
 

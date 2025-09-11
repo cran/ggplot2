@@ -26,6 +26,7 @@ stat_smooth(
   geom = "smooth",
   position = "identity",
   ...,
+  orientation = NA,
   method = NULL,
   formula = NULL,
   se = TRUE,
@@ -36,7 +37,6 @@ stat_smooth(
   level = 0.95,
   method.args = list(),
   na.rm = FALSE,
-  orientation = NA,
   show.legend = NA,
   inherit.aes = TRUE
 )
@@ -125,7 +125,7 @@ model that \code{method = NULL} would use, then set
 \code{method = NULL} implies \code{formula = y ~ x} when there are fewer than 1,000
 observations and \code{formula = y ~ s(x, bs = "cs")} otherwise.}
 
-\item{se}{Display confidence interval around smooth? (\code{TRUE} by default, see
+\item{se}{Display confidence band around smooth? (\code{TRUE} by default, see
 \code{level} to control.)}
 
 \item{na.rm}{If \code{FALSE}, the default, missing values are removed with
@@ -140,12 +140,14 @@ to either \code{"x"} or \code{"y"}. See the \emph{Orientation} section for more 
 \code{NA}, the default, includes if any aesthetics are mapped.
 \code{FALSE} never includes, and \code{TRUE} always includes.
 It can also be a named logical vector to finely select the aesthetics to
-display.}
+display. To include legend keys for all levels, even
+when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
+but unobserved levels are omitted.}
 
 \item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
+the default plot specification, e.g. \code{\link[=annotation_borders]{annotation_borders()}}.}
 
 \item{geom, stat}{Use to override the default connection between
 \code{geom_smooth()} and \code{stat_smooth()}. For more information about overriding
@@ -168,7 +170,7 @@ created by \code{expansion}.}
 When \code{NULL} (default), \code{xseq} is internally evaluated as a sequence of \code{n}
 equally spaced points for continuous data.}
 
-\item{level}{Level of confidence interval to use (0.95 by default).}
+\item{level}{Level of confidence band to use (0.95 by default).}
 
 \item{method.args}{List of additional arguments passed on to the modelling
 function defined by \code{method}.}
@@ -184,7 +186,7 @@ Calculation is performed by the (currently undocumented)
 \code{predictdf()} generic and its methods.  For most methods the standard
 error bounds are computed using the \code{\link[=predict]{predict()}} method -- the
 exceptions are \code{loess()}, which uses a t-based approximation, and
-\code{glm()}, where the normal confidence interval is constructed on the link
+\code{glm()}, where the normal confidence band is constructed on the link
 scale and then back-transformed to the response scale.
 }
 \section{Orientation}{
@@ -192,32 +194,13 @@ scale and then back-transformed to the response scale.
 This geom treats each axis differently and, thus, can thus have two orientations. Often the orientation is easy to deduce from a combination of the given mappings and the types of positional scales in use. Thus, ggplot2 will by default try to guess which orientation the layer should have. Under rare circumstances, the orientation is ambiguous and guessing may fail. In that case the orientation can be specified directly using the \code{orientation} parameter, which can be either \code{"x"} or \code{"y"}. The value gives the axis that the geom should run along, \code{"x"} being the default orientation you would expect for the geom.
 }
 
-\section{Aesthetics}{
-
-\code{geom_smooth()} understands the following aesthetics (required aesthetics are in bold):
-\itemize{
-\item \strong{\code{\link[=aes_position]{x}}}
-\item \strong{\code{\link[=aes_position]{y}}}
-\item \code{\link[=aes_colour_fill_alpha]{alpha}}
-\item \code{\link[=aes_colour_fill_alpha]{colour}}
-\item \code{\link[=aes_colour_fill_alpha]{fill}}
-\item \code{\link[=aes_group_order]{group}}
-\item \code{\link[=aes_linetype_size_shape]{linetype}}
-\item \code{\link[=aes_linetype_size_shape]{linewidth}}
-\item \code{weight}
-\item \code{\link[=aes_position]{ymax}}
-\item \code{\link[=aes_position]{ymin}}
-}
-Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
-}
-
 \section{Computed variables}{
 
 These are calculated by the 'stat' part of layers and can be accessed with \link[=aes_eval]{delayed evaluation}. \code{stat_smooth()} provides the following variables, some of  which depend on the orientation:
 \itemize{
 \item \code{after_stat(y)} \emph{or} \code{after_stat(x)}\cr Predicted value.
-\item \code{after_stat(ymin)} \emph{or} \code{after_stat(xmin)}\cr Lower pointwise confidence interval around the mean.
-\item \code{after_stat(ymax)} \emph{or} \code{after_stat(xmax)}\cr Upper pointwise confidence interval around the mean.
+\item \code{after_stat(ymin)} \emph{or} \code{after_stat(xmin)}\cr Lower pointwise confidence band around the mean.
+\item \code{after_stat(ymax)} \emph{or} \code{after_stat(xmax)}\cr Upper pointwise confidence band around the mean.
 \item \code{after_stat(se)}\cr Standard error.
 }
 }
@@ -286,4 +269,23 @@ See individual modelling functions for more details:
 \code{\link[=lm]{lm()}} for linear smooths,
 \code{\link[=glm]{glm()}} for generalised linear smooths, and
 \code{\link[=loess]{loess()}} for local smooths.
+}
+\section{Aesthetics}{
+
+\code{geom_smooth()} understands the following aesthetics. Required aesthetics are displayed in bold and defaults are displayed for optional aesthetics:
+\tabular{rll}{
+ • \tab \strong{\code{\link[=aes_position]{x}}} \tab   \cr
+ • \tab \strong{\code{\link[=aes_position]{y}}} \tab   \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{alpha}} \tab → \code{0.4} \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{colour}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{fill}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_group_order]{group}} \tab → inferred \cr
+ • \tab \code{\link[=aes_linetype_size_shape]{linetype}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_linetype_size_shape]{linewidth}} \tab → via \code{theme()} \cr
+ • \tab \code{weight} \tab → \code{1} \cr
+ • \tab \code{\link[=aes_position]{ymax}} \tab   \cr
+ • \tab \code{\link[=aes_position]{ymin}} \tab   \cr
+}
+
+Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
 }

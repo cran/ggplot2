@@ -3,20 +3,25 @@ test_that("qplot works with variables in data frame and parent env", {
   y <- 1:10
   b <- 1:10
 
+
   lifecycle::expect_deprecated(
-    expect_s3_class(qplot(x, y, data = df), "ggplot")
+    p <- qplot(x, y, data = df)
   )
+  expect_s7_class(p, class_ggplot)
   lifecycle::expect_deprecated(
-    expect_s3_class(qplot(x, y, data = df, colour = a), "ggplot")
+    p <- qplot(x, y, data = df, colour = a)
   )
+  expect_s7_class(p, class_ggplot)
   lifecycle::expect_deprecated(
-    expect_s3_class(qplot(x, y, data = df, colour = b), "ggplot")
+    p <- qplot(x, y, data = df, colour = b)
   )
+  expect_s7_class(p, class_ggplot)
 
   bin <- 1
   lifecycle::expect_deprecated(
-    expect_s3_class(qplot(x, data = df, binwidth = bin), "ggplot")
+    p <- qplot(x, data = df, binwidth = bin)
   )
+  expect_s7_class(p, class_ggplot)
 })
 
 test_that("qplot works in non-standard environments", {
@@ -27,7 +32,7 @@ test_that("qplot works in non-standard environments", {
       qplot(x, breaks = 0:`-1-`)
     })
   )
-  expect_s3_class(p, "ggplot")
+  expect_s7_class(p, class_ggplot)
 })
 
 test_that("qplot() evaluates constants in the right place", {
@@ -37,7 +42,7 @@ test_that("qplot() evaluates constants in the right place", {
       qplot(1, 1, colour = I(paste0("re", foo)))
     })
   )
-  expect_identical(layer_data(p)$colour, I("red"))
+  expect_identical(get_layer_data(p)$colour, I("red"))
 })
 
 test_that("qplot() evaluates layers in package environment", {
@@ -46,7 +51,7 @@ test_that("qplot() evaluates layers in package environment", {
   }
 
   lifecycle::expect_deprecated(
-    expect_error(p <- qplot(1, 1, geom = "line"), NA)
+    expect_no_error(p <- qplot(1, 1, geom = "line"))
   )
 })
 

@@ -1,20 +1,22 @@
 #' Build ggplot for rendering.
 #'
-#' `ggplot_build()` takes the plot object, and performs all steps necessary
+#' `build_ggplot()` takes the plot object, and performs all steps necessary
 #' to produce an object that can be rendered.  This function outputs two pieces:
 #' a list of data frames (one for each layer), and a panel object, which
-#' contain all information about axis limits, breaks etc.
+#' contain all information about axis limits, breaks etc. The `ggplot_build()`
+#' function is vestigial and `build_ggplot()` should be used instead.
 #'
-#' `layer_data()`, `layer_grob()`, and `layer_scales()` are helper
+#' `get_layer_data()`, `get_layer_grob()`, and `get_panel_scales()` are helper
 #' functions that return the data, grob, or scales associated with a given
 #' layer. These are useful for tests.
 #'
 #' @param plot ggplot object
-#' @param i An integer. In `layer_data()`, the data to return (in the order added to the
-#'   plot). In `layer_grob()`, the grob to return (in the order added to the
-#'   plot). In `layer_scales()`, the row of a facet to return scales for.
-#' @param j An integer. In `layer_scales()`, the column of a facet to return
+#' @param i An integer. In `get_layer_data()`, the data to return (in the order added to the
+#'   plot). In `get_layer_grob()`, the grob to return (in the order added to the
+#'   plot). In `get_panel_scales()`, the row of a facet to return scales for.
+#' @param j An integer. In `get_panel_scales()`, the column of a facet to return
 #'   scales for.
+#' @param ... Not currently in use.
 #' @seealso
 #' [print.ggplot()] and [benchplot()] for
 #' functions that contain the complete set of steps for generating
@@ -23,43 +25,45 @@
 #' The `r link_book("build step section", "internals#sec-ggplotbuild")`
 #' @keywords internal
 #' @export
-ggplot_build <- function(plot) {
-  # Attaching the plot env to be fetched by deprecations etc.
-  attach_plot_env(plot$plot_env)
-
-  UseMethod('ggplot_build')
+ggplot_build <- function(plot, ...) {
+  # TODO: Swap to S7 generic once S7/#543 is resolved
+  env <- try_prop(plot, "plot_env")
+  if (!is.null(env)) {
+    attach_plot_env(env)
+  }
+  UseMethod("ggplot_build")
 }
 
-#' @export
-ggplot_build.ggplot_built <- function(plot) {
-  # This is a no-op
-  plot
+S7::method(ggplot_build, class_ggplot_built) <- function(plot, ...) {
+  plot # This is a no-op
 }
 
-#' @export
-ggplot_build.ggplot <- function(plot) {
+# The build_ggplot is a temporary concession to {thematic} after we put in
+# a compatibility PR that uses this function
+build_ggplot <- S7::method(ggplot_build, class_ggplot) <- function(plot, ...) {
   plot <- plot_clone(plot)
-  if (length(plot$layers) == 0) {
+  if (length(plot@layers) == 0) {
     plot <- plot + geom_blank()
   }
 
-  layers <- plot$layers
+  layers <- plot@layers
   data <- rep(list(NULL), length(layers))
 
-  scales <- plot$scales
+  scales <- plot@scales
 
   # Allow all layers to make any final adjustments based
   # on raw input data and plot info
-  data <- by_layer(function(l, d) l$layer_data(plot$data), layers, data, "computing layer data")
+  data <- by_layer(function(l, d) l$layer_data(plot@data), layers, data, "computing layer data")
   data <- by_layer(function(l, d) l$setup_layer(d, plot), layers, data, "setting up layer")
 
   # Initialise panels, add extra data for margins & missing faceting
   # variables, and add on a PANEL variable to data
-  layout <- create_layout(plot$facet, plot$coordinates, plot$layout)
-  data <- layout$setup(data, plot$data, plot$plot_env)
+  layout <- create_layout(plot@facet, plot@coordinates, plot@layout)
+  data <- layout$setup(data, plot@data, plot@plot_env)
 
   # Compute aesthetics to produce data with generalised variable names
   data <- by_layer(function(l, d) l$compute_aesthetics(d, plot), layers, data, "computing aesthetics")
+  plot@labels <- setup_plot_labels(plot, layers, data)
   data <- .ignore_data(data)
 
   # Transform all scales
@@ -79,7 +83,7 @@ ggplot_build.ggplot <- function(plot) {
   data <- by_layer(function(l, d) l$map_statistic(d, plot), layers, data, "mapping stat to aesthetics")
 
   # Make sure missing (but required) aesthetics are added
-  plot$scales$add_missing(c("x", "y"), plot$plot_env)
+  plot@scales$add_missing(c("x", "y"), plot@plot_env)
 
   # Reparameterise geoms from (e.g.) y and width to ymin and ymax
   data <- by_layer(function(l, d) l$compute_geom_1(d), layers, data, "setting up geom")
@@ -97,22 +101,29 @@ ggplot_build.ggplot <- function(plot) {
   data <- layout$map_position(data)
 
   # Hand off position guides to layout
-  layout$setup_panel_guides(plot$guides, plot$layers)
+  layout$setup_panel_guides(plot@guides, plot@layers)
+
+  # Complete the plot's theme
+  plot@theme <- plot_theme(plot)
 
   # Train and map non-position scales and guides
   npscales <- scales$non_position_scales()
   if (npscales$n() > 0) {
+    npscales$set_palettes(plot@theme)
     lapply(data, npscales$train_df)
-    plot$guides <- plot$guides$build(npscales, plot$layers, plot$labels, data)
+    plot@guides <- plot@guides$build(npscales, plot@layers, plot@labels, data, plot@theme)
     data <- lapply(data, npscales$map_df)
   } else {
     # Only keep custom guides if there are no non-position scales
-    plot$guides <- plot$guides$get_custom()
+    plot@guides <- plot@guides$get_custom()
   }
   data <- .expose_data(data)
 
   # Fill in defaults etc.
-  data <- by_layer(function(l, d) l$compute_geom_2(d), layers, data, "setting up geom aesthetics")
+  data <- by_layer(
+    function(l, d) l$compute_geom_2(d, theme = plot@theme),
+    layers, data, "setting up geom aesthetics"
+  )
 
   # Let layer stat have a final say before rendering
   data <- by_layer(function(l, d) l$finish_statistics(d), layers, data, "finishing layer stat")
@@ -121,41 +132,51 @@ ggplot_build.ggplot <- function(plot) {
   data <- layout$finish_data(data)
 
   # Consolidate alt-text
-  plot$labels$alt <- get_alt_text(plot)
+  plot@labels$alt <- get_alt_text(plot)
 
-  structure(
-    list(data = data, layout = layout, plot = plot),
-    class = "ggplot_built"
-  )
+  build <- class_ggplot_built(data = data, layout = layout, plot = plot)
+  class(build) <- union(c("ggplot2::ggplot_built", "ggplot_built"), class(build))
+  build
 }
 
 #' @export
 #' @rdname ggplot_build
-layer_data <- function(plot = last_plot(), i = 1L) {
-  ggplot_build(plot)$data[[i]]
+get_layer_data <- function(plot = get_last_plot(), i = 1L) {
+  ggplot_build(plot)@data[[i]]
 }
+#' @export
+#' @rdname ggplot_build
+layer_data <- get_layer_data
 
 #' @export
 #' @rdname ggplot_build
-layer_scales <- function(plot = last_plot(), i = 1L, j = 1L) {
+get_panel_scales <- function(plot = get_last_plot(), i = 1L, j = 1L) {
   b <- ggplot_build(plot)
 
-  layout <- b$layout$layout
+  layout <- b@layout$layout
   selected <- layout[layout$ROW == i & layout$COL == j, , drop = FALSE]
 
   list(
-    x = b$layout$panel_scales_x[[selected$SCALE_X]],
-    y = b$layout$panel_scales_y[[selected$SCALE_Y]]
+    x = b@layout$panel_scales_x[[selected$SCALE_X]],
+    y = b@layout$panel_scales_y[[selected$SCALE_Y]]
   )
 }
 
 #' @export
 #' @rdname ggplot_build
-layer_grob <- function(plot = last_plot(), i = 1L) {
+layer_scales <- get_panel_scales
+
+#' @export
+#' @rdname ggplot_build
+get_layer_grob <- function(plot = get_last_plot(), i = 1L) {
   b <- ggplot_build(plot)
 
-  b$plot$layers[[i]]$draw_geom(b$data[[i]], b$layout)
+  b@plot@layers[[i]]$draw_geom(b@data[[i]], b@layout)
 }
+
+#' @export
+#' @rdname ggplot_build
+layer_grob <- get_layer_grob
 
 #' Build a plot with all the usual bits and pieces.
 #'
@@ -164,6 +185,9 @@ layer_grob <- function(plot = last_plot(), i = 1L) {
 #' This object is amenable to programmatic manipulation, should you want
 #' to (e.g.) make the legend box 2 cm wide, or combine multiple plots into
 #' a single display, preserving aspect ratios across the plots.
+#'
+#' The `ggplot_gtable()` function is vestigial and the `gtable_ggplot()` function
+#' should be used instead.
 #'
 #' @seealso
 #' [print.ggplot()] and [benchplot()] for
@@ -176,44 +200,42 @@ layer_grob <- function(plot = last_plot(), i = 1L) {
 #' @param data plot data generated by [ggplot_build()]
 #' @export
 ggplot_gtable <- function(data) {
-  # Attaching the plot env to be fetched by deprecations etc.
-  attach_plot_env(data$plot$plot_env)
-
-  UseMethod('ggplot_gtable')
+  # TODO: Swap to S7 generic once S7/#543 is resolved
+  attach_plot_env(data@plot@plot_env)
+  UseMethod("ggplot_gtable")
 }
 
-#' @export
-ggplot_gtable.ggplot_built <- function(data) {
-  plot <- data$plot
-  layout <- data$layout
-  data <- data$data
-  theme <- plot_theme(plot)
+S7::method(ggplot_gtable, class_ggplot_built) <- function(data) {
+  plot <- data@plot
+  layout <- data@layout
+  data <- data@data
+  theme <- plot@theme
 
-  geom_grobs <- by_layer(function(l, d) l$draw_geom(d, layout), plot$layers, data, "converting geom to grob")
+  geom_grobs <- by_layer(function(l, d) l$draw_geom(d, layout), plot@layers, data, "converting geom to grob")
 
-  plot_table <- layout$render(geom_grobs, data, theme, plot$labels)
+  plot_table <- layout$render(geom_grobs, data, theme, plot@labels)
 
   # Legends
-  legend_box <- plot$guides$assemble(theme)
+  legend_box <- plot@guides$assemble(theme)
   plot_table <- table_add_legends(plot_table, legend_box, theme)
 
   # Title
   title <- element_render(
-    theme, "plot.title", plot$labels$title,
+    theme, "plot.title", plot@labels$title,
     margin_y = TRUE, margin_x = TRUE
   )
   title_height <- grobHeight(title)
 
   # Subtitle
   subtitle <- element_render(
-    theme, "plot.subtitle", plot$labels$subtitle,
+    theme, "plot.subtitle", plot@labels$subtitle,
     margin_y = TRUE, margin_x = TRUE
   )
   subtitle_height <- grobHeight(subtitle)
 
   # whole plot annotation
   caption <- element_render(
-    theme, "plot.caption", plot$labels$caption,
+    theme, "plot.caption", plot@labels$caption,
     margin_y = TRUE, margin_x = TRUE
   )
   caption_height <- grobHeight(caption)
@@ -238,18 +260,18 @@ ggplot_gtable.ggplot_built <- function(data) {
 
   pans <- plot_table$layout[grepl("^panel", plot_table$layout$name), , drop = FALSE]
   if (title_pos == "panel") {
-    title_l = min(pans$l)
-    title_r = max(pans$r)
+    title_l <- min(pans$l)
+    title_r <- max(pans$r)
   } else {
-    title_l = 1
-    title_r = ncol(plot_table)
+    title_l <- 1
+    title_r <- ncol(plot_table)
   }
   if (caption_pos == "panel") {
-    caption_l = min(pans$l)
-    caption_r = max(pans$r)
+    caption_l <- min(pans$l)
+    caption_r <- max(pans$r)
   } else {
-    caption_l = 1
-    caption_r = ncol(plot_table)
+    caption_l <- 1
+    caption_r <- ncol(plot_table)
   }
 
   plot_table <- gtable_add_rows(plot_table, subtitle_height, pos = 0)
@@ -264,13 +286,11 @@ ggplot_gtable.ggplot_built <- function(data) {
   plot_table <- gtable_add_grob(plot_table, caption, name = "caption",
     t = -1, b = -1, l = caption_l, r = caption_r, clip = "off")
 
-  plot_table <- table_add_tag(plot_table, plot$labels$tag, theme)
+  plot_table <- table_add_tag(plot_table, plot@labels$tag, theme)
 
   # Margins
-  plot_table <- gtable_add_rows(plot_table, theme$plot.margin[1], pos = 0)
-  plot_table <- gtable_add_cols(plot_table, theme$plot.margin[2])
-  plot_table <- gtable_add_rows(plot_table, theme$plot.margin[3])
-  plot_table <- gtable_add_cols(plot_table, theme$plot.margin[4], pos = 0)
+  plot_margin <- calc_element("plot.margin", theme) %||% margin()
+  plot_table  <- gtable_add_padding(plot_table, plot_margin)
 
   if (is_theme_element(theme$plot.background)) {
     plot_table <- gtable_add_grob(plot_table,
@@ -281,7 +301,7 @@ ggplot_gtable.ggplot_built <- function(data) {
   }
 
   # add alt-text as attribute
-  attr(plot_table, "alt-label") <- plot$labels$alt
+  attr(plot_table, "alt-label") <- plot@labels$alt
 
   plot_table
 }
@@ -294,6 +314,9 @@ ggplot_gtable.ggplot_built <- function(data) {
 ggplotGrob <- function(x) {
   ggplot_gtable(ggplot_build(x))
 }
+
+S7::method(as.gtable, class_ggplot) <- function(x, ...) ggplotGrob(x)
+S7::method(as.gtable, class_ggplot_built) <- function(x, ...) ggplot_gtable(x)
 
 # Apply function to layer and matching data
 by_layer <- function(f, layers, data, step = NULL) {
@@ -325,7 +348,7 @@ table_add_tag <- function(table, label, theme) {
     return(table)
   }
   element <- calc_element("plot.tag", theme)
-  if (inherits(element, "element_blank")) {
+  if (is_theme_element(element, "blank")) {
     return(table)
   }
 
@@ -342,13 +365,10 @@ table_add_tag <- function(table, label, theme) {
       ),
       call = expr(theme()))
     }
-    if (length(position) != 2) {
-      cli::cli_abort(paste0(
-        "A {.cls numeric} {.arg plot.tag.position} ",
-        "theme setting must have length 2."
-      ),
-      call = expr(theme()))
-    }
+    check_length(
+      position, 2L, call = expr(theme()),
+      arg = I("A {.cls numeric} {.arg plot.tag.position}")
+    )
     top <- left <- right <- bottom <- FALSE
   } else {
     # Break position into top/left/right/bottom
@@ -372,31 +392,32 @@ table_add_tag <- function(table, label, theme) {
 
   if (location %in% c("plot", "panel")) {
     if (!is.numeric(position)) {
+      hjust <- try_prop(element, "hjust", default = 0.5)
       if (right || left) {
-        x <- (1 - element$hjust) * width
+        x <- (1 - hjust) * width
         if (right) {
           x <- unit(1, "npc") - x
         }
       } else {
-        x <- unit(element$hjust, "npc")
+        x <- unit(hjust, "npc")
       }
       if (top || bottom) {
-        y <- (1 - element$vjust) * height
+        vjust <- try_prop(element, "vjust", default = 0.5)
+        y <- (1 - vjust) * height
         if (top) {
           y <- unit(1, "npc") - y
         }
       } else {
-        y <- unit(element$vjust, "npc")
+        y <- unit(vjust, "npc")
       }
     } else {
       x <- unit(position[1], "npc")
       y <- unit(position[2], "npc")
     }
-    # Do manual placement of tag
-    tag <- justify_grobs(
-      tag, x = x, y = y,
-      hjust = element$hjust, vjust = element$vjust,
-      int_angle = element$angle, debug = element$debug
+    # Re-render with manual positions
+    tag <- element_grob(
+      element, x = x, y = y, label = label,
+      margin_y = TRUE, margin_x = TRUE
     )
     if (location == "plot") {
       table <- gtable_add_grob(
@@ -435,7 +456,7 @@ table_add_tag <- function(table, label, theme) {
 # Add the legends to the gtable
 table_add_legends <- function(table, legends, theme) {
 
-  if (is.zero(legends)) {
+  if (is_zero(legends)) {
     legends <- rep(list(zeroGrob()), 5)
     names(legends) <- c(.trbl, "inside")
   }
@@ -446,10 +467,10 @@ table_add_legends <- function(table, legends, theme) {
     names(legends)
   )
 
-  empty <- vapply(legends, is.zero, logical(1))
+  empty <- vapply(legends, is_zero, logical(1))
   widths[!empty]  <- lapply(legends[!empty], gtable_width)
   heights[!empty] <- lapply(legends[!empty], gtable_height)
-  spacing <- theme$legend.box.spacing %||% unit(0.2, "cm")
+  spacing <- calc_element("legend.box.spacing", theme) %||% unit(0.2, "cm")
 
   # If legend is missing, set spacing to zero for that legend
   zero    <- unit(0, "pt")

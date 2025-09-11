@@ -17,6 +17,12 @@
 #' one change at a time. You may need to look at a few options to uncover
 #' the full story behind your data.
 #'
+#' By default, the _height_ of the bars represent the counts within each bin.
+#' However, there are situations where this behavior might produce misleading
+#' plots (e.g., when non-equal-width bins are used), in which case it might be
+#' preferable to have the _area_ of the bars represent the counts (by setting
+#' `aes(y = after_stat(count / width))`). See example below.
+#'
 #' In addition to `geom_histogram()`, you can create a histogram plot by using
 #' `scale_x_binned()` with [geom_bar()]. This method by default plots tick marks
 #' in between each bar.
@@ -63,6 +69,18 @@
 #' ggplot(diamonds, aes(price, after_stat(density), colour = cut)) +
 #'   geom_freqpoly(binwidth = 500)
 #'
+#'
+#' # When using the non-equal-width bins, we should set the area of the bars to
+#' # represent the counts (not the height).
+#' # Here we're using 10 equi-probable bins:
+#' price_bins <- quantile(diamonds$price, probs = seq(0, 1, length = 11))
+#'
+#' ggplot(diamonds, aes(price)) +
+#'   geom_histogram(breaks = price_bins, color = "black") # misleading (height = count)
+#'
+#' ggplot(diamonds, aes(price, after_stat(count / width))) +
+#'   geom_histogram(breaks = price_bins, color = "black") # area = count
+#'
 #' if (require("ggplot2movies")) {
 #' # Often we don't want the height of the bar to represent the
 #' # count of observations, but the sum of some other variable.
@@ -95,11 +113,11 @@
 #' # no observations have 0 ratings.
 #' m +
 #'   geom_histogram(boundary = 0) +
-#'   coord_trans(x = "log10")
+#'   coord_transform(x = "log10")
 #' # Use boundary = 0, to make sure we don't take sqrt of negative values
 #' m +
 #'   geom_histogram(boundary = 0) +
-#'   coord_trans(x = "sqrt")
+#'   coord_transform(x = "sqrt")
 #'
 #' # You can also transform the y axis.  Remember that the base of the bars
 #' # has value 0, so log transformations are not appropriate
@@ -114,32 +132,9 @@
 #' # different ranges because the function will be called once per facet
 #' ggplot(economics_long, aes(value)) +
 #'   facet_wrap(~variable, scales = 'free_x') +
-#'   geom_histogram(binwidth = function(x) 2 * IQR(x) / (length(x)^(1/3)))
-geom_histogram <- function(mapping = NULL, data = NULL,
-                           stat = "bin", position = "stack",
-                           ...,
-                           binwidth = NULL,
-                           bins = NULL,
-                           na.rm = FALSE,
-                           orientation = NA,
-                           show.legend = NA,
-                           inherit.aes = TRUE) {
-
-  layer(
-    data = data,
-    mapping = mapping,
-    stat = stat,
-    geom = GeomBar,
-    position = position,
-    show.legend = show.legend,
-    inherit.aes = inherit.aes,
-    params = list2(
-      binwidth = binwidth,
-      bins = bins,
-      na.rm = na.rm,
-      orientation = orientation,
-      pad = FALSE,
-      ...
-    )
-  )
-}
+#'   geom_histogram(binwidth = \(x) 2 * IQR(x) / (length(x)^(1/3)))
+geom_histogram <- make_constructor(
+  GeomBar, stat = "bin", position = "stack",
+  # Passed to bin stat:
+  binwidth = NULL, bins = NULL, orientation = NA
+)

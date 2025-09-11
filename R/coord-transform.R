@@ -1,6 +1,6 @@
 #' Transformed Cartesian coordinate system
 #'
-#' `coord_trans()` is different to scale transformations in that it occurs after
+#' `coord_transform()` is different to scale transformations in that it occurs after
 #' statistical transformation and will affect the visual appearance of geoms - there is
 #' no guarantee that straight lines will continue to be straight.
 #'
@@ -8,9 +8,12 @@
 #' [scales::new_transform()] for list of transformations, and instructions
 #' on how to create your own.
 #'
+#' The `coord_trans()` function is deprecated in favour of `coord_transform()`.
+#'
 #' @inheritParams coord_cartesian
 #' @param x,y Transformers for x and y axes or their names.
 #' @param limx,limy `r lifecycle::badge("deprecated")` use `xlim` and `ylim` instead.
+#' @param ... Arguments forwarded to `coord_transform()`.
 #' @seealso
 #' The `r link_book("coord transformations section", "coord#transformations-with-coord_trans")`
 #' @export
@@ -30,7 +33,7 @@
 #' #  * by transforming the coordinate system:
 #' ggplot(diamonds, aes(carat, price)) +
 #'   geom_point() +
-#'   coord_trans(x = "log10", y = "log10")
+#'   coord_transform(x = "log10", y = "log10")
 #'
 #' # The difference between transforming the scales and
 #' # transforming the coordinate system is that scale
@@ -49,7 +52,7 @@
 #' ggplot(d, aes(carat, price)) +
 #'   geom_point() +
 #'   geom_smooth(method = "lm") +
-#'   coord_trans(x = "log10", y = "log10")
+#'   coord_transform(x = "log10", y = "log10")
 #'
 #' # Here I used a subset of diamonds so that the smoothed line didn't
 #' # drop below zero, which obviously causes problems on the log-transformed
@@ -62,7 +65,7 @@
 #'   geom_smooth(method = "lm") +
 #'   scale_x_log10() +
 #'   scale_y_log10() +
-#'   coord_trans(x = scales::transform_exp(10), y = scales::transform_exp(10))
+#'   coord_transform(x = scales::transform_exp(10), y = scales::transform_exp(10))
 #'
 #' # cf.
 #' ggplot(diamonds, aes(carat, price)) +
@@ -74,17 +77,18 @@
 #' df <- data.frame(a = abs(rnorm(26)),letters)
 #' plot <- ggplot(df,aes(a,letters)) + geom_point()
 #'
-#' plot + coord_trans(x = "log10")
-#' plot + coord_trans(x = "sqrt")
+#' plot + coord_transform(x = "log10")
+#' plot + coord_transform(x = "sqrt")
 #' }
-coord_trans <- function(x = "identity", y = "identity", xlim = NULL, ylim = NULL,
-                        limx = deprecated(), limy = deprecated(), clip = "on", expand = TRUE) {
+coord_transform <- function(x = "identity", y = "identity", xlim = NULL, ylim = NULL,
+                            limx = deprecated(), limy = deprecated(), clip = "on",
+                            expand = TRUE, reverse = "none") {
   if (lifecycle::is_present(limx)) {
-    deprecate_warn0("3.3.0", "coord_trans(limx)", "coord_trans(xlim)")
+    deprecate_warn0("3.3.0", "coord_transform(limx)", "coord_transform(xlim)")
     xlim <- limx
   }
   if (lifecycle::is_present(limy)) {
-    deprecate_warn0("3.3.0", "coord_trans(limy)", "coord_trans(ylim)")
+    deprecate_warn0("3.3.0", "coord_transform(limy)", "coord_transform(ylim)")
     ylim <- limy
   }
 
@@ -95,21 +99,38 @@ coord_trans <- function(x = "identity", y = "identity", xlim = NULL, ylim = NULL
   if (is.character(x)) x <- as.transform(x)
   if (is.character(y)) y <- as.transform(y)
 
-  ggproto(NULL, CoordTrans,
+  ggproto(
+    NULL, CoordTransform,
     trans = list(x = x, y = y),
     limits = list(x = xlim, y = ylim),
     expand = expand,
+    reverse = reverse,
     clip = clip
   )
 }
 
+#' @rdname coord_transform
+#' @export
+coord_trans <- function(...) {
+  deprecate_soft0(
+    "4.0.0",
+    "coord_trans()",
+    "coord_transform()"
+  )
+  coord_transform(...)
+}
 
-#' @rdname ggplot2-ggproto
+#' @rdname Coord
 #' @format NULL
 #' @usage NULL
 #' @export
-CoordTrans <- ggproto("CoordTrans", Coord,
-  is_free = function() TRUE,
+CoordTransform <- ggproto(
+  "CoordTransform", Coord,
+
+  is_free = function() {
+    TRUE
+  },
+
   distance = function(self, x, y, panel_params) {
     max_dist <- dist_euclidean(panel_params$x.range, panel_params$y.range)
     dist_euclidean(self$trans$x$transform(x), self$trans$y$transform(y)) / max_dist
@@ -132,14 +153,17 @@ CoordTrans <- ggproto("CoordTrans", Coord,
   transform = function(self, data, panel_params) {
     # trans_x() and trans_y() needs to keep Inf values because this can be called
     # in guide_transform.axis()
+    reverse <- panel_params$reverse %||% "none"
+    x_range <- switch(reverse, xy = , x = rev, identity)(panel_params$x.range)
+    y_range <- switch(reverse, xy = , y = rev, identity)(panel_params$y.range)
     trans_x <- function(data) {
       idx <- !is.infinite(data)
-      data[idx] <- transform_value(self$trans$x, data[idx], panel_params$x.range)
+      data[idx] <- transform_value(self$trans$x, data[idx], x_range)
       data
     }
     trans_y <- function(data) {
       idx <- !is.infinite(data)
-      data[idx] <- transform_value(self$trans$y, data[idx], panel_params$y.range)
+      data[idx] <- transform_value(self$trans$y, data[idx], y_range)
       data
     }
 
@@ -153,19 +177,14 @@ CoordTrans <- ggproto("CoordTrans", Coord,
 
   setup_panel_params = function(self, scale_x, scale_y, params = list()) {
     c(
-      view_scales_from_scale_with_coord_trans(scale_x, self$limits$x, self$trans$x, self$expand),
-      view_scales_from_scale_with_coord_trans(scale_y, self$limits$y, self$trans$y, self$expand)
+      view_scales_from_scale_with_coord_trans(scale_x, self$limits$x, self$trans$x, params$expand[c(4, 2)]),
+      view_scales_from_scale_with_coord_trans(scale_y, self$limits$y, self$trans$y, params$expand[c(3, 1)]),
+      reverse = self$reverse %||% "none"
     )
   },
 
-  render_bg = function(panel_params, theme) {
-    guide_grid(
-      theme,
-      panel_params$x.minor,
-      panel_params$x.major,
-      panel_params$y.minor,
-      panel_params$y.major
-    )
+  render_bg = function(self, panel_params, theme) {
+    guide_grid(theme, panel_params, self)
   },
 
   render_axis_h = function(panel_params, theme) {
@@ -183,6 +202,13 @@ CoordTrans <- ggproto("CoordTrans", Coord,
   }
 )
 
+# TODO: deprecate this some time in the future
+#' @rdname Coord
+#' @format NULL
+#' @usage NULL
+#' @export
+CoordTrans <- ggproto("CoordTrans", CoordTransform)
+
 transform_value <- function(trans, value, range) {
   if (is.null(value))
     return(value)
@@ -198,7 +224,7 @@ view_scales_from_scale_with_coord_trans <- function(scale, coord_limits, trans, 
 
   if (scale$is_discrete()) {
     continuous_ranges <- expand_limits_discrete_trans(
-      scale_limits,
+      scale$map(scale_limits),
       expansion,
       coord_limits,
       trans,
@@ -258,3 +284,4 @@ warn_new_infinites <- function(old_values, new_values, axis, call = caller_env()
     cli::cli_warn("Transformation introduced infinite values in {axis}-axis", call = call)
   }
 }
+

@@ -26,8 +26,10 @@ geom_histogram(
   ...,
   binwidth = NULL,
   bins = NULL,
-  na.rm = FALSE,
   orientation = NA,
+  lineend = "butt",
+  linejoin = "mitre",
+  na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE
 )
@@ -38,15 +40,16 @@ stat_bin(
   geom = "bar",
   position = "stack",
   ...,
+  orientation = NA,
   binwidth = NULL,
   bins = NULL,
   center = NULL,
   boundary = NULL,
-  breaks = NULL,
   closed = c("right", "left"),
   pad = FALSE,
+  breaks = NULL,
+  drop = "none",
   na.rm = FALSE,
-  orientation = NA,
   show.legend = NA,
   inherit.aes = TRUE
 )
@@ -120,18 +123,19 @@ a warning. If \code{TRUE}, missing values are silently removed.}
 \code{NA}, the default, includes if any aesthetics are mapped.
 \code{FALSE} never includes, and \code{TRUE} always includes.
 It can also be a named logical vector to finely select the aesthetics to
-display.}
+display. To include legend keys for all levels, even
+when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
+but unobserved levels are omitted.}
 
 \item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
+the default plot specification, e.g. \code{\link[=annotation_borders]{annotation_borders()}}.}
 
 \item{binwidth}{The width of the bins. Can be specified as a numeric value
-or as a function that calculates width from unscaled x. Here, "unscaled x"
-refers to the original x values in the data, before application of any
-scale transformation. When specifying a function along with a grouping
-structure, the function will be called once per group.
+or as a function that takes x after scale transformation as input and
+returns a single numeric value. When specifying a function along with a
+grouping structure, the function will be called once per group.
 The default is to use the number of bins in \code{bins},
 covering the range of the data. You should always override
 this value, exploring multiple widths to find the best to illustrate the
@@ -146,6 +150,10 @@ bin width of a time variable is the number of seconds.}
 automatically determines the orientation from the aesthetic mapping. In the
 rare event that this fails it can be given explicitly by setting \code{orientation}
 to either \code{"x"} or \code{"y"}. See the \emph{Orientation} section for more detail.}
+
+\item{lineend}{Line end style (round, butt, square).}
+
+\item{linejoin}{Line join style (round, mitre, bevel).}
 
 \item{geom, stat}{Use to override the default connection between
 \code{geom_histogram()}/\code{geom_freqpoly()} and \code{stat_bin()}. For more information
@@ -162,15 +170,21 @@ if \code{0} is outside the range of the data. Alternatively, this same alignment
 can be specified with \code{binwidth = 1} and \code{boundary = 0.5}, even if \code{0.5} is
 outside the range of the data.}
 
-\item{breaks}{Alternatively, you can supply a numeric vector giving
-the bin boundaries. Overrides \code{binwidth}, \code{bins}, \code{center},
-and \code{boundary}.}
-
 \item{closed}{One of \code{"right"} or \code{"left"} indicating whether right
 or left edges of bins are included in the bin.}
 
 \item{pad}{If \code{TRUE}, adds empty bins at either end of x. This ensures
 frequency polygons touch 0. Defaults to \code{FALSE}.}
+
+\item{breaks}{Alternatively, you can supply a numeric vector giving
+the bin boundaries. Overrides \code{binwidth}, \code{bins}, \code{center},
+and \code{boundary}. Can also be a function that takes group-wise values as input and returns bin boundaries.}
+
+\item{drop}{Treatment of zero count bins. If \code{"none"} (default), such
+bins are kept as-is. If \code{"all"}, all zero count bins are filtered out.
+If \code{"extremes"} only zero count bins at the flanks are filtered out, but
+not in the middle. \code{TRUE} is shorthand for \code{"all"} and \code{FALSE} is shorthand
+for \code{"none"}.}
 }
 \description{
 Visualise the distribution of a single continuous variable by dividing
@@ -190,6 +204,12 @@ different number of bins. You can also experiment modifying the \code{binwidth} 
 \code{center} or \code{boundary} arguments. \code{binwidth} overrides \code{bins} so you should do
 one change at a time. You may need to look at a few options to uncover
 the full story behind your data.
+
+By default, the \emph{height} of the bars represent the counts within each bin.
+However, there are situations where this behavior might produce misleading
+plots (e.g., when non-equal-width bins are used), in which case it might be
+preferable to have the \emph{area} of the bars represent the counts (by setting
+\code{aes(y = after_stat(count / width))}). See example below.
 
 In addition to \code{geom_histogram()}, you can create a histogram plot by using
 \code{scale_x_binned()} with \code{\link[=geom_bar]{geom_bar()}}. This method by default plots tick marks
@@ -254,6 +274,18 @@ ggplot(diamonds, aes(price, colour = cut)) +
 ggplot(diamonds, aes(price, after_stat(density), colour = cut)) +
   geom_freqpoly(binwidth = 500)
 
+
+# When using the non-equal-width bins, we should set the area of the bars to
+# represent the counts (not the height).
+# Here we're using 10 equi-probable bins:
+price_bins <- quantile(diamonds$price, probs = seq(0, 1, length = 11))
+
+ggplot(diamonds, aes(price)) +
+  geom_histogram(breaks = price_bins, color = "black") # misleading (height = count)
+
+ggplot(diamonds, aes(price, after_stat(count / width))) +
+  geom_histogram(breaks = price_bins, color = "black") # area = count
+
 if (require("ggplot2movies")) {
 # Often we don't want the height of the bar to represent the
 # count of observations, but the sum of some other variable.
@@ -286,11 +318,11 @@ m +
 # no observations have 0 ratings.
 m +
   geom_histogram(boundary = 0) +
-  coord_trans(x = "log10")
+  coord_transform(x = "log10")
 # Use boundary = 0, to make sure we don't take sqrt of negative values
 m +
   geom_histogram(boundary = 0) +
-  coord_trans(x = "sqrt")
+  coord_transform(x = "sqrt")
 
 # You can also transform the y axis.  Remember that the base of the bars
 # has value 0, so log transformations are not appropriate
@@ -305,7 +337,7 @@ m +
 # different ranges because the function will be called once per facet
 ggplot(economics_long, aes(value)) +
   facet_wrap(~variable, scales = 'free_x') +
-  geom_histogram(binwidth = function(x) 2 * IQR(x) / (length(x)^(1/3)))
+  geom_histogram(binwidth = \(x) 2 * IQR(x) / (length(x)^(1/3)))
 }
 \seealso{
 \code{\link[=stat_count]{stat_count()}}, which counts the number of cases at each x

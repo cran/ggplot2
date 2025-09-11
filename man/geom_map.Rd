@@ -38,7 +38,7 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
 \item{stat}{The statistical transformation to use on the data for this layer.
 When using a \verb{geom_*()} function to construct a layer, the \code{stat}
-argument can be used the override the default coupling between geoms and
+argument can be used to override the default coupling between geoms and
 stats. The \code{stat} argument accepts the following:
 \itemize{
 \item A \code{Stat} ggproto subclass, for example \code{StatCount}.
@@ -89,12 +89,14 @@ a warning. If \code{TRUE}, missing values are silently removed.}
 \code{NA}, the default, includes if any aesthetics are mapped.
 \code{FALSE} never includes, and \code{TRUE} always includes.
 It can also be a named logical vector to finely select the aesthetics to
-display.}
+display. To include legend keys for all levels, even
+when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
+but unobserved levels are omitted.}
 
 \item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
+the default plot specification, e.g. \code{\link[=annotation_borders]{annotation_borders()}}.}
 }
 \description{
 Display polygons as a map. This is meant as annotation, so it does not
@@ -103,28 +105,12 @@ framework and does not work with sf geometry columns as input. However,
 it can be used in conjunction with \code{geom_sf()} layers and/or
 \code{\link[=coord_sf]{coord_sf()}} (see examples).
 }
-\section{Aesthetics}{
-
-\code{geom_map()} understands the following aesthetics (required aesthetics are in bold):
-\itemize{
-\item \strong{\code{map_id}}
-\item \code{\link[=aes_colour_fill_alpha]{alpha}}
-\item \code{\link[=aes_colour_fill_alpha]{colour}}
-\item \code{\link[=aes_colour_fill_alpha]{fill}}
-\item \code{\link[=aes_group_order]{group}}
-\item \code{\link[=aes_linetype_size_shape]{linetype}}
-\item \code{\link[=aes_linetype_size_shape]{linewidth}}
-\item \code{subgroup}
-}
-Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
-}
-
 \examples{
 # First, a made-up example containing a few polygons, to explain
 # how `geom_map()` works. It requires two data frames:
 # One contains the coordinates of each polygon (`positions`), and is
 # provided via the `map` argument. The other contains the
-# other the values associated with each polygon (`values`).  An id
+# values associated with each polygon (`values`).  An id
 # variable links the two together.
 
 ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3", "2.3"))
@@ -157,7 +143,7 @@ if (require(maps)) {
 
   crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
 
-  # Equivalent to crimes \%>\% tidyr::pivot_longer(Murder:Rape)
+  # Equivalent to crimes |> tidyr::pivot_longer(Murder:Rape)
   vars <- lapply(names(crimes)[-1], function(j) {
     data.frame(state = crimes$state, variable = j, value = crimes[[j]])
   })
@@ -191,4 +177,20 @@ if (require(maps)) {
    ) +
    facet_wrap(~variable)
 }
+}
+\section{Aesthetics}{
+
+\code{geom_map()} understands the following aesthetics. Required aesthetics are displayed in bold and defaults are displayed for optional aesthetics:
+\tabular{rll}{
+ • \tab \strong{\code{map_id}} \tab   \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{alpha}} \tab → \code{NA} \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{colour}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{fill}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_group_order]{group}} \tab → inferred \cr
+ • \tab \code{\link[=aes_linetype_size_shape]{linetype}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_linetype_size_shape]{linewidth}} \tab → via \code{theme()} \cr
+ • \tab \code{subgroup} \tab → \code{NULL} \cr
+}
+
+Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
 }

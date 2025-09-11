@@ -14,6 +14,7 @@ labs(
   subtitle = waiver(),
   caption = waiver(),
   tag = waiver(),
+  dictionary = waiver(),
   alt = waiver(),
   alt_insight = waiver()
 )
@@ -24,7 +25,7 @@ ylab(label)
 
 ggtitle(label, subtitle = waiver())
 
-get_labs(plot = last_plot())
+get_labs(plot = get_last_plot())
 }
 \arguments{
 \item{...}{A list of new name-value pairs. The name should be an aesthetic.}
@@ -40,8 +41,15 @@ bottom-right of the plot by default.}
 \item{tag}{The text for the tag label which will be displayed at the
 top-left of the plot by default.}
 
+\item{dictionary}{A named character vector to serve as dictionary.
+Automatically derived labels, such as those based on variables will
+be matched with \code{names(dictionary)} and replaced by the matching
+entry in \code{dictionary}.}
+
 \item{alt, alt_insight}{Text used for the generation of alt-text for the plot.
-See \link{get_alt_text} for examples.}
+See \link{get_alt_text} for examples. \code{alt} can also be a function that
+takes the plot as input and returns text as output. \code{alt} also accepts
+rlang \link[rlang:as_function]{lambda} function notation.}
 
 \item{label}{The title of the respective axis (for \code{xlab()} or \code{ylab()}) or
 of the plot (for \code{ggtitle()}).}
@@ -55,6 +63,10 @@ variable name. Use the plot \code{title} and \code{subtitle} to explain the
 main findings. It's common to use the \code{caption} to provide information
 about the data source. \code{tag} can be used for adding identification tags
 to differentiate between multiple plots.
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}: \code{xlab()}, \code{ylab()} and \code{ggtitle()} are
+superseded. It is recommended to use the \code{labs(x, y, title, subtitle)}
+arguments instead.
 
 \code{get_labs()} retrieves completed labels from a plot.
 }
@@ -72,6 +84,14 @@ remove the subtitle from the plot.
 p <- ggplot(mtcars, aes(mpg, wt, colour = cyl)) + geom_point()
 p + labs(colour = "Cylinders")
 p + labs(x = "New x label")
+
+# Set labels by variable name instead of aesthetic
+p + labs(dict = c(
+  disp = "Displacment", # Not in use
+  cyl  = "Number of cylinders",
+  mpg  = "Miles per gallon",
+  wt   = "Weight (1000 lbs)"
+))
 
 # The plot title appears at the top-left, with the subtitle
 # display in smaller text underneath it

@@ -24,7 +24,7 @@
 #' @param scaled is the data already log-scaled? This should be `TRUE`
 #'   (default) when the data is already transformed with `log10()` or when
 #'   using `scale_y_log10()`. It should be `FALSE` when using
-#'   `coord_trans(y = "log10")`.
+#'   `coord_transform(y = "log10")`.
 #' @param colour Colour of the tick marks.
 #' @param linewidth Thickness of tick marks, in mm.
 #' @param linetype Linetype of tick marks (`solid`, `dashed`, etc.)
@@ -36,18 +36,18 @@
 #' @export
 #' @seealso [scale_y_continuous()], [scale_y_log10()] for log scale
 #'   transformations.
-#' @seealso [coord_trans()] for log coordinate transformations.
+#' @seealso [coord_transform()] for log coordinate transformations.
 #'
 #' @examples
 #' # Make a log-log plot (without log ticks)
 #' a <- ggplot(msleep, aes(bodywt, brainwt)) +
 #'  geom_point(na.rm = TRUE) +
 #'  scale_x_log10(
-#'    breaks = scales::trans_breaks("log10", function(x) 10^x),
+#'    breaks = scales::trans_breaks("log10", \(x) 10^x),
 #'    labels = scales::trans_format("log10", scales::math_format(10^.x))
 #'  ) +
 #'  scale_y_log10(
-#'    breaks = scales::trans_breaks("log10", function(x) 10^x),
+#'    breaks = scales::trans_breaks("log10", \(x) 10^x),
 #'    labels = scales::trans_format("log10", scales::math_format(10^.x))
 #'  ) +
 #'  theme_bw()
@@ -75,7 +75,7 @@
 #' # Using a coordinate transform requires scaled = FALSE
 #' t <- ggplot(msleep, aes(bodywt, brainwt)) +
 #'   geom_point() +
-#'   coord_trans(x = "log10", y = "log10") +
+#'   coord_transform(x = "log10", y = "log10") +
 #'   theme_bw()
 #' t + annotation_logticks(scaled = FALSE)
 #'
@@ -92,6 +92,8 @@ annotation_logticks <- function(base = 10, sides = "bl", outside = FALSE, scaled
 {
   if (!is.null(color))
     colour <- color
+
+  lifecycle::signal_stage("superseded", "annotation_logticks()", "guide_axis_logticks()")
 
   if (lifecycle::is_present(size)) {
     deprecate_soft0("3.5.0", I("Using the `size` aesthetic in this geom"), I("`linewidth`"))
@@ -123,7 +125,7 @@ annotation_logticks <- function(base = 10, sides = "bl", outside = FALSE, scaled
   )
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Geom
 #' @format NULL
 #' @usage NULL
 #' @export
@@ -165,7 +167,7 @@ GeomLogticks <- ggproto("GeomLogticks", Geom,
 
       names(xticks)[names(xticks) == "value"] <- x_name   # Rename to 'x' for coordinates$transform
       xticks <- coord$transform(xticks, panel_params)
-      xticks = xticks[xticks$x <= 1 & xticks$x >= 0,]
+      xticks <- xticks[xticks$x <= 1 & xticks$x >= 0,]
 
       if (outside)
         xticks$end = -xticks$end
@@ -175,14 +177,14 @@ GeomLogticks <- ggproto("GeomLogticks", Geom,
         ticks$x_b <- with(data, segmentsGrob(
           x0 = unit(xticks$x, "native"), x1 = unit(xticks$x, "native"),
           y0 = unit(xticks$start, "cm"), y1 = unit(xticks$end, "cm"),
-          gp = gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth * .pt)
+          gp = gg_par(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
         ))
       }
       if (grepl("t", sides) && nrow(xticks) > 0) {
         ticks$x_t <- with(data, segmentsGrob(
           x0 = unit(xticks$x, "native"), x1 = unit(xticks$x, "native"),
           y0 = unit(1, "npc") - unit(xticks$start, "cm"), y1 = unit(1, "npc") - unit(xticks$end, "cm"),
-          gp = gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth * .pt)
+          gp = gg_par(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
         ))
       }
     }
@@ -203,7 +205,7 @@ GeomLogticks <- ggproto("GeomLogticks", Geom,
 
       names(yticks)[names(yticks) == "value"] <- y_name   # Rename to 'y' for coordinates$transform
       yticks <- coord$transform(yticks, panel_params)
-      yticks = yticks[yticks$y <= 1 & yticks$y >= 0,]
+      yticks <- yticks[yticks$y <= 1 & yticks$y >= 0,]
 
       if (outside)
         yticks$end = -yticks$end
@@ -213,14 +215,14 @@ GeomLogticks <- ggproto("GeomLogticks", Geom,
         ticks$y_l <- with(data, segmentsGrob(
           y0 = unit(yticks$y, "native"), y1 = unit(yticks$y, "native"),
           x0 = unit(yticks$start, "cm"), x1 = unit(yticks$end, "cm"),
-          gp = gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth * .pt)
+          gp = gg_par(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
         ))
       }
       if (grepl("r", sides) && nrow(yticks) > 0) {
         ticks$y_r <- with(data, segmentsGrob(
           y0 = unit(yticks$y, "native"), y1 = unit(yticks$y, "native"),
           x0 = unit(1, "npc") - unit(yticks$start, "cm"), x1 = unit(1, "npc") - unit(yticks$end, "cm"),
-          gp = gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth * .pt)
+          gp = gg_par(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
         ))
       }
     }
@@ -228,7 +230,12 @@ GeomLogticks <- ggproto("GeomLogticks", Geom,
     gTree(children = inject(gList(!!!ticks)))
   },
 
-  default_aes = aes(colour = "black", linewidth = 0.5, linetype = 1, alpha = 1)
+  default_aes = aes(
+    colour = from_theme(colour %||% ink),
+    linewidth = from_theme(linewidth),
+    linetype = from_theme(linetype),
+    alpha = 1
+  )
 )
 
 
@@ -238,7 +245,7 @@ GeomLogticks <- ggproto("GeomLogticks", Geom,
 # - start: on the other axis, start position of the line (usually 0)
 # - end: on the other axis, end position of the line (for example, .1, .2, or .3)
 calc_logticks <- function(base = 10, ticks_per_base = base - 1,
-    minpow = 0, maxpow = minpow + 1, start = 0, shortend = .1, midend = .2, longend = .3) {
+    minpow = 0, maxpow = minpow + 1, start = 0, shortend = 0.1, midend = 0.2, longend = 0.3) {
 
   # Number of blocks of tick marks
   reps <- maxpow - minpow

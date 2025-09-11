@@ -1,20 +1,70 @@
+#' @include properties.R
+
 #' @param t,r,b,l Dimensions of each margin. (To remember order, think trouble).
 #' @param unit Default units of dimensions. Defaults to "pt" so it
 #'   can be most easily scaled with the text.
 #' @rdname element
 #' @export
-margin <- function(t = 0, r = 0, b = 0, l = 0, unit = "pt") {
-  u <- unit(c(t, r, b, l), unit)
-  class(u) <- c("margin", class(u))
-  u
-}
+margin <- S7::new_class(
+  "margin", parent = S7::new_S3_class(c("simpleUnit", "unit", "unit_v2")),
+  constructor = function(t = 0, r = 0, b = 0, l = 0, unit = "pt", ...) {
+    warn_dots_empty()
+    lens <- c(length(t), length(r), length(b), length(l))
+    if (any(lens != 1)) {
+      incorrect <- c("t", "r", "b", "l")[lens != 1]
+      s <- if (length(incorrect) > 1) "s" else ""
+      cli::cli_warn(c(
+        "In {.fn margin}, the argument{s} {.and {.arg {incorrect}}} should \\
+        have length 1, not length {.and {lens[lens != 1]}}.",
+        i = "Argument{s} get(s) truncated to length 1."
+      ))
+      t <- t[1]
+      r <- r[1]
+      b <- b[1]
+      l <- l[1]
+    }
+    u <- unit(c(t, r, b, l), unit)
+    S7::new_object(u)
+  }
+)
 
 #' @export
 #' @rdname is_tests
-is_margin <- function(x) {
-  inherits(x, "margin")
-}
+is_margin <- function(x) S7::S7_inherits(x, margin)
 is.margin <- function(x) lifecycle::deprecate_stop("3.5.2", "is.margin()", "is_margin()")
+
+#' @rdname element
+#' @export
+margin_part <- function(t = NA, r = NA, b = NA, l = NA, unit = "pt") {
+  margin(t = t, r = r, b = b, l = l, unit = unit)
+}
+
+#' @rdname element
+#' @export
+margin_auto <- function(t = 0, r = t, b = t, l = r, unit = "pt") {
+  margin(t = t, r = r, b = b, l = l, unit = unit)
+}
+
+as_margin <- function(x, x_arg = caller_arg(x), call = caller_env()) {
+  if (is_margin(x)) {
+    return(x)
+  }
+  if (!is.unit(x)) {
+    cli::cli_abort(
+      "{.arg {x_arg}} must be a {.cls margin} class, \\
+      not {.obj_type_friendly {x}}."
+    )
+  }
+  if (length(x) != 4) {
+    x <- rep(x, length.out = 4)
+  }
+  type <- unitType(x)
+  if (is_unique(type)) {
+    type <- type[1]
+  }
+  x <- as.numeric(x)
+  margin(x[1], x[2], x[3], x[4], unit = type)
+}
 
 #' Create a text grob with the proper location and margins
 #'
@@ -128,9 +178,9 @@ titleGrob <- function(label, x, y, hjust, vjust, angle = 0, gp = gpar(),
       rectGrob(
         x = x, y = y, width = width, height = height,
         hjust = just$hjust, vjust = just$vjust,
-        gp = gpar(fill = "cornsilk", col = NA)
+        gp = gg_par(fill = "cornsilk", col = NA)
       ),
-      pointsGrob(x, y, pch = 20, gp = gpar(col = "gold")),
+      pointsGrob(x, y, pch = 20, gp = gg_par(col = "gold")),
       grob
     )
   } else {
@@ -155,82 +205,6 @@ heightDetails.titleGrob <- function(x) {
   sum(x$heights)
 }
 
-#' Justifies a grob within a larger drawing area
-#'
-#' `justify_grobs()` can be used to take one or more grobs and draw them justified inside a larger
-#' drawing area, such as the cell in a gtable. It is needed to correctly place [`titleGrob`]s
-#' with margins.
-#'
-#' @param grobs The single grob or list of grobs to justify.
-#' @param x,y x and y location of the reference point relative to which justification
-#'   should be performed. If `NULL`, justification will be done relative to the
-#'   enclosing drawing area (i.e., `x = hjust` and `y = vjust`).
-#' @param hjust,vjust Horizontal and vertical justification of the grob relative to `x` and `y`.
-#' @param int_angle Internal angle of the grob to be justified. When justifying a text
-#'   grob with rotated text, this argument can be used to make `hjust` and `vjust` operate
-#'   relative to the direction of the text.
-#' @param debug If `TRUE`, aids visual debugging by drawing a solid
-#'   rectangle behind the complete grob area.
-#'
-#' @noRd
-justify_grobs <- function(grobs, x = NULL, y = NULL, hjust = 0.5, vjust = 0.5,
-                          int_angle = 0, debug = FALSE) {
-  if (!inherits(grobs, "grob")) {
-    if (is.list(grobs)) {
-      return(lapply(grobs, justify_grobs, x, y, hjust, vjust, int_angle, debug))
-    }
-    else {
-      stop_input_type(grobs, as_cli("an individual {.cls grob} or list of {.cls grob} objects"))
-    }
-  }
-
-  if (inherits(grobs, "zeroGrob")) {
-    return(grobs)
-  }
-
-  # adjust hjust and vjust according to internal angle
-  just <- rotate_just(int_angle, hjust, vjust)
-
-  x <- x %||% unit(just$hjust, "npc")
-  y <- y %||% unit(just$vjust, "npc")
-
-
-  if (isTRUE(debug)) {
-    children <- gList(
-      rectGrob(gp = gpar(fill = "lightcyan", col = NA)),
-      grobs
-    )
-  }
-  else {
-    children = gList(grobs)
-  }
-
-
-  result_grob <- gTree(
-    children = children,
-    vp = viewport(
-      x = x,
-      y = y,
-      width = grobWidth(grobs),
-      height = grobHeight(grobs),
-      just = unlist(just)
-    )
-  )
-
-
-  if (isTRUE(debug)) {
-    #cat("x, y:", c(x, y), "\n")
-    #cat("E - hjust, vjust:", c(hjust, vjust), "\n")
-    grobTree(
-      result_grob,
-      pointsGrob(x, y, pch = 20, gp = gpar(col = "mediumturquoise"))
-    )
-  } else {
-    result_grob
-  }
-}
-
-
 #' Rotate justification parameters counter-clockwise
 #'
 #' @param angle angle of rotation, in degrees
@@ -239,7 +213,7 @@ justify_grobs <- function(grobs, x = NULL, y = NULL, hjust = 0.5, vjust = 0.5,
 #' @return A list with two components, `hjust` and `vjust`, containing the rotated hjust and vjust values
 #'
 #' @noRd
-rotate_just <- function(angle, hjust, vjust) {
+rotate_just <- function(angle = NULL, hjust = NULL, vjust = NULL, element = NULL) {
   ## Ideally we would like to do something like the following commented-out lines,
   ## but it currently yields unexpected results for angles other than 0, 90, 180, 270.
   ## Problems arise in particular in cases where the horizontal and the vertical
@@ -254,6 +228,14 @@ rotate_just <- function(angle, hjust, vjust) {
   #
   #hnew <- cos(rad) * hjust - sin(rad) * vjust + (1 - cos(rad) + sin(rad)) / 2
   #vnew <- sin(rad) * hjust + cos(rad) * vjust + (1 - cos(rad) - sin(rad)) / 2
+  if (S7::S7_inherits(element)) {
+    element <- S7::props(element)
+  }
+  if (!is.null(element)) {
+    angle <- element$angle
+    hjust <- element$hjust
+    vjust <- element$vjust
+  }
 
   angle <- (angle %||% 0) %% 360
 
@@ -311,7 +293,7 @@ font_descent <- function(family = "", face = "plain", size = 12, cex = 1) {
   if (is.null(descent)) {
     descent <- convertHeight(grobDescent(textGrob(
       label = "gjpqyQ",
-      gp = gpar(
+      gp = gg_par(
         fontsize = size,
         cex = cex,
         fontfamily = family,

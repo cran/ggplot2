@@ -57,6 +57,7 @@
 #'   geom_area() +
 #'   coord_flip()
 coord_flip <- function(xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") {
+  lifecycle::signal_stage("superseded", "coord_flip()")
   check_coord_limits(xlim)
   check_coord_limits(ylim)
   ggproto(NULL, CoordFlip,
@@ -66,7 +67,7 @@ coord_flip <- function(xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") {
   )
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Coord
 #' @format NULL
 #' @usage NULL
 #' @export
@@ -89,6 +90,7 @@ CoordFlip <- ggproto("CoordFlip", CoordCartesian,
   },
 
   setup_panel_params = function(self, scale_x, scale_y, params = list()) {
+    params$expand <- params$expand[c(2, 1, 4, 3)]
     parent <- ggproto_parent(CoordCartesian, self)
     panel_params <- parent$setup_panel_params(scale_x, scale_y, params)
     flip_axis_labels(panel_params)
@@ -99,6 +101,7 @@ CoordFlip <- ggproto("CoordFlip", CoordCartesian,
   },
 
   setup_layout = function(layout, params) {
+    layout <- Coord$setup_layout(layout, params)
     # Switch the scales
     layout[c("SCALE_X", "SCALE_Y")] <- layout[c("SCALE_Y", "SCALE_X")]
     layout

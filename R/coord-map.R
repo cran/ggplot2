@@ -136,7 +136,7 @@ coord_map <- function(projection="mercator", ..., parameters = NULL, orientation
   } else {
     params <- parameters
   }
-
+  lifecycle::signal_stage("superseded", "coord_map()", "coord_sf()")
   check_coord_limits(xlim)
   check_coord_limits(ylim)
 
@@ -149,7 +149,7 @@ coord_map <- function(projection="mercator", ..., parameters = NULL, orientation
   )
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Coord
 #' @format NULL
 #' @usage NULL
 #' @export
@@ -157,7 +157,7 @@ CoordMap <- ggproto("CoordMap", Coord,
 
   transform = function(self, data, panel_params) {
     trans <- mproject(self, data$x, data$y, panel_params$orientation)
-    out <- cunion(trans[c("x", "y")], data)
+    out <- data_frame0(!!!defaults(trans[c("x", "y")], data))
 
     out$x <- rescale(out$x, 0:1, panel_params$x.proj)
     out$y <- rescale(out$y, 0:1, panel_params$y.proj)

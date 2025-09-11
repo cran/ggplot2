@@ -1,8 +1,8 @@
-## ----include = FALSE----------------------------------------------------------
+## -----------------------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 7, fig.align = "center")
 library(ggplot2)
 
-## ----ggproto-intro------------------------------------------------------------
+## -----------------------------------------------------------------------------
 A <- ggproto("A", NULL,
   x = 1,
   inc = function(self) {
@@ -16,7 +16,7 @@ A$inc()
 A$inc()
 A$x
 
-## ----chull--------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 StatChull <- ggproto("StatChull", Stat,
   compute_group = function(data, scales) {
     data[chull(data$x, data$y), , drop = FALSE]
@@ -35,6 +35,10 @@ stat_chull <- function(mapping = NULL, data = NULL, geom = "polygon",
     params = list(na.rm = na.rm, ...)
   )
 }
+
+## -----------------------------------------------------------------------------
+stat_chull <- make_constructor(StatChull, geom = "polygon")
+print(stat_chull)
 
 ## -----------------------------------------------------------------------------
 ggplot(mpg, aes(displ, hwy)) + 
@@ -66,15 +70,7 @@ StatLm <- ggproto("StatLm", Stat,
   }
 )
 
-stat_lm <- function(mapping = NULL, data = NULL, geom = "line",
-                    position = "identity", na.rm = FALSE, show.legend = NA, 
-                    inherit.aes = TRUE, ...) {
-  layer(
-    stat = StatLm, data = data, mapping = mapping, geom = geom, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
-}
+stat_lm <- make_constructor(StatLm, geom = "line")
 
 ggplot(mpg, aes(displ, hwy)) + 
   geom_point() + 
@@ -84,7 +80,7 @@ ggplot(mpg, aes(displ, hwy)) +
 StatLm <- ggproto("StatLm", Stat, 
   required_aes = c("x", "y"),
   
-  compute_group = function(data, scales, params, n = 100, formula = y ~ x) {
+  compute_group = function(data, scales, params = list(), n = 100, formula = y ~ x) {
     rng <- range(data$x, na.rm = TRUE)
     grid <- data.frame(x = seq(rng[1], rng[2], length = n))
     
@@ -95,16 +91,7 @@ StatLm <- ggproto("StatLm", Stat,
   }
 )
 
-stat_lm <- function(mapping = NULL, data = NULL, geom = "line",
-                    position = "identity", na.rm = FALSE, show.legend = NA, 
-                    inherit.aes = TRUE, n = 50, formula = y ~ x, 
-                    ...) {
-  layer(
-    stat = StatLm, data = data, mapping = mapping, geom = geom, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(n = n, formula = formula, na.rm = na.rm, ...)
-  )
-}
+stat_lm <- make_constructor(StatLm, geom = "line")
 
 ggplot(mpg, aes(displ, hwy)) + 
   geom_point() + 
@@ -152,16 +139,7 @@ StatDensityCommon <- ggproto("StatDensityCommon", Stat,
   }  
 )
 
-stat_density_common <- function(mapping = NULL, data = NULL, geom = "line",
-                                position = "identity", na.rm = FALSE, show.legend = NA, 
-                                inherit.aes = TRUE, bandwidth = NULL,
-                                ...) {
-  layer(
-    stat = StatDensityCommon, data = data, mapping = mapping, geom = geom, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(bandwidth = bandwidth, na.rm = na.rm, ...)
-  )
-}
+stat_density_common <- make_constructor(StatDensityCommon, geom = "line")
 
 ggplot(mpg, aes(displ, colour = drv)) + 
   stat_density_common()
@@ -215,7 +193,7 @@ ggplot(mpg, aes(displ, fill = drv)) +
 ggplot(mpg, aes(displ, drv, fill = after_stat(density))) + 
   stat_density_common(bandwidth = 1, geom = "raster")
 
-## ----GeomSimplePoint----------------------------------------------------------
+## -----------------------------------------------------------------------------
 GeomSimplePoint <- ggproto("GeomSimplePoint", Geom,
   required_aes = c("x", "y"),
   default_aes = aes(shape = 19, colour = "black"),
@@ -231,15 +209,8 @@ GeomSimplePoint <- ggproto("GeomSimplePoint", Geom,
   }
 )
 
-geom_simple_point <- function(mapping = NULL, data = NULL, stat = "identity",
-                              position = "identity", na.rm = FALSE, show.legend = NA, 
-                              inherit.aes = TRUE, ...) {
-  layer(
-    geom = GeomSimplePoint, mapping = mapping,  data = data, stat = stat, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
-}
+# Default stat is `stat_identity()`, no need to specify
+geom_simple_point <- make_constructor(GeomSimplePoint)
 
 ggplot(mpg, aes(displ, hwy)) + 
   geom_simple_point()
@@ -275,15 +246,8 @@ GeomSimplePolygon <- ggproto("GeomPolygon", Geom,
     )
   }
 )
-geom_simple_polygon <- function(mapping = NULL, data = NULL, stat = "chull",
-                                position = "identity", na.rm = FALSE, show.legend = NA, 
-                                inherit.aes = TRUE, ...) {
-  layer(
-    geom = GeomSimplePolygon, mapping = mapping, data = data, stat = stat, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
-}
+
+geom_simple_polygon <- make_constructor(GeomSimplePolygon, stat = "chull")
 
 ggplot(mpg, aes(displ, hwy)) + 
   geom_point() + 
@@ -294,15 +258,8 @@ GeomPolygonHollow <- ggproto("GeomPolygonHollow", GeomPolygon,
   default_aes = aes(colour = "black", fill = NA, linewidth = 0.5, linetype = 1,
     alpha = NA)
   )
-geom_chull <- function(mapping = NULL, data = NULL, 
-                       position = "identity", na.rm = FALSE, show.legend = NA, 
-                       inherit.aes = TRUE, ...) {
-  layer(
-    stat = StatChull, geom = GeomPolygonHollow, data = data, mapping = mapping,
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
-}
+
+geom_chull <- make_constructor(GeomPolygonHollow, stat = "chull")
 
 ggplot(mpg, aes(displ, hwy)) + 
   geom_point() + 
@@ -333,7 +290,7 @@ new_theme$legend.key
 new_theme <- theme_grey() %+replace% theme(legend.key = element_rect(colour = "red"))
 new_theme$legend.key
 
-## ----axis-line-ex-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 df <- data.frame(x = 1:3, y = 1:3)
 base <- ggplot(df, aes(x, y)) + 
   geom_point() + 
@@ -368,11 +325,7 @@ render <- function(panels, layout, x_scales, y_scales, ranges, coord, data,
     panel_table <- gtable::gtable_matrix("layout", panels, 
       widths = unit(c(1, 1), "null"), heights = unit(1, "null"), clip = "on")
     # Add spacing according to theme
-    panel_spacing <- if (is.null(theme$panel.spacing.x)) {
-      theme$panel.spacing
-    } else {
-      theme$panel.spacing.x
-    }
+    panel_spacing <- calc_element("panel.spacing.x", theme)
     panel_table <- gtable::gtable_add_col_space(panel_table, panel_spacing)
   } else {
     panels <- matrix(panels, ncol = 1)
@@ -535,21 +488,13 @@ FacetTrans <- ggproto("FacetTrans", Facet,
       panel_table <- gtable::gtable_matrix("layout", panels, 
         widths = unit(c(1, 1), "null"), heights = unit(1, "null"), clip = "on")
       # Add spacing according to theme
-      panel_spacing <- if (is.null(theme$panel.spacing.x)) {
-        theme$panel.spacing
-      } else {
-        theme$panel.spacing.x
-      }
+      panel_spacing <- calc_element("panel.spacing.x", theme)
       panel_table <- gtable::gtable_add_col_space(panel_table, panel_spacing)
     } else {
       panels <- matrix(panels, ncol = 1)
       panel_table <- gtable::gtable_matrix("layout", panels, 
         widths = unit(1, "null"), heights = unit(c(1, 1), "null"), clip = "on")
-      panel_spacing <- if (is.null(theme$panel.spacing.y)) {
-        theme$panel.spacing
-      } else {
-        theme$panel.spacing.y
-      }
+      panel_spacing <- calc_element("panel.spacing.y", theme)
       panel_table <- gtable::gtable_add_row_space(panel_table, panel_spacing)
     }
     # Name panel grobs so they can be found later
@@ -661,11 +606,7 @@ FacetBootstrap <- ggproto("FacetBootstrap", FacetWrap,
     dims <- wrap_dims(params$n, params$nrow, params$ncol)
     layout <- data.frame(PANEL = factor(id))
 
-    if (params$as.table) {
-      layout$ROW <- as.integer((id - 1L) %/% dims[2] + 1L)
-    } else {
-      layout$ROW <- as.integer(dims[1] - (id - 1L) %/% dims[2])
-    }
+    layout$ROW <- as.integer((id - 1L) %/% dims[2] + 1L)
     layout$COL <- as.integer((id - 1L) %% dims[2] + 1L)
 
     layout <- layout[order(layout$PANEL), , drop = FALSE]
@@ -739,14 +680,14 @@ guide_key <- function(
   )
 }
 
-## ----key_example--------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
   scale_x_continuous(
     guide = guide_key(aesthetic = 2:6 + 0.5)
   )
 
-## ----key_ggproto_edit---------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Same as before
 GuideKey <- ggproto(
   "Guide", GuideAxis,
@@ -773,7 +714,7 @@ GuideKey <- ggproto(
   }
 )
 
-## ----key_example_2------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
   guides(

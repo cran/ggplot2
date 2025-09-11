@@ -1,12 +1,19 @@
 # ggplot() throws informative errors
 
-    `mapping` must be created with `aes()`.
+    `mapping` must be created by `aes()`.
     x You've supplied a character vector.
 
 ---
 
     `data` cannot be a function.
-    i Have you misspelled the `data` argument in `ggplot()`
+    i Have you misspelled the `data` argument in `ggplot()`?
+
+---
+
+    Arguments in `...` must be used.
+    x Problematic argument:
+    * foobar = "nonsense"
+    i Did you misspell an argument name?
 
 # construction have user friendly errors
 

@@ -119,19 +119,24 @@ sec_axis <- function(transform = NULL,
 #' @rdname sec_axis
 #'
 #' @export
-dup_axis <- function(transform = ~., name = derive(), breaks = derive(),
+dup_axis <- function(transform = identity, name = derive(), breaks = derive(),
                      labels = derive(), guide = derive(), trans = deprecated()) {
   sec_axis(transform, trans = trans, name, breaks, labels, guide)
 }
 
-is.sec_axis <- function(x) {
+is_sec_axis <- function(x) {
   inherits(x, "AxisSecondary")
 }
 
 set_sec_axis <- function(sec.axis, scale) {
-  if (!is.waive(sec.axis)) {
-    if (is.formula(sec.axis)) sec.axis <- sec_axis(sec.axis)
-    if (!is.sec_axis(sec.axis)) {
+  if (!is_waiver(sec.axis)) {
+    if (scale$is_discrete()) {
+      if (!identical(.subset2(sec.axis, "trans"), identity)) {
+        cli::cli_abort("Discrete secondary axes must have the {.fn identity} transformation.")
+      }
+    }
+    if (is_formula(sec.axis)) sec.axis <- sec_axis(sec.axis)
+    if (!is_sec_axis(sec.axis)) {
       cli::cli_abort("Secondary axes must be specified using {.fn sec_axis}.")
     }
     scale$secondary.axis <- sec.axis
@@ -145,7 +150,7 @@ set_sec_axis <- function(sec.axis, scale) {
 derive <- function() {
   structure(list(), class = "derived")
 }
-is.derived <- function(x) {
+is_derived <- function(x) {
   inherits(x, "derived")
 }
 #' @rdname ggplot2-ggproto
@@ -177,11 +182,23 @@ AxisSecondary <- ggproto("AxisSecondary", NULL,
     if (!is.function(transform)) {
       cli::cli_abort("Transformation for secondary axes must be a function.")
     }
-    if (is.derived(self$name) && !is.waive(scale$name)) self$name <- scale$name
-    if (is.derived(self$breaks)) self$breaks <- scale$breaks
-    if (is.waive(self$breaks)) self$breaks <- scale$get_transformation()$breaks
-    if (is.derived(self$labels)) self$labels <- scale$labels
-    if (is.derived(self$guide)) self$guide <- scale$guide
+    if (is_derived(self$name) && !is_waiver(scale$name)) self$name <- scale$name
+    if (is_derived(self$breaks)) self$breaks <- scale$breaks
+    if (is_waiver(self$breaks)) {
+      if (scale$is_discrete()) {
+        self$breaks <- setNames(nm = scale$get_breaks())
+      } else {
+        breaks <- scale$get_transformation()$breaks
+        n_breaks <- scale$n.breaks
+        if (!is.null(n_breaks) && "n" %in% fn_fmls_names(breaks)) {
+          self$breaks <- function(x) breaks(x, n = n_breaks)
+        } else {
+          self$breaks <- breaks
+        }
+      }
+    }
+    if (is_derived(self$labels)) self$labels <- scale$labels
+    if (is_derived(self$guide)) self$guide <- scale$guide
   },
 
   transform_range = function(self, range) {
@@ -214,10 +231,15 @@ AxisSecondary <- ggproto("AxisSecondary", NULL,
     if (self$empty()) return()
 
     # Test for monotonicity on unexpanded range
-    self$mono_test(scale)
+    if (!scale$is_discrete()) {
+      self$mono_test(scale)
+      breaks <- self$breaks
+    } else {
+      breaks <- setNames(scale$map(self$breaks), names(self$breaks))
+    }
 
     # Get scale's original range before transformation
-    transformation <- scale$get_transformation()
+    transformation <- scale$get_transformation() %||% transform_identity()
     along_range <- seq(range[1], range[2], length.out = self$detail)
     old_range <- transformation$inverse(along_range)
 
@@ -245,7 +267,7 @@ AxisSecondary <- ggproto("AxisSecondary", NULL,
       old_val_trans <- rescale(range_info$major, from = c(0, 1), to = range)
       old_val_minor_trans <- rescale(range_info$minor, from = c(0, 1), to = range)
     } else {
-      temp_scale <- self$create_scale(new_range)
+      temp_scale <- self$create_scale(new_range, breaks = breaks)
       range_info <- temp_scale$break_info()
 
       # Map the break values back to their correct position on the primary scale
@@ -294,10 +316,11 @@ AxisSecondary <- ggproto("AxisSecondary", NULL,
   },
 
   # Temporary scale for the purpose of calling break_info()
-  create_scale = function(self, range, transformation = transform_identity()) {
+  create_scale = function(self, range, transformation = transform_identity(),
+                          breaks = self$breaks) {
     scale <- ggproto(NULL, ScaleContinuousPosition,
                      name = self$name,
-                     breaks = self$breaks,
+                     breaks = breaks,
                      labels = self$labels,
                      limits = range,
                      expand = c(0, 0),
@@ -306,7 +329,7 @@ AxisSecondary <- ggproto("AxisSecondary", NULL,
     scale$train(range)
     scale
   },
-  make_title = function(title) {
-    title
+  make_title = function(...) {
+    ScaleContinuous$make_title(...)
   }
 )

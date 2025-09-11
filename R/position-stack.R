@@ -116,14 +116,12 @@
 #'
 #' # Negative values -----------------------------------------------------------
 #'
-#' df <- tibble::tribble(
-#'   ~x, ~y, ~grp,
-#'   "a", 1,  "x",
-#'   "a", 2,  "y",
-#'   "b", 1,  "x",
-#'   "b", 3,  "y",
-#'   "b", -1, "y"
+#' df <- data.frame(
+#'   x = rep(c("a", "b"), 2:3),
+#'   y = c(1, 2, 1, 3, -1),
+#'   grp = c("x", "y", "x", "y", "y")
 #' )
+#'
 #' ggplot(data = df, aes(x, y, group = grp)) +
 #'   geom_col(aes(fill = grp), position = position_stack(reverse = TRUE)) +
 #'   geom_hline(yintercept = 0)
@@ -142,7 +140,7 @@ position_fill <- function(vjust = 1, reverse = FALSE) {
   ggproto(NULL, PositionFill, vjust = vjust, reverse = reverse)
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Position
 #' @format NULL
 #' @usage NULL
 #' @export
@@ -155,8 +153,14 @@ PositionStack <- ggproto("PositionStack", Position,
   setup_params = function(self, data) {
     flipped_aes <- has_flipped_aes(data)
     data <- flip_data(data, flipped_aes)
+    var <- self$var %||% stack_var(data)
+    if (!vec_duplicate_any(data$x)  && !isTRUE(self$fill)) {
+      # We skip stacking when all data have different x positions so that
+      # there is nothing to stack
+      var <- NULL
+    }
     list(
-      var = self$var %||% stack_var(data),
+      var = var,
       fill = self$fill,
       vjust = self$vjust,
       reverse = self$reverse,
@@ -220,7 +224,10 @@ pos_stack <- function(df, width, vjust = 1, fill = FALSE) {
   heights <- c(0, cumsum(y))
 
   if (fill) {
-    heights <- heights / abs(heights[length(heights)])
+    total <- abs(heights[length(heights)])
+    if (total > sqrt(.Machine$double.eps)) {
+      heights <- heights / total
+    }
   }
 # We need to preserve ymin/ymax order. If ymax is lower than ymin in input, it should remain that way
   if (!is.null(df$ymin) && !is.null(df$ymax)) {
@@ -237,7 +244,7 @@ pos_stack <- function(df, width, vjust = 1, fill = FALSE) {
 }
 
 
-#' @rdname ggplot2-ggproto
+#' @rdname Position
 #' @format NULL
 #' @usage NULL
 #' @export

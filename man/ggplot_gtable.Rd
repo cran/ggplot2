@@ -19,6 +19,10 @@ This object is amenable to programmatic manipulation, should you want
 to (e.g.) make the legend box 2 cm wide, or combine multiple plots into
 a single display, preserving aspect ratios across the plots.
 }
+\details{
+The \code{ggplot_gtable()} function is vestigial and the \code{gtable_ggplot()} function
+should be used instead.
+}
 \seealso{
 \code{\link[=print.ggplot]{print.ggplot()}} and \code{\link[=benchplot]{benchplot()}} for
 for functions that contain the complete set of steps for generating

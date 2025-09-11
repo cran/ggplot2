@@ -61,7 +61,7 @@ scale_y_binned <- function(name = waiver(), n.breaks = 10, nice.breaks = TRUE,
   )
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Scale
 #' @format NULL
 #' @usage NULL
 #' @export
@@ -92,7 +92,7 @@ ScaleBinnedPosition <- ggproto("ScaleBinnedPosition", ScaleBinned,
         include.lowest = TRUE,
         right = self$right
       )
-      (x - x_binned + .5) * diff(all_breaks)[x_binned] + all_breaks[x_binned]
+      (x - x_binned + 0.5) * diff(all_breaks)[x_binned] + all_breaks[x_binned]
     } else {
       x <- as.numeric(self$oob(x, limits))
       x <- ifelse(!is.na(x), x, self$na.value)

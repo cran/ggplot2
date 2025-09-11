@@ -68,10 +68,13 @@ NULL
 #' }
 guides <- function(...) {
   args <- list2(...)
-  if (length(args) > 0) {
-    if (is.list(args[[1]]) && !inherits(args[[1]], "guide")) args <- args[[1]]
-    args <- rename_aes(args)
+  # If there are no guides do nothing
+  if (length(args) == 0) {
+    return(NULL)
   }
+
+  if (is.list(args[[1]]) && !inherits(args[[1]], "guide")) args <- args[[1]]
+  args <- rename_aes(args)
 
   idx_false <- vapply(args, isFALSE, FUN.VALUE = logical(1L))
   if (isTRUE(any(idx_false))) {
@@ -82,11 +85,6 @@ guides <- function(...) {
   # The good path
   if (is_named(args)) {
     return(guides_list(guides = args))
-  }
-
-  # If there are no guides, do nothing
-  if (length(args) == 0) {
-    return(NULL)
   }
 
   # Raise warning about unnamed guides
@@ -112,19 +110,6 @@ guides <- function(...) {
 #' @export
 #' @rdname is_tests
 is_guides <- function(x) inherits(x, "Guides")
-
-update_guides <- function(p, guides) {
-  p <- plot_clone(p)
-  if (is_guides(p$guides)) {
-    old <- p$guides
-    new <- ggproto(NULL, old)
-    new$add(guides)
-    p$guides <- new
-  } else {
-    p$guides <- guides
-  }
-  p
-}
 
 # Class -------------------------------------------------------------------
 
@@ -198,7 +183,7 @@ Guides <- ggproto(
     if (is.character(index)) {
       index <- match(index, self$aesthetics)
     }
-    if (any(is.na(index)) || length(index) == 0) {
+    if (anyNA(index) || length(index) == 0) {
       return(NULL)
     }
     if (length(index) == 1) {
@@ -213,7 +198,7 @@ Guides <- ggproto(
     if (is.character(index)) {
       index <- match(index, self$aesthetics)
     }
-    if (any(is.na(index)) || length(index) == 0) {
+    if (anyNA(index) || length(index) == 0) {
       return(NULL)
     }
     if (length(index) == 1) {
@@ -289,7 +274,7 @@ Guides <- ggproto(
   #
   # The resulting guide is then drawn in ggplot_gtable
 
-  build = function(self, scales, layers, labels, layer_data) {
+  build = function(self, scales, layers, labels, layer_data, theme = NULL) {
 
     # Empty guides list
     custom <- self$get_custom()
@@ -315,14 +300,16 @@ Guides <- ggproto(
     }
 
     # Merge and process layers
+    theme <- theme %||% theme()
     guides$merge()
-    guides$process_layers(layers, layer_data)
+    guides$process_layers(layers, layer_data, theme)
     if (length(guides$guides) == 0) {
       return(no_guides)
     }
 
-    guides$guides <- c(guides$guides, custom$guides)
-    guides$params <- c(guides$params, custom$params)
+    ord <- order(c(names(guides$guides), names(custom$guides)))
+    guides$guides <- c(guides$guides, custom$guides)[ord]
+    guides$params <- c(guides$params, custom$params)[ord]
 
     guides
   },
@@ -354,13 +341,8 @@ Guides <- ggproto(
       # Find guide for aesthetic-scale combination
       # Hierarchy is in the order:
       # plot + guides(XXX) + scale_ZZZ(guide = XXX) > default(i.e., legend)
-      guide <- resolve_guide(
-        aesthetic = aesthetics[idx],
-        scale     = scales[[idx]],
-        guides    = guides,
-        default   = default,
-        null      = missing
-      )
+      guide <- guides[[aesthetics[idx]]] %||% scales[[idx]]$guide %|W|%
+        default %||% missing
 
       if (isFALSE(guide)) {
         deprecate_warn0("3.3.4", I("The `guide` argument in `scale_*()` cannot be `FALSE`. This "), I('"none"'))
@@ -464,9 +446,9 @@ Guides <- ggproto(
   },
 
   # Loop over guides to let them extract information from layers
-  process_layers = function(self, layers, data = NULL) {
+  process_layers = function(self, layers, data = NULL, theme = NULL) {
     self$params <- Map(
-      function(guide, param) guide$process_layers(param, layers, data),
+      function(guide, param) guide$process_layers(param, layers, data, theme),
       guide = self$guides,
       param = self$params
     )
@@ -489,7 +471,7 @@ Guides <- ggproto(
   #      for every position, collect all individual guides and arrange them
   #      into a guide box which will be inserted into the main gtable
   # Combining multiple guides in a guide box
-  assemble = function(self, theme) {
+  assemble = function(self, theme, params = self$params, guides = self$guides) {
 
     if (length(self$guides) < 1) {
       return(zeroGrob())
@@ -499,46 +481,96 @@ Guides <- ggproto(
     if (length(default_position) == 2) {
       default_position <- "inside"
     }
-    if (default_position == "none") {
+    if (!default_position %in% c(.trbl, "inside")) {
       return(zeroGrob())
     }
 
-    # Populate key sizes
-    theme$legend.key.width  <- calc_element("legend.key.width",  theme)
-    theme$legend.key.height <- calc_element("legend.key.height", theme)
+    # extract the guide position
+    positions <- vapply(
+      params,
+      function(p) p$position[1] %||% default_position,
+      character(1), USE.NAMES = FALSE
+    )
 
-    grobs <- self$draw(theme, default_position, theme$legend.direction)
+    grobs <- self$draw(theme, positions, theme$legend.direction)
+    keep <- !vapply(grobs, is_zero, logical(1), USE.NAMES = FALSE)
+    grobs <- grobs[keep]
     if (length(grobs) < 1) {
       return(zeroGrob())
     }
-    grobs <- grobs[order(names(grobs))]
+
+    # prepare the position of inside legends
+    default_inside_just <- calc_element("legend.justification.inside", theme)
+    default_inside_position <- calc_element("legend.position.inside", theme)
+
+    groups <- data_frame0(
+      positions = positions,
+      justs     = list(NULL),
+      coords    = list(NULL)
+    )
+
+    # we grouped the legends by the positions, for inside legends, they'll be
+    # splitted by the actual inside coordinate
+    for (i in which(positions == "inside")) {
+      # the actual inside position and justification can be set in each guide
+      # by `theme` argument, here, we won't use `calc_element()` which will
+      # use inherits from `legend.justification` or `legend.position`, we only
+      # follow the inside elements from the guide theme
+      just <- params[[i]]$theme[["legend.justification.inside"]]
+      just <- valid.just(just %||% default_inside_just)
+      coord <- params[[i]]$theme[["legend.position.inside"]]
+      coord <- coord %||% default_inside_position %||% just
+
+      groups$justs[[i]] <- just
+      groups$coords[[i]] <- coord
+    }
+
+    groups <- vec_group_loc(vec_slice(groups, keep))
+    grobs <- vec_chop(grobs, indices = groups$loc)
+    names(grobs) <- groups$key$positions
 
     # Set spacing
     theme$legend.spacing   <- theme$legend.spacing %||% unit(0.5, "lines")
     theme$legend.spacing.y <- calc_element("legend.spacing.y", theme)
     theme$legend.spacing.x <- calc_element("legend.spacing.x", theme)
 
-    Map(
-      grobs    = grobs,
-      position = names(grobs),
-      self$package_box,
-      MoreArgs = list(theme = theme)
-    )
+    # prepare output
+    for (i in vec_seq_along(groups)) {
+      adjust <- NULL
+      position <- groups$key$positions[i]
+      if (position == "inside") {
+        adjust <- theme(
+          legend.position.inside = groups$key$coords[[i]],
+          legend.justification.inside = groups$key$justs[[i]]
+        )
+      }
+      adjust <- add_theme(theme, adjust, "internal theme settings")
+      grobs[[i]] <- self$package_box(grobs[[i]], position, adjust)
+    }
+
+    # merge inside grobs into single gtable
+    is_inside <- names(grobs) == "inside"
+    if (sum(is_inside) > 1) {
+      inside <- gtable(unit(1, "npc"), unit(1, "npc"))
+      inside <- gtable_add_grob(
+        inside, grobs[is_inside],
+        t = 1, l = 1, clip = "off",
+        name = paste0("guide-box-inside-", seq_len(sum(is_inside)))
+      )
+      grobs <- grobs[!is_inside]
+      grobs$inside <- inside
+    }
+
+    # fill in missing guides
+    grobs[setdiff(c(.trbl, "inside"), names(grobs))] <- list(zeroGrob())
+
+    grobs
   },
 
   # Render the guides into grobs
-  draw = function(self, theme,
-                  default_position = "right",
-                  direction = NULL,
+  draw = function(self, theme, positions, direction = NULL,
                   params = self$params,
                   guides = self$guides) {
-    positions <- vapply(
-      params,
-      function(p) p$position[1] %||% default_position,
-      character(1)
-    )
-    positions <- factor(positions, levels = c(.trbl, "inside"))
-
     directions <- rep(direction %||% "vertical", length(positions))
     if (is.null(direction)) {
       directions[positions %in% c("top", "bottom")] <- "horizontal"
@@ -547,26 +579,24 @@ Guides <- ggproto(
     grobs <- vector("list", length(guides))
     for (i in seq_along(grobs)) {
       grobs[[i]] <- guides[[i]]$draw(
-        theme = theme, position = as.character(positions[i]),
+        theme = theme, position = positions[i],
         direction = directions[i], params = params[[i]]
       )
     }
-    keep <- !vapply(grobs, is.zero, logical(1))
-    split(grobs[keep], positions[keep])
+    grobs
   },
 
+  # here, we put `inside_position` and `inside_just` in the last, so that it
+  # won't break current implement of patchwork, which depends on the top three
+  # arguments to collect guides
   package_box = function(grobs, position, theme) {
 
-    if (is.zero(grobs) || length(grobs) == 0) {
+    if (is_zero(grobs) || length(grobs) == 0) {
       return(zeroGrob())
     }
 
     # Determine default direction
-    direction <- switch(
-      position,
-      inside = , left = , right = "vertical",
-      top = , bottom = "horizontal"
-    )
+    direction <- switch(position, top = , bottom = "horizontal", "vertical")
 
     # Populate missing theme arguments
     theme$legend.box       <- theme$legend.box       %||% direction
@@ -612,7 +642,7 @@ Guides <- ggproto(
     box_xjust <- box_just[1]
     box_yjust <- box_just[2]
 
-    margin <- theme$legend.box.margin %||% margin()
+    margin <- calc_element("legend.box.margin", theme) %||% margin()
 
     # setting that is different for vertical and horizontal guide-boxes.
     if (identical(theme$legend.box, "horizontal")) {
@@ -624,11 +654,14 @@ Guides <- ggproto(
                         height = heightDetails(grobs[[i]]))
         )
       }
-
-      spacing <- convertWidth(theme$legend.spacing.x, "cm")
+      spacing <- theme$legend.spacing.x
+      stretch_spacing <- any(unitType(spacing) == "null")
+      if (!stretch_spacing) {
+        spacing <- convertWidth(spacing, "cm")
+      }
       heights <- unit(height_cm(lapply(heights, sum)), "cm")
 
-      if (stretch_x) {
+      if (stretch_x || stretch_spacing) {
         widths   <- redistribute_null_units(widths, spacing, margin, "width")
         vp_width <- unit(1, "npc")
       } else {
@@ -663,10 +696,14 @@ Guides <- ggproto(
         )
       }
 
-      spacing <- convertHeight(theme$legend.spacing.y, "cm")
+      spacing <- theme$legend.spacing.y
+      stretch_spacing <- any(unitType(spacing) == "null")
+      if (!stretch_spacing) {
+        spacing <- convertWidth(spacing, "cm")
+      }
       widths  <- unit(width_cm(lapply(widths, sum)), "cm")
 
-      if (stretch_y) {
+      if (stretch_y || stretch_spacing) {
         heights   <- redistribute_null_units(heights, spacing, margin, "height")
         vp_height <- unit(1, "npc")
       } else {
@@ -706,10 +743,10 @@ Guides <- ggproto(
     )
 
     # Set global margin
-    if (stretch_x) {
+    if (stretch_x || stretch_spacing) {
       global_margin[c(2, 4)] <- unit(0, "cm")
     }
-    if (stretch_y) {
+    if (stretch_y || stretch_spacing) {
       global_margin[c(1, 3)] <- unit(0, "cm")
     }
     guides <- gtable_add_padding(guides, global_margin)
@@ -717,7 +754,6 @@ Guides <- ggproto(
     guides$name <- "guide-box"
     guides
   },
-
   ## Utilities -----------------------------------------------------------------
 
   print = function(self) {
@@ -791,7 +827,7 @@ Guides <- ggproto(
 #' # Coord polar doesn't support proper guides, so we get a list
 #' polar <- p + coord_polar()
 #' get_guide_data(polar, "theta", panel = 2)
-get_guide_data <- function(plot = last_plot(), aesthetic, panel = 1L) {
+get_guide_data <- function(plot = get_last_plot(), aesthetic, panel = 1L) {
 
   check_string(aesthetic, allow_empty = FALSE)
   aesthetic <- standardise_aes_names(aesthetic)
@@ -800,7 +836,7 @@ get_guide_data <- function(plot = last_plot(), aesthetic, panel = 1L) {
 
   if (!aesthetic %in% c("x", "y", "x.sec", "y.sec", "theta", "r")) {
     # Non position guides: check if aesthetic in colnames of key
-    keys <- lapply(plot$plot$guides$params, `[[`, "key")
+    keys <- lapply(plot@plot@guides$params, `[[`, "key")
     keep <- vapply(keys, function(x) any(colnames(x) %in% aesthetic), logical(1))
     keys <- switch(sum(keep) + 1, NULL, keys[[which(keep)]], keys[keep])
     return(keys)
@@ -808,12 +844,12 @@ get_guide_data <- function(plot = last_plot(), aesthetic, panel = 1L) {
 
   # Position guides: find the right layout entry
   check_number_whole(panel)
-  layout <- plot$layout$layout
+  layout <- plot@layout$layout
   select <- layout[layout$PANEL == panel, , drop = FALSE]
   if (nrow(select) == 0) {
     return(NULL)
   }
-  params <- plot$layout$panel_params[select$PANEL][[1]]
+  params <- plot@layout$panel_params[select$PANEL][[1]]
 
   # If panel params don't have guides, we probably have old coord system
   # that doesn't use the guide system.
@@ -874,24 +910,6 @@ include_layer_in_guide <- function(layer, matched) {
   isTRUE(layer$show.legend)
 }
 
-# Simplify legend position to one of horizontal/vertical/inside
-legend_position <- function(position) {
-  if (length(position) == 1) {
-    if (position %in% c("top", "bottom")) {
-      "horizontal"
-    } else {
-      "vertical"
-    }
-  } else {
-    "inside"
-  }
-}
-
-# resolve the guide from the scale and guides
-resolve_guide <- function(aesthetic, scale, guides, default = "none", null = "none") {
-  guides[[aesthetic]] %||% scale$guide %|W|% default %||% null
-}
-
 # validate guide object
 validate_guide <- function(guide) {
   # if guide is specified by character, then find the corresponding guide
@@ -923,26 +941,26 @@ redistribute_null_units <- function(units, spacing, margin, type = "width") {
   }
 
   # Get spacing between guides and margins in absolute units
-  size    <- switch(type, width = convertWidth, height = convertHeight)
-  spacing <- size(spacing, "cm", valueOnly = TRUE)
-  spacing <- sum(rep(spacing, length(units) - 1))
+  size    <- switch(type, width = width_cm, height = height_cm)
+  if (length(units) < 2) {
+    # When we have 1 guide, we don't need any spacing
+    spacing <- unit(0, "cm")
+  } else {
+    spacing <- sum(rep(spacing, length.out = length(units) - 1))
+  }
+
   margin  <- switch(type, width = margin[c(2, 4)], height = margin[c(1, 3)])
-  margin  <- sum(size(margin, "cm", valueOnly = TRUE))
+  margin  <- sum(size(margin))
 
   # Get the absolute parts of the unit
-  absolute <- vapply(units, function(u) {
-    u <- absolute.size(u)
-    u <- size(u, "cm", valueOnly = TRUE)
-    sum(u)
-  }, numeric(1))
-  absolute_sum <- sum(absolute) + spacing + margin
+  absolute <- vapply(units, function(u) sum(size(absolute.size(u))), numeric(1))
+  absolute_sum <- sum(absolute) + sum(size(spacing)) + margin
 
   # Get the null parts of the unit
+  num_null <- function(x) sum(as.numeric(x)[unitType(x) == "null"])
   relative <- rep(0, length(units))
-  relative[has_null] <- vapply(units[has_null], function(u) {
-    sum(as.numeric(u)[unitType(u) == "null"])
-  }, numeric(1))
-  relative_sum <- sum(relative)
+  relative[has_null] <- vapply(units[has_null], num_null, numeric(1))
+  relative_sum <- sum(relative) + num_null(spacing)
 
   if (relative_sum == 0) {
     return(unit(absolute, "cm"))

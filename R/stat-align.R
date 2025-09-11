@@ -1,33 +1,9 @@
-#' @inheritParams layer
-#' @inheritParams geom_point
-#' @export
-#' @rdname geom_ribbon
-stat_align <- function(mapping = NULL, data = NULL,
-                       geom = "area", position = "identity",
-                       ...,
-                       na.rm = FALSE,
-                       show.legend = NA,
-                       inherit.aes = TRUE) {
-  layer(
-    data = data,
-    mapping = mapping,
-    stat = StatAlign,
-    geom = geom,
-    position = position,
-    show.legend = show.legend,
-    inherit.aes = inherit.aes,
-    params = list2(
-      na.rm = na.rm,
-      ...
-    )
-  )
-}
-
-#' @rdname ggplot2-ggproto
+#' @rdname Stat
 #' @format NULL
 #' @usage NULL
 #' @export
-StatAlign <- ggproto("StatAlign", Stat,
+StatAlign <- ggproto(
+  "StatAlign", Stat,
   extra_params = c("na.rm", "orientation"),
   required_aes = c("x", "y"),
 
@@ -40,22 +16,19 @@ StatAlign <- ggproto("StatAlign", Stat,
     if (empty(data)) {
       return(data_frame0())
     }
-
+    if (is_unique(data$group)) {
+      return(data)
+    }
     names <- flipped_names(flipped_aes)
     x <- data[[names$x]]
     y <- data[[names$y]]
 
-    if (is_unique(data$group)) {
-      # No need for interpolation
-      cross <- x[0]
-    } else {
-      # Find positions where 0 is crossed
-      pivot <- vec_unrep(data_frame0(group = data$group, y = y < 0))
-      group_ends <- cumsum(vec_unrep(pivot$key$group)$times)
-      pivot <- cumsum(pivot$times)[-group_ends]
-      cross <- -y[pivot] * (x[pivot + 1] - x[pivot]) /
-        (y[pivot + 1] - y[pivot]) + x[pivot]
-    }
+    # Find positions where 0 is crossed
+    pivot <- vec_unrep(data_frame0(group = data$group, y = y < 0))
+    group_ends <- cumsum(vec_unrep(pivot$key$group)$times)
+    pivot <- cumsum(pivot$times)[-group_ends]
+    cross <- -y[pivot] * (x[pivot + 1] - x[pivot]) /
+      (y[pivot + 1] - y[pivot]) + x[pivot]
 
     unique_loc <- unique(sort(c(x, cross)))
     adjust     <- diff(range(unique_loc, na.rm = TRUE)) * 0.001
@@ -101,4 +74,13 @@ StatAlign <- ggproto("StatAlign", Stat,
     )
     flip_data(data_aligned, flipped_aes)
   }
+)
+
+#' @inheritParams layer
+#' @inheritParams geom_point
+#' @export
+#' @rdname geom_ribbon
+stat_align <- make_constructor(
+  StatAlign, geom = "area",
+  omit = c("unique_loc", "adjust")
 )

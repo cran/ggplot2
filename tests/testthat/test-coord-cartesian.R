@@ -1,16 +1,16 @@
 test_that("clipping can be turned off and on", {
   # clip on by default
   p <- ggplot() + coord_cartesian()
-  coord <- ggplot_build(p)$layout$coord
+  coord <- ggplot_build(p)@layout$coord
   expect_equal(coord$clip, "on")
 
   # clip can be turned on and off
   p <- ggplot() + coord_cartesian(clip = "off")
-  coord <- ggplot_build(p)$layout$coord
+  coord <- ggplot_build(p)@layout$coord
   expect_equal(coord$clip, "off")
 
   p <- ggplot() + coord_cartesian(clip = "on")
-  coord <- ggplot_build(p)$layout$coord
+  coord <- ggplot_build(p)@layout$coord
   expect_equal(coord$clip, "on")
 })
 
@@ -20,6 +20,19 @@ test_that("cartesian coords throws error when limits are badly specified", {
 
   # throws error when limit's length is different than two
   expect_snapshot_error(ggplot() + coord_cartesian(ylim=1:3))
+})
+
+test_that("cartesian coords can be reversed", {
+  p <- ggplot(data_frame0(x = c(0, 2), y = c(0, 2))) +
+    aes(x = x, y = y) +
+    geom_point() +
+    coord_cartesian(
+      xlim = c(-1, 3), ylim = c(-1, 3), expand = FALSE,
+      reverse = "xy"
+    ) +
+    theme_test() +
+    theme(axis.line = element_line())
+  expect_doppelganger("reversed cartesian coords", p)
 })
 
 

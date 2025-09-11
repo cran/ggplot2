@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -557,18 +558,13 @@ package.</p>
 <span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a></span>
 <span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">mpg_drv_summary</span>() <span class="sc">+</span> <span class="fu">theme_custom</span>()</span></code></pre></div>
 <p>It is important that the theme be calculated after the package is
-loaded. If not, the theme object is stored in the compiled bytecode of
-the built package, which may or may not align with the installed version
-of ggplot2! If your package has a default theme for its visualizations,
-the correct way to load it is to have a function that returns the
-default theme:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>default_theme <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="fu">theme_custom</span>()</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>}</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>mpg_drv_summary2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="fu">mpg_drv_summary</span>() <span class="sc">+</span> <span class="fu">default_theme</span>()</span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>}</span></code></pre></div>
+loaded. If not, a theme object —stored as a variable in the built
+package— may or may not align with the installed version of ggplot2! If
+your package has a default theme for its visualizations, the correct way
+to apply this theme is by calling the constructor:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>mpg_drv_summary2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="fu">mpg_drv_summary</span>() <span class="sc">+</span> <span class="fu">theme_custom</span>()</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="testing-ggplot2-output" class="section level3">
 <h3>Testing ggplot2 output</h3>
@@ -586,9 +582,9 @@ to make a test that fails if there are visual changes in
 <code>&lt;ggplot object&gt;</code>. However, you should consider whether
 visual testing is the best strategy because it adds a dependency on how
 ggplot2 performs its rendering which may change between versions. If
-extracting the layer data using <code>layer_data()</code> and testing
-the values directly is possible it is far better as it more directly
-test the behaviour of your own code.</p>
+extracting the layer data using <code>get_layer_data()</code> and
+testing the values directly is possible it is far better as it more
+directly test the behaviour of your own code.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">&quot;output of ggplot() is stable&quot;</span>, {</span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  vdiffr<span class="sc">::</span><span class="fu">expect_doppelganger</span>(<span class="st">&quot;A blank plot&quot;</span>, <span class="fu">ggplot</span>())</span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>})</span></code></pre></div>

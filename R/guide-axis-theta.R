@@ -54,37 +54,38 @@ guide_axis_theta <- function(title = waiver(), theme = NULL, angle = waiver(),
   )
 }
 
-#' @rdname ggplot2-ggproto
+#' @rdname Guide
 #' @format NULL
 #' @usage NULL
 #' @export
 GuideAxisTheta <- ggproto(
   "GuideAxisTheta", GuideAxis,
 
-  extract_decor = function(scale, aesthetic, key, cap = "none", position, ...) {
-    # For theta position, we pretend we're left/right because that will put
-    # the correct opposite aesthetic as the line coordinates.
-    position <- switch(position, theta = "left", theta.sec = "right", position)
-
-    GuideAxis$extract_decor(
-      scale = scale, aesthetic = aesthetic,
-      position = position, key = key, cap = cap
-    )
-  },
-
   transform = function(params, coord, panel_params) {
 
-    opposite <- setdiff(c("x", "y"), params$aesthetic)
-    params$key[[opposite]] <- switch(params$position,
-                                     theta.sec = -Inf,
-                                     top = -Inf,
-                                     right = -Inf,
-                                     Inf)
+    position <- params$position
+
+    if (!is.null(position)) {
+      opposite_var <- setdiff(c("x", "y"), params$aesthetic)
+      opposite_value <- switch(position, top = , right = , theta.sec = -Inf, Inf)
+      if (is.unsorted(panel_params$inner_radius %||% NA)) {
+        opposite_value <- -opposite_value
+      }
+      if (nrow(params$key) > 0) {
+        params$key[[opposite_var]] <- opposite_value
+      }
+      if (nrow(params$decor) > 0) {
+        params$decor[[opposite_var]] <- opposite_value
+      }
+    }
 
     params <- GuideAxis$transform(params, coord, panel_params)
 
     key <- params$key
-    n <- nrow(key)
+    n <- vec_size(key)
+    if (n < 1) {
+      return(params)
+    }
 
     if (!("theta" %in% names(key))) {
       # We likely have a linear coord, so we match the text angles to
@@ -103,9 +104,10 @@ GuideAxisTheta <- ggproto(
 
       # If the first and last positions are close together, we merge the
       # labels of these positions
-      ends_apart <- (key$theta[n] - key$theta[1]) %% (2 * pi)
-      if (n > 0 && ends_apart < 0.05 && !is.null(key$.label)) {
-        if (is.expression(key$.label)) {
+      if (n > 1L &&
+        (key$theta[n] - key$theta[1]) %% (2 * pi) < 0.05 &&
+        !is.null(key$.label)) {
+        if (is.expression(key$.label[[1]])) {
           combined <- substitute(
             paste(a, "/", b),
             list(a = key$.label[[1]], b = key$.label[[n]])
@@ -152,7 +154,7 @@ GuideAxisTheta <- ggproto(
     }
 
     offset <- max(unit(0, "pt"), elements$major_length, elements$minor_length)
-    elements$offset <- offset + max(elements$text$margin %||% unit(0, "pt"))
+    elements$offset <- offset + max(try_prop(elements$text, "margin", default = unit(0, "pt")))
     elements
   },
 
@@ -182,7 +184,7 @@ GuideAxisTheta <- ggproto(
 
   build_labels = function(key, elements, params) {
 
-    if (inherits(elements$text, "element_blank")) {
+    if (is_theme_element(elements$text, "blank")) {
       return(zeroGrob())
     }
 
@@ -195,8 +197,8 @@ GuideAxisTheta <- ggproto(
     }
 
     # Resolve text angle
-    if (is.waive(params$angle) || is.null(params$angle)) {
-      angle <- elements$text$angle
+    if (is_waiver(params$angle) || is.null(params$angle)) {
+      angle <- elements$text@angle
     } else {
       angle <- flip_text_angle(params$angle - rad2deg(key$theta))
     }
@@ -242,6 +244,12 @@ GuideAxisTheta <- ggproto(
     grobTree(major, minor, name = "ticks")
   },
 
+  draw_early_exit = function(self, params, elements) {
+    line <- self$build_decor(decor = params$decor, elements = elements,
+                             params = params)
+    gTree(children = gList(line), offset = unit(0, "cm"))
+  },
+
   measure_grobs = function(grobs, params, elements) {
     # As this guide is expected to be placed in the interior of coord_radial,
     # we don't need to measure grob sizes nor arrange the layout.
@@ -260,20 +268,20 @@ GuideAxisTheta <- ggproto(
     key <- params$key
     key <- vec_slice(key, !is.na(key$.label) & nzchar(key$.label))
     labels <- validate_labels(key$.label)
-    if (length(labels) == 0 || inherits(elements$text, "element_blank")) {
+    if (length(labels) == 0 || is_theme_element(elements$text, "blank")) {
       return(list(offset = offset))
     }
 
     # Resolve text angle
-    if (is.waive(params$angle %||% waiver())) {
-      angle <- elements$text$angle
+    if (is_waiver(params$angle %||% waiver())) {
+      angle <- elements$text@angle
     } else {
       angle <- flip_text_angle(params$angle - rad2deg(key$theta))
     }
     angle <- key$theta + deg2rad(angle)
 
     # Set margin
-    margin <- rep(max(elements$text$margin), length.out = 4)
+    margin <- rep(max(try_prop(elements$text, "margin", default = unit(0, "pt"))), length.out = 4)
 
     # Measure size of each individual label
     single_labels <- lapply(labels, function(lab) {
@@ -357,7 +365,7 @@ GuideAxisTheta <- ggproto(
 
 theta_tickmarks <- function(key, element, length, offset = NULL) {
   n_breaks <- nrow(key)
-  if (n_breaks < 1 || inherits(element, "element_blank")) {
+  if (n_breaks < 1 || is_theme_element(element, "blank")) {
     return(zeroGrob())
   }
 

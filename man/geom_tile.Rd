@@ -12,9 +12,9 @@ geom_raster(
   stat = "identity",
   position = "identity",
   ...,
+  interpolate = FALSE,
   hjust = 0.5,
   vjust = 0.5,
-  interpolate = FALSE,
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE
@@ -26,6 +26,7 @@ geom_rect(
   stat = "identity",
   position = "identity",
   ...,
+  lineend = "butt",
   linejoin = "mitre",
   na.rm = FALSE,
   show.legend = NA,
@@ -38,6 +39,7 @@ geom_tile(
   stat = "identity",
   position = "identity",
   ...,
+  lineend = "butt",
   linejoin = "mitre",
   na.rm = FALSE,
   show.legend = NA,
@@ -67,7 +69,7 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
 \item{stat}{The statistical transformation to use on the data for this layer.
 When using a \verb{geom_*()} function to construct a layer, the \code{stat}
-argument can be used the override the default coupling between geoms and
+argument can be used to override the default coupling between geoms and
 stats. The \code{stat} argument accepts the following:
 \itemize{
 \item A \code{Stat} ggproto subclass, for example \code{StatCount}.
@@ -119,12 +121,12 @@ lists which parameters it can accept.
 \link[=draw_key]{key glyphs}, to change the display of the layer in the legend.
 }}
 
+\item{interpolate}{If \code{TRUE} interpolate linearly, if \code{FALSE}
+(the default) don't interpolate.}
+
 \item{hjust, vjust}{horizontal and vertical justification of the grob.  Each
 justification value should be a number between 0 and 1.  Defaults to 0.5
 for both, centering each pixel over its data location.}
-
-\item{interpolate}{If \code{TRUE} interpolate linearly, if \code{FALSE}
-(the default) don't interpolate.}
 
 \item{na.rm}{If \code{FALSE}, the default, missing values are removed with
 a warning. If \code{TRUE}, missing values are silently removed.}
@@ -133,51 +135,32 @@ a warning. If \code{TRUE}, missing values are silently removed.}
 \code{NA}, the default, includes if any aesthetics are mapped.
 \code{FALSE} never includes, and \code{TRUE} always includes.
 It can also be a named logical vector to finely select the aesthetics to
-display.}
+display. To include legend keys for all levels, even
+when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
+but unobserved levels are omitted.}
 
 \item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
+the default plot specification, e.g. \code{\link[=annotation_borders]{annotation_borders()}}.}
+
+\item{lineend}{Line end style (round, butt, square).}
 
 \item{linejoin}{Line join style (round, mitre, bevel).}
 }
 \description{
 \code{geom_rect()} and \code{geom_tile()} do the same thing, but are
-parameterised differently: \code{geom_rect()} uses the locations of the four
-corners (\code{xmin}, \code{xmax}, \code{ymin} and \code{ymax}), while
-\code{geom_tile()} uses the center of the tile and its size (\code{x},
-\code{y}, \code{width}, \code{height}). \code{geom_raster()} is a high
-performance special case for when all the tiles are the same size, and no
-pattern fills are applied.
+parameterised differently: \code{geom_tile()} uses the center of the tile and its
+size (\code{x}, \code{y}, \code{width}, \code{height}), while \code{geom_rect()} can use those or the
+locations of the corners (\code{xmin}, \code{xmax}, \code{ymin} and \code{ymax}).
+\code{geom_raster()} is a high performance special case for when all the tiles
+are the same size, and no pattern fills are applied.
 }
 \details{
-\code{geom_rect()} and \code{geom_tile()}'s respond differently to scale
-transformations due to their parameterisation. In \code{geom_rect()}, the scale
-transformation is applied to the corners of the rectangles. In \code{geom_tile()},
-the transformation is applied only to the centres and its size is determined
-after transformation.
+Please note that the \code{width} and \code{height} aesthetics are not true position
+aesthetics and therefore are not subject to scale transformation. It is
+only after transformation that these aesthetics are applied.
 }
-\section{Aesthetics}{
-
-\code{geom_tile()} understands the following aesthetics (required aesthetics are in bold):
-\itemize{
-\item \strong{\code{\link[=aes_position]{x}}}
-\item \strong{\code{\link[=aes_position]{y}}}
-\item \code{\link[=aes_colour_fill_alpha]{alpha}}
-\item \code{\link[=aes_colour_fill_alpha]{colour}}
-\item \code{\link[=aes_colour_fill_alpha]{fill}}
-\item \code{\link[=aes_group_order]{group}}
-\item \code{height}
-\item \code{\link[=aes_linetype_size_shape]{linetype}}
-\item \code{\link[=aes_linetype_size_shape]{linewidth}}
-\item \code{width}
-}
-Note that \code{geom_raster()} ignores \code{colour}.
-
-Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
-}
-
 \examples{
 # The most common use for rectangles is to draw a surface. You always want
 # to use geom_raster here because it's so much faster, and produces
@@ -234,4 +217,22 @@ cars +
     position = "identity"
   )
 }
+}
+\section{Aesthetics}{
+
+\code{geom_rect()} understands the following aesthetics. Required aesthetics are displayed in bold and defaults are displayed for optional aesthetics:
+\tabular{rll}{
+ • \tab \strong{\code{\link[=aes_position]{x}} \emph{or} \code{width} \emph{or} \code{\link[=aes_position]{xmin}} \emph{or} \code{\link[=aes_position]{xmax}}} \tab   \cr
+ • \tab \strong{\code{\link[=aes_position]{y}} \emph{or} \code{height} \emph{or} \code{\link[=aes_position]{ymin}} \emph{or} \code{\link[=aes_position]{ymax}}} \tab   \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{alpha}} \tab → \code{NA} \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{colour}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_colour_fill_alpha]{fill}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_group_order]{group}} \tab → inferred \cr
+ • \tab \code{\link[=aes_linetype_size_shape]{linetype}} \tab → via \code{theme()} \cr
+ • \tab \code{\link[=aes_linetype_size_shape]{linewidth}} \tab → via \code{theme()} \cr
+}
+\code{geom_tile()} understands only the \code{x}/\code{width} and \code{y}/\code{height} combinations.
+Note that \code{geom_raster()} ignores \code{colour}.
+
+Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
 }

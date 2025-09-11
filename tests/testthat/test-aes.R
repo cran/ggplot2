@@ -37,8 +37,8 @@ test_that("aes_q() & aes_string() preserve explicit NULLs", {
 
 test_that("aes_all() converts strings into mappings", {
   expect_equal(
-    aes_all(c("x", "y", "col", "pch")),
-    aes(x, y, colour = col, shape = pch),
+    unclass(aes_all(c("x", "y", "col", "pch"))),
+    unclass(aes(x, y, colour = col, shape = pch)),
     # ignore the environments of quosures
     ignore_attr = TRUE
   )
@@ -48,24 +48,26 @@ test_that("aes evaluated in environment where plot created", {
   df <- data_frame(x = 1, y = 1)
   p <- ggplot(df, aes(foo, y)) + geom_point()
 
-  # Accessing an undefined variable should result in error
-  expect_error(layer_data(p), "'foo' not found")
+  test_that("accessing an undefined variable results in an error", {
+    skip_if(getRversion() <= "4.4.0")
+    expect_snapshot(get_layer_data(p), error = TRUE)
+  })
 
   # Once it's defined we should get it back
   foo <- 0
-  expect_equal(layer_data(p)$x, 0)
+  expect_equal(get_layer_data(p)$x, 0)
 
   # And regular variable shadowing should work
   f <- function() {
     foo <- 10
     ggplot(df, aes(foo, y)) + geom_point()
   }
-  expect_equal(layer_data(f())$x, 10)
+  expect_equal(get_layer_data(f())$x, 10)
 })
 
 test_that("constants are not wrapped in quosures", {
   aes <- aes(1L, "foo", 1.5)
-  expect_identical(unclass(aes), list(x = 1L, y = "foo", 1.5))
+  expect_identical(S7::S7_data(aes), list(x = 1L, y = "foo", 1.5))
 })
 
 test_that("assignment methods wrap symbolic objects in quosures", {
@@ -94,12 +96,14 @@ test_that("assignment methods pull unwrap constants from quosures", {
 
 test_that("quosures are squashed when creating default label for a mapping", {
   p <- ggplot(mtcars) + aes(!!quo(identity(!!quo(cyl))))
-  expect_identical(p$labels$x, "identity(cyl)")
+  labels <- ggplot_build(p)@plot@labels
+  expect_identical(labels$x, "identity(cyl)")
 })
 
 test_that("labelling doesn't cause error if aesthetic is NULL", {
   p <- ggplot(mtcars) + aes(x = NULL)
-  expect_identical(p$labels$x, "x")
+  labels <- ggplot_build(p)@plot@labels
+  expect_identical(labels$x, "x")
 })
 
 test_that("aes standardises aesthetic names", {
@@ -112,29 +116,26 @@ test_that("aes standardises aesthetic names", {
   expect_identical(aes(color_point = x), aes(colour_point = x))
 
   # warning when standardisation creates duplicates
-  expect_warning(aes(color = x, colour = y), "Duplicated aesthetics")
+  expect_snapshot_warning(aes(color = x, colour = y))
 })
 
 test_that("warn_for_aes_extract_usage() warns for discouraged uses of $ and [[ within aes()", {
 
   df <- data_frame(x = 1:5, nested_df = data_frame(x = 6:10))
 
-  expect_warning(
-    warn_for_aes_extract_usage(aes(df$x), df),
-    "Use of `df\\$x` is discouraged"
+  expect_snapshot_warning(
+    warn_for_aes_extract_usage(aes(df$x), df)
   )
 
-  expect_warning(
-    warn_for_aes_extract_usage(aes(df[["x"]]), df),
-    'Use of `df\\[\\["x"\\]\\]` is discouraged'
+  expect_snapshot_warning(
+    warn_for_aes_extract_usage(aes(df[["x"]]), df)
   )
 
   # Check that rownames are ignored (#5392)
   df2 <- df
   rownames(df2) <- LETTERS[seq_len(nrow(df))]
-  expect_warning(
-    warn_for_aes_extract_usage(aes(df$x), df2),
-    "Use of `df\\$x` is discouraged"
+  expect_snapshot_warning(
+    warn_for_aes_extract_usage(aes(df$x), df2)
   )
 })
 
@@ -142,7 +143,7 @@ test_that("warn_for_aes_extract_usage() does not evaluate function calls", {
   df <- data_frame(x = 1:5, nested_df = data_frame(x = 6:10))
   returns_df <- function() df
 
-  expect_warning(warn_for_aes_extract_usage(aes(df$x), df))
+  expect_snapshot_warning(warn_for_aes_extract_usage(aes(df$x), df))
   expect_silent(warn_for_aes_extract_usage(aes(returns_df()$x), df))
 })
 
@@ -161,7 +162,7 @@ test_that("warn_for_aes_extract_usage() does not warn for valid uses of $ and [[
 test_that("Warnings are issued when plots use discouraged extract usage within aes()", {
   df <- data_frame(x = 1:3, y = 1:3)
   p <- ggplot(df, aes(df$x, y)) + geom_point()
-  expect_warning(ggplot_build(p), "Use of `df\\$x` is discouraged")
+  expect_snapshot_warning(ggplot_build(p))
 })
 
 test_that("aes evaluation fails with unknown input", {
@@ -194,8 +195,8 @@ test_that("alternative_aes_extract_usage() can inspect the call", {
   expect_snapshot_error(alternative_aes_extract_usage(x))
 })
 
-test_that("new_aes() checks its inputs", {
-  expect_snapshot_error(new_aes(1:5))
+test_that("class_mapping() checks its inputs", {
+  expect_snapshot_error(class_mapping(1:5))
 })
 
 # Visual tests ------------------------------------------------------------
