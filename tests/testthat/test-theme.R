@@ -56,6 +56,12 @@ test_that("modifying theme element properties with + operator works", {
   )
 })
 
+test_that("set_theme() resets theme to default when called with no arguments", {
+  theme_set(theme_void())
+  set_theme()
+  expect_identical(theme_get(), theme_grey())
+})
+
 test_that("adding theme object to ggplot object with + operator works", {
   ## test with complete theme
   p <- ggplot(data.frame(x = 1:3), aes(x, x)) + geom_point() + theme_grey()
@@ -711,11 +717,34 @@ test_that("panel.widths and panel.heights works with free-space panels", {
 
 })
 
-test_that("panel.widths and panel.heights appropriately warn about aspect override", {
-  p <- ggplot(mpg, aes(displ, hwy)) +
-    geom_point() +
-    theme(aspect.ratio = 1, panel.widths = unit(4, "cm"))
-  expect_warning(ggplotGrob(p), "Aspect ratios are overruled")
+test_that("panel.withs and panel.heights preserve aspect ratios with single panels", {
+
+  df <- data.frame(x = c(1, 2))
+
+  p <- ggplotGrob(
+    ggplot(df, aes(x, x)) +
+      geom_point() +
+      theme(
+        aspect.ratio = 2,
+        panel.heights = unit(10, "cm")
+      )
+  )
+
+  width <- p$widths[panel_cols(p)$l]
+  expect_equal(as.character(width), "5cm")
+
+  p <- ggplotGrob(
+    ggplot(df, aes(x, x)) +
+      geom_point() +
+      facet_wrap(~ x) + # This behaviour doesn't occur in multipanel plots.
+      theme(
+        aspect.ratio = 2,
+        panel.heights = unit(10, "cm")
+      )
+  )
+
+  width <- p$widths[panel_cols(p)$l]
+  expect_equal(as.character(width), c("1null", "1null"))
 })
 
 test_that("margin_part() mechanics work as expected", {

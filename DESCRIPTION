@@ -1,6 +1,6 @@
 Package: ggplot2
 Title: Create Elegant Data Visualisations Using the Grammar of Graphics
-Version: 4.0.0
+Version: 4.0.1
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@posit.co", role = "aut",
            comment = c(ORCID = "0000-0003-4757-117X")),
@@ -35,19 +35,19 @@ Depends: R (>= 4.1)
 Imports: cli, grDevices, grid, gtable (>= 0.3.6), isoband, lifecycle (>
         1.0.1), rlang (>= 1.1.0), S7, scales (>= 1.4.0), stats, vctrs
         (>= 0.6.0), withr (>= 2.5.0)
-Suggests: broom, covr, dplyr, ggplot2movies, hexbin, Hmisc, knitr,
+Suggests: broom, covr, dplyr, ggplot2movies, hexbin, Hmisc, hms, knitr,
         mapproj, maps, MASS, mgcv, multcomp, munsell, nlme, profvis,
-        quantreg, ragg (>= 1.2.6), RColorBrewer, rmarkdown, roxygen2,
+        quantreg, quarto, ragg (>= 1.2.6), RColorBrewer, roxygen2,
         rpart, sf (>= 0.7-3), svglite (>= 2.1.2), testthat (>= 3.1.5),
         tibble, vdiffr (>= 1.0.6), xml2
 Enhances: sp
-VignetteBuilder: knitr
+VignetteBuilder: quarto
 Config/Needs/website: ggtext, tidyr, forcats, tidyverse/tidytemplate
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-04-23
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Collate: 'ggproto.R' 'ggplot-global.R' 'aaa-.R'
         'aes-colour-fill-alpha.R' 'aes-evaluation.R'
         'aes-group-order.R' 'aes-linetype-size-shape.R'
@@ -113,7 +113,7 @@ Collate: 'ggproto.R' 'ggplot-global.R' 'aaa-.R'
         'utilities-patterns.R' 'utilities-resolution.R'
         'utilities-tidy-eval.R' 'zxx.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2025-08-19 08:21:45 UTC; thomas
+Packaged: 2025-11-13 07:39:29 UTC; thomas
 Author: Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>),
   Winston Chang [aut] (ORCID: <https://orcid.org/0000-0002-1576-2126>),
   Lionel Henry [aut],
@@ -129,4 +129,4 @@ Author: Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>),
   Posit, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)
 Maintainer: Thomas Lin Pedersen <thomas.pedersen@posit.co>
 Repository: CRAN
-Date/Publication: 2025-09-11 07:10:02 UTC
+Date/Publication: 2025-11-14 09:20:02 UTC

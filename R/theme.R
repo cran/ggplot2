@@ -151,7 +151,10 @@
 #'   from `line`
 #' @param panel.widths,panel.heights Sizes for panels (`units`). Can be a
 #'   single unit to set the total size for the panel area, or a unit vector to
-#'   set the size of individual panels.
+#'   set the size of individual panels. Using this setting overrides the
+#'   aspect ratio set by the theme, coord or facets. An exception is made when
+#'   the plot has a single panel and exactly one of the width *or* height is
+#'   set, in which case an attempt is made to preserve the aspect ratio.
 #' @param panel.ontop option to place the panel (background, gridlines) over
 #'   the data layers (`logical`). Usually used with a transparent or blank
 #'   `panel.background`.
@@ -217,7 +220,7 @@
 #' @param validate `TRUE` to run `check_element()`, `FALSE` to bypass checks.
 #' @export
 #' @seealso
-#'   [add_gg()] and [%+replace%],
+#'   [add_gg()] and [`%+replace%`][get_theme()],
 #'   [element_blank()], [element_line()],
 #'   [element_rect()], and [element_text()] for
 #'   details of the specific theme elements.
