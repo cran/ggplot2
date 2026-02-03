@@ -1,7 +1,7 @@
-233f7af32d4443b93fe016e8b61484b3 *DESCRIPTION
+e37abf7c91d89d6d041b595ba9e575bd *DESCRIPTION
 d7675f568f0e629c7c56ec7c3b6b4d75 *LICENSE
 f500c9560c07e5ba5d3a4d55cfc10980 *NAMESPACE
-1adc68d29ece15c6956cdf12dc19985c *NEWS.md
+286ea2a1ae53cbde46be891b9a3947c7 *NEWS.md
 9b9dd80f1346e327776444b6c8b783a3 *R/aaa-.R
 bba17354deafbd63bc68c3d1c981ede5 *R/aes-colour-fill-alpha.R
 77a02675a5b2d63da2ac316cf3fc3550 *R/aes-evaluation.R
@@ -117,7 +117,7 @@ fc7cc9e9d933d8d05730b312c437887e *R/layer-sf.R
 27dfd689c5903df9a83b5153cc8d0ddf *R/layout.R
 586f6c1e440ce2912f68eb505d156b34 *R/legend-draw.R
 3aaf717db3e3c72d8e0434375649768d *R/limits.R
-4a715b3c9f2daacf9e89fd234a04d52f *R/make-constructor.R
+519a9b799bb5ab15526fcb4fd813d04c *R/make-constructor.R
 e376e26f29cccd714a92ab4051921505 *R/margins.R
 623f3ed1866c534bab87bff6387717a8 *R/performance.R
 47468a45355e0d90efd13e20b8209697 *R/plot-build.R
@@ -223,7 +223,7 @@ d419c85de9cb971b7ebec959a836f72c *data/seals.rda
 2012af9687f6f5813b8aa6aa86773c67 *data/txhousing.rda
 51afa292ec657aba5dbe9134d043fe84 *inst/CITATION
 4a6575281b658a7fde382fb12b2d073a *inst/doc/extending-ggplot2.R
-44ae51d3f252a47e10ddbb270f398c92 *inst/doc/extending-ggplot2.html
+accfa7a14664a234ecae2cbd6ba1d18e *inst/doc/extending-ggplot2.html
 59e4034761645678de94722d8842350a *inst/doc/extending-ggplot2.qmd
 a07af849e17e050b1810d2bb7d124f07 *inst/doc/ggplot2-in-packages.R
 32854c381881ae455dfca1042a604dfa *inst/doc/ggplot2-in-packages.html
@@ -235,7 +235,7 @@ d619eda26d34d8fd833715f399eb4fa8 *inst/doc/ggplot2-specs.qmd
 4db8ff269b00e789422ca69c14fa88bb *inst/doc/ggplot2.html
 f8593c7be8fa368a9470e1cf8678a2a9 *inst/doc/ggplot2.qmd
 a9487679c8c50624bc47ebc7f914ff3e *inst/doc/profiling.R
-4e8d113a48e8ea9e63e12da297f68877 *inst/doc/profiling.html
+1fbc0289a9b14ecd69472d1cc84cbbb3 *inst/doc/profiling.html
 49341dfe0055fbafecf518dfb1fe3b7d *inst/doc/profiling.qmd
 a096b1afb168bc75acbdac0467c945ea *man/Coord.Rd
 579746effc346335d56021315e171299 *man/Facet.Rd
