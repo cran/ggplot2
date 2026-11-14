@@ -130,7 +130,8 @@ ggplot.default <-
     mapping = mapping,
     plot_env = environment
   )
-  class(p) <- union(union(c("ggplot2::ggplot", "ggplot"), class(p)), "gg")
+  # Keep `gg` after `S7_object` so its S3 `+` method remains a fallback.
+  class(p) <- c(class(p), "gg")
 
   set_last_plot(p)
   p
@@ -173,10 +174,13 @@ is.ggplot <- function(x) {
 #' to call `print()` explicitly if you want to draw a plot inside a
 #' function or for loop.
 #'
-#' @param x plot to display
-#' @param newpage draw new (empty) page first?
-#' @param vp viewport to draw plot in
-#' @param ... other arguments not used by this method
+#' @section Arguments:
+#' \describe{
+#'   \item{x}{plot to display}
+#'   \item{newpage}{draw new (empty) page first?}
+#'   \item{vp}{viewport to draw plot in}
+#'   \item{...}{other arguments not used by this method}
+#' }
 #' @keywords hplot
 #' @return Invisibly returns the original plot.
 #' @name print.ggplot
@@ -267,16 +271,3 @@ local({
 
 #' @export
 `[[<-.ggplot2::gg` <- `$<-.ggplot2::gg`
-
-#' @importFrom S7 convert
-# S7 currently attaches the S3 method to the calling environment which gives `ggplot2:::as.list`
-# Wrap in `local()` to provide a temp environment which throws away the attachment
-local({
-  S7::method(convert, list(from = class_ggplot, to = S7::class_list)) <-
-    function(from, to) {
-      S7::props(from)
-    }
-
-  S7::method(as.list, class_ggplot) <-
-    function(x, ...) convert(x, S7::class_list)
-})

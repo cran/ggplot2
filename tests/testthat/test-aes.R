@@ -66,7 +66,7 @@ test_that("aes evaluated in environment where plot created", {
 
 test_that("constants are not wrapped in quosures", {
   aes <- aes(1L, "foo", 1.5)
-  expect_identical(S7::S7_data(aes), list(x = 1L, y = "foo", 1.5))
+  expect_identical(unclass(S7::S7_data(aes)), list(x = 1L, y = "foo", 1.5))
 })
 
 test_that("assignment methods wrap symbolic objects in quosures", {
@@ -228,4 +228,19 @@ test_that("alpha is drawn correctly", {
     ggplot(d, aes(x, y)) +
       geom_point(color = I("#cc0000"), size = I(50), alpha = I(0.27))
   )
+})
+
+test_that("mapping subclasses retain legacy classes", {
+  MappingChild <- S7::new_class(
+    name = "MappingChild",
+    parent = class_mapping,
+    package = NULL
+  )
+  mapping <- aes(x = mpg)
+  child <- MappingChild(x = as.list(mapping))
+
+  expect_s7_class(child, MappingChild)
+  expect_identical(class(child)[-1], class(mapping))
+  expect_s3_class(child, "uneval")
+  expect_identical(as.list(child), as.list(mapping))
 })

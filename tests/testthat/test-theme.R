@@ -52,7 +52,8 @@ test_that("modifying theme element properties with + operator works", {
   expect_snapshot(
     theme_grey() + "asdf",
     error = TRUE,
-    variant = substr(as.character(getRversion()), start = 1, stop = 3)
+    # On R4.2 may list different error source, omitting that line
+    transform = function(x) x[-1]
   )
 })
 
@@ -368,6 +369,28 @@ test_that("all elements in complete themes have inherit.blank=TRUE", {
   expect_true(inherit_blanks(theme_void()))
 })
 
+test_that("element subclasses retain legacy classes", {
+  for (parent in list(
+    element_blank,
+    element_rect,
+    element_line,
+    element_text
+  )) {
+    ElementChild <- S7::new_class(
+      name = "ElementChild",
+      parent = parent,
+      package = NULL
+    )
+    object <- parent()
+    child <- ElementChild()
+
+    expect_s7_class(child, ElementChild)
+    expect_s7_class(child, element)
+    expect_s3_class(child, parent@name)
+    expect_identical(S7::props(child), S7::props(object))
+  }
+})
+
 test_that("elements can be merged", {
   text_base <- element_text(colour = "red", size = 10)
   expect_equal(
@@ -569,7 +592,11 @@ test_that("element_text throws appropriate conditions", {
   )
   expect_snapshot(
     element_text(colour = sqrt(2)),
-    error = TRUE
+    error = TRUE,
+    # S7 1.0 includes the constructor call; earlier versions omit it.
+    transform = function(x) {
+      sub("Error in `element_text()`:", "Error:", x, fixed = TRUE)
+    }
   )
 
   # Some absurd case found in reverse dependency check where
@@ -812,6 +839,22 @@ test_that("theme elements are covered in `theme_sub_*()` functions", {
 
   extra_elements <- setdiff(fn_fmls_names(theme), fmls)
   expect_snapshot(extra_elements)
+})
+
+test_that("theme element conversion to lists works", {
+
+  x <- element_rect(colour = "red")
+  expect_type(x <- as.list(x), "list")
+  expect_s7_class(convert(x, element_rect), element_rect)
+
+  # For now, element_text doesn't round-trip.
+  # Once fontwidth/fontweight/italic are implemented, it should round-trip again
+  x <- as.list(element_text(colour = "red"))
+  expect_snapshot_warning(
+    convert(x, element_text)
+  )
+  x <- x[setdiff(names(x), c("fontwidth", "fontweight", "italic"))]
+  expect_silent(convert(x, element_text))
 })
 
 # Visual tests ------------------------------------------------------------
@@ -1132,6 +1175,10 @@ test_that("legends are placed correctly when using stretchy spacing", {
 
   p <- ggplot(df, aes(x, y, colour = a, shape = factor(x))) +
     geom_point() +
+    guides(
+      colour = guide_legend(order = 1),
+      shape = guide_legend(order = 2)
+    ) +
     theme(
       legend.box.background = element_rect(colour = "blue", fill = NA),
       legend.background = element_rect(colour = "red", fill = NA)

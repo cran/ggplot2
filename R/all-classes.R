@@ -51,6 +51,16 @@
 #' @keywords internal
 NULL
 
+# Compatibility function to include pre-4.0.0 S3 class names in S7 hierarchy
+legacy_parent <- function(name, parent = NULL) {
+  S7::new_class(
+    name = name,
+    parent = parent %||% S7::S7_object,
+    package = NULL,
+    abstract = TRUE
+  )
+}
+
 #' @rdname class_definitions
 #' @section S7 classes:
 #' * `class_gg` is an abstract S7 class to used invoke similar behaviour among
@@ -282,14 +292,13 @@ class_labels <- S7::new_class(
 #' @keywords internal
 #' @export
 class_mapping <- S7::new_class(
-  "mapping", parent = class_S3_gg,
+  "mapping",
+  parent = S7::new_S3_class(c("uneval", "gg")),
   constructor = function(x = list(), ..., env = globalenv()) {
     warn_dots_empty()
     check_object(x, is.list, "a {.cls list}")
     x <- lapply(x, new_aesthetic, env = env)
-    x <- S7::new_object(x)
-    class(x) <- union(c("ggplot2::mapping", "uneval"), class(x))
-    x
+    S7::new_object(x)
   }
 )
 
@@ -320,7 +329,9 @@ class_mapping <- S7::new_class(
 #' @keywords internal
 #' @export
 class_ggplot <- S7::new_class(
-  name = "ggplot", parent = class_gg,
+  name = "ggplot",
+  # This abstract parent declares the unnamespaced S3 compatibility name.
+  parent = legacy_parent("ggplot", class_gg),
   properties = list(
     data    = S7::class_any,
     layers  = S7::class_list,
@@ -387,7 +398,8 @@ class_ggplot <- S7::new_class(
 #' @keywords internal
 #' @export
 class_ggplot_built <- S7::new_class(
-  "ggplot_built", parent = class_gg,
+  name = "ggplot_built",
+  parent = legacy_parent("ggplot_built", class_gg),
   properties = list(
     data   = S7::class_list,
     layout = class_layout,
@@ -408,3 +420,37 @@ class_ggplot_built <- S7::new_class(
     )
   }
 )
+
+# Methods -----------------------------------------------------------------
+
+#' @importFrom S7 convert
+# S7 currently attaches the S3 method to the calling environment which gives `ggplot2:::as.list`
+# Wrap in `local()` to provide a temp environment which throws away the attachment
+local({
+  list_classes <- class_mapping | class_theme | class_labels
+  prop_classes <- class_ggplot | class_ggplot_built
+
+  S7::method(convert, list(from = prop_classes, to = S7::class_list)) <-
+    function(from, to, ...) S7::props(from)
+
+  # S7 already handles conversion from list storage, so this is redundant.
+  # Keep it for compatibility across S7 versions and to avoid recursion if
+  # convert() falls back to as.list(), which calls convert() below.
+  S7::method(convert, list(from = list_classes, to = S7::class_list)) <-
+    function(from, to, ...) unclass(S7::S7_data(from))
+
+  # We're not using union classes here because of S7#510
+  S7::method(as.list, class_gg) <-
+    S7::method(as.list, class_mapping) <-
+    S7::method(as.list, class_theme) <-
+    S7::method(as.list, class_labels) <-
+    function(x, ...) convert(x, S7::class_list)
+
+  S7::method(convert, list(from = S7::class_list, to = prop_classes)) <-
+    function(from, to, ...) inject(to(!!!from))
+
+  S7::method(convert, list(from = S7::class_list, to = list_classes)) <-
+    function(from, to, ...) to(from)
+})
+
+
